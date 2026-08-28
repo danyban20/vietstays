@@ -29,3 +29,9 @@ Thumbs.db
 # Deploy / FTP credentials (never commit)
 sftp-config.json
 **/sftp-config.json
+
+# Archives too large for GitHub (100MB hard limit; 50MB warning)
+vietstays.zip
+resources.zip
+Interactive booking dashboard design 2.zip
+**/visitvietnam.zip
