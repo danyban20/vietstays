@@ -1,0 +1,11 @@
+.hb_wc_cart_package_item td {
+    padding: 8px !important;
+}
+
+.woocommerce .hb_wc_cart_package_item td img {
+    width: 40px !important;
+}
+
+body.woocommerce-cart .woocommerce-cart-form tr.required-extra .product-remove a, body.woocommerce-cart .woocommerce-cart-form .hb_wc_cart_package_item .product-thumbnail a {
+    display: none;
+}

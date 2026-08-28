@@ -1,0 +1,131 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-14 10:56+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/class-hb-wc-booking.php:86
+msgid "Via WooCommerce"
+msgstr ""
+
+#: includes/class-hb-wc-checkout.php:169 includes/class-hb-wc-checkout.php:175
+msgid "Empty Booking Notes"
+msgstr ""
+
+#: includes/class-hb-wc-settings.php:40
+#: includes/admin/views/wc-settings.php:11
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/admin/views/wc-is-not-installed.php:14
+msgid ""
+"The <strong>WooCommerce</strong> is not installed and/or activated. Please "
+"install and/or activate before you can using <strong>WP Hotel Booking "
+"WooCommerce</strong> add-on."
+msgstr ""
+
+#: includes/admin/views/wc-settings.php:12
+msgid "Settings for WooCommerce addon"
+msgstr ""
+
+#: includes/admin/views/wc-settings.php:15
+msgid "Enable"
+msgstr ""
+
+#: includes/admin/views/wc-settings.php:21
+msgid "Check this option to enable make booking payments via WooCommerce"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:35
+#: templates/woocommerce/cart/cart.php:84
+#: templates/woocommerce/checkout/review-order.php:29
+#: templates/woocommerce/emails/email-order-details.php:41
+msgid "Product"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:37
+#: templates/woocommerce/checkout/review-order.php:30
+msgid "Check In - Check Out"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:39
+#: templates/woocommerce/cart/cart.php:109
+#: templates/woocommerce/emails/email-order-details.php:53
+msgid "Price"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:40
+#: templates/woocommerce/cart/cart.php:116
+#: templates/woocommerce/emails/email-order-details.php:51
+msgid "Quantity"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:41
+#: templates/woocommerce/cart/cart.php:135
+#: templates/woocommerce/checkout/review-order.php:31
+#: templates/woocommerce/checkout/review-order.php:113
+msgid "Total"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:62
+msgid "Remove this item"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:99
+msgid "Available on backorder"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:153
+msgid "Coupon:"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:156
+msgid "Coupon code"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:158
+msgid "Apply coupon"
+msgstr ""
+
+#: templates/woocommerce/cart/cart.php:164
+msgid "Update cart"
+msgstr ""
+
+#: templates/woocommerce/checkout/review-order.php:66
+msgid "Subtotal"
+msgstr ""
+
+#: templates/woocommerce/emails/email-order-details.php:25
+#: templates/woocommerce/emails/email-order-details.php:30
+#, php-format
+msgid "Order #%s"
+msgstr ""
+
+#: templates/woocommerce/emails/email-order-details.php:44
+msgid "Check in"
+msgstr ""
+
+#: templates/woocommerce/emails/email-order-details.php:47
+msgid "Check out"
+msgstr ""
+
+#: templates/woocommerce/emails/email-order-details.php:85
+msgid "Note:"
+msgstr ""
+
+#: templates/woocommerce/emails/email-order-items.php:51
+msgid "Product image"
+msgstr ""

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:relative;height:100%;display:flex;flex-direction:column;overflow:hidden;background:#f8f1e7;color:#1c2b23;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+  <sc-if value="{{ isActive }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:none;background:#8a4b32;padding:12px 24px;display:flex;align-items:center;gap:14px">
+    <div style="width:40px;height:40px;flex:none;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">{{ crest }}</div>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+        <span style="font-size:18.5px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pageTitle }}</span>
+        <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.18);color:#ffe9dc;white-space:nowrap">Paraplyselskap</span>
+        <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.18);color:#ffe9dc;white-space:nowrap">{{ legalBadge }}</span>
+      </div>
+      <div style="font-size:12.5px;color:#eccbba;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pageSubtitle }}</div>
+    </div>
+    <div style="flex:none;text-align:right">
+      <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#e0b39d;white-space:nowrap">Din bedrift</div>
+      <div style="font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap">Du er eier</div>
+    </div>
+  </div>
+  <div style="flex:none;background:#fff;border-bottom:1px solid #ecdfd2;display:flex;align-items:center;gap:2px;padding:0 20px 0 24px">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+      <div onClick="{{ t.onClick }}" style="padding:12px 15px;font-size:13.5px;font-weight:{{ t.weight }};cursor:pointer;color:{{ t.color }};border-bottom:3px solid {{ t.borderColor }};white-space:nowrap" style-hover="color:#8a4b32">{{ t.label }}</div>
+    </sc-for>
+  </div>
+  </sc-if>
+  <div style="flex:1;display:flex;min-height:0;overflow:hidden">
+  <div style="flex:1;overflow-y:auto;min-height:0;padding:18px 24px 28px">
+      <sc-if value="{{ notActive }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="font-size:22px;font-weight:700;color:#1c2b23">{{ pageTitle }}</div>
+          </div>
+          <div style="color:#5e6b62;font-style:italic;font-size:14.5px;margin-top:3px">{{ pageSubtitle }}</div>
+        </div>
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:8px;flex:none;align-self:center">
+            <div onClick="{{ onStartSetup }}" style="padding:10px 18px;border-radius:8px;background:#12352b;color:#fff;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:#1c4a3b">Opprett forvaltningsbedrift</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ onCancelSetup }}" style="flex:none;align-self:center;font-size:12.5px;font-weight:600;color:#8a9187;cursor:pointer">Avbryt</div>
+        </sc-if>
+      </div>
+      </sc-if>
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:22px 24px">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:44px;height:44px;flex:none;border-radius:11px;background:#12352b;display:flex;align-items:center;justify-content:center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2ead9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"></rect><line x1="8" y1="8" x2="8" y2="8.01"></line><line x1="12" y1="8" x2="12" y2="8.01"></line><line x1="16" y1="8" x2="16" y2="8.01"></line><line x1="8" y1="12" x2="8" y2="12.01"></line><line x1="12" y1="12" x2="12" y2="12.01"></line><line x1="16" y1="12" x2="16" y2="12.01"></line><line x1="10" y1="21" x2="10" y2="16"></line><line x1="14" y1="21" x2="14" y2="16"></line></svg>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:19px;font-weight:700;letter-spacing:-.2px">Du har ingen forvaltningsbedrift</div>
+                <div style="font-size:13.5px;color:#5e6b62;margin-top:3px;text-wrap:pretty">Et paraplyselskap der flere verter forvalter leilighetene sine sammen. Du velger selv hvilke av dine som blir med.</div>
+              </div>
+              <div onClick="{{ onOpenHow }}" style="flex:none;padding:11px 17px;border-radius:9px;border:1px solid #ddd5bd;background:#fff;font-size:13.5px;font-weight:600;color:#43503f;cursor:pointer;white-space:nowrap" style-hover="background:#faf6ec">Slik fungerer det</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid #f2ead9">
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <div style="width:38px;height:38px;flex:none;border-radius:10px;background:#e5f3e9;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><rect x="3" y="9" width="7" height="12"></rect><rect x="14" y="4" width="7" height="17"></rect><line x1="6" y1="13" x2="6.01" y2="13"></line><line x1="17" y1="9" x2="17.01" y2="9"></line></svg></div>
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:700;text-wrap:pretty">Tilby dine kunder flere leiligheter</div>
+                  <div style="font-size:13px;color:#5e6b62;line-height:1.5;margin-top:4px;text-wrap:pretty">Er din leilighet opptatt, kan du med én gang tilby kunden en av medvertenes — du mister ikke bookingen til en annen vert.</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <div style="width:38px;height:38px;flex:none;border-radius:10px;background:#e5f3e9;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"></path><circle cx="9.5" cy="7" r="3.5"></circle><path d="M17 4.2a3.5 3.5 0 0 1 0 6.6"></path><path d="M19.5 20v-1.5a4 4 0 0 0-2.5-3.7"></path></svg></div>
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:700;text-wrap:pretty">Få hjelp fra medvertene dine</div>
+                  <div style="font-size:13px;color:#5e6b62;line-height:1.5;margin-top:4px;text-wrap:pretty">I høysesong fordeles forespørsler og oppfølging mellom vertene i paraplyen, i stedet for at du sitter med alt salgsarbeidet selv.</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <div style="width:38px;height:38px;flex:none;border-radius:10px;background:#e5f3e9;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="9" cy="6" rx="6" ry="2.6"></ellipse><path d="M3 6v5c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6V6"></path><path d="M3 11v5c0 1.4 2.7 2.6 6 2.6 1 0 2-.1 2.8-.3"></path><circle cx="17" cy="16" r="4.4"></circle><path d="M17 14.1v3.8M18.2 15.1h-1.7a.9.9 0 0 0 0 1.8h1a.9.9 0 0 1 0 1.8h-1.7"></path></svg></div>
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:700;text-wrap:pretty">Felles driftsteam — lavere kostnader</div>
+                  <div style="font-size:13px;color:#5e6b62;line-height:1.5;margin-top:4px;text-wrap:pretty">Flere leiligheter gir nok oppgaver til at ett felles team kan gå fulle dager, og kostnaden per opphold går ned.</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
+              <div onClick="{{ onStartSetup }}" style="flex:none;padding:11px 19px;border-radius:9px;background:#12352b;color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:#1c4a3b">Opprett forvaltningsbedrift</div>
+              <div style="font-size:12.5px;color:#8a9187;text-wrap:pretty">Ingen registrering kreves for å starte — org.nr og MVA er valgfritt senere.</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px;align-items:start">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:16px 18px;box-sizing:border-box">
+              <div style="font-size:19px;font-weight:700;letter-spacing:-.2px;margin-bottom:6px">Bli co-host i stedet</div>
+              <div style="font-size:12.5px;color:#5e6b62;line-height:1.55;text-wrap:pretty">Skal dere bare jobbe sammen og tilby hverandres leiligheter av og til? Da trenger dere ikke felles selskap. Som co-host deler dere kun salg og bookinger — den som eier leiligheten står fortsatt for renhold, drift og egen økonomi.</div>
+              <div style="margin-top:12px;display:inline-block;white-space:nowrap;padding:8px 14px;border-radius:8px;border:1px solid #cfe0d3;background:#fff;font-size:12.5px;font-weight:700;color:#12352b;cursor:pointer" style-hover="background:#eef6f0">Legg til co-host i stedet</div>
+            </div>
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start">
+              <div style="width:34px;height:34px;flex:none;border-radius:9px;background:#e5f3e9;display:flex;align-items:center;justify-content:center">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1f7a44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15v-4a6 6 0 1 0-12 0v4l-1.5 3h15z"></path><path d="M10 21h4"></path></svg>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:flex-start;gap:8px">
+                  <div style="font-size:19px;font-weight:700;letter-spacing:-.2px;flex:1;min-width:0;text-wrap:pretty">Lars Ø. Bakken inviterer deg til Hanoi Bay Property</div>
+                  <span style="flex:none;width:8px;height:8px;border-radius:50%;background:#e0a458;margin-top:5px"></span>
+                </div>
+                <div style="font-size:11.5px;color:#9a9484;margin-top:3px">Invitasjon · i dag 09:14 · 3 verter · 19 leiligheter</div>
+                <div style="font-size:12.5px;color:#5e6b62;line-height:1.5;margin-top:7px;text-wrap:pretty">Du velger selv hvilke av dine {{ myAptTotal }} leiligheter du tar med. De andre vertene ser bare de leilighetene du legger inn.</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+                  <div onClick="{{ onAcceptInvite }}" style="flex:none;box-sizing:border-box;white-space:nowrap;padding:8px 15px;border-radius:8px;background:#12352b;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer" style-hover="background:#1c4a3b">Se invitasjonen</div>
+                  <div style="flex:none;box-sizing:border-box;white-space:nowrap;padding:8px 15px;border-radius:8px;border:1px solid #ddd5bd;font-size:12.5px;font-weight:600;color:#43503f;cursor:pointer" style-hover="background:#faf6ec">Avslå</div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:16px 18px;box-sizing:border-box">
+              <div style="font-size:19px;font-weight:700;letter-spacing:-.2px;margin-bottom:6px;color:#43503f">Vertsportalen</div>
+              <div style="font-size:12.5px;color:#5e6b62;line-height:1.55;text-wrap:pretty">Verter som vil samarbeide finner hverandre i vertsportalen. Der kan dere ta kontakt, avtale co-host eller bli enige om en paraply — Vietstays kobler dere først når begge parter ønsker det.</div>
+              <div style="margin-top:12px;font-size:12.5px;font-weight:700;color:#12352b;text-decoration:underline;cursor:pointer;display:inline-block">Åpne vertsportalen</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:1180px">
+          <div style="display:flex;align-items:flex-start;padding:2px 6px 18px;max-width:620px">
+            <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.onClick }}" style="display:flex;flex-direction:column;align-items:center;flex:none;cursor:pointer">
+                <span style="width:24px;height:24px;border-radius:50%;background:{{ s.dotBg }};border:{{ s.dotBorder }};box-sizing:border-box;flex:none;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:{{ s.markColor }}">{{ s.mark }}</span>
+                <span style="font-size:13px;font-weight:700;color:{{ s.labelColor }};margin-top:7px;white-space:nowrap">{{ s.label }}</span>
+              </div>
+              <sc-if value="{{ s.hasLine }}" hint-placeholder-val="{{ true }}">
+                <div style="flex:1;height:3px;background:{{ s.lineColor }};margin-top:11px;min-width:20px"></div>
+              </sc-if>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ step1 }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:20px 22px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:14px">Navn og form</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <div style="font-size:11.5px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Navn på forvaltningsbedriften</div>
+                  <input value="{{ form.name }}" onChange="{{ onFormName }}" placeholder="f.eks. Saigon Homes Forvaltning" style="width:100%;padding:11px 13px;border-radius:9px;border:1px solid #ddd5bd;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none"></input>
+                  <div style="font-size:11.5px;color:#8a9187;margin-top:6px">Navnet vises til gjester på annonser fra bedriftens leiligheter.</div>
+                </div>
+                <div>
+                  <div style="font-size:11.5px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Kort beskrivelse <span style="color:#b0a894">· valgfritt</span></div>
+                  <input value="{{ form.tagline }}" onChange="{{ onFormTagline }}" placeholder="f.eks. Tre verter i Ho Chi Minh City" style="width:100%;padding:11px 13px;border-radius:9px;border:1px solid #ddd5bd;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none"></input>
+                  <div style="font-size:12px;color:#8a9187;margin-top:6px">Kan legges til senere.</div>
+                </div>
+              </div>
+              <div style="margin-top:16px;font-size:11.5px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Juridisk form</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <sc-for list="{{ legalOptions }}" as="o" hint-placeholder-count="2">
+                  <div onClick="{{ o.onClick }}" style="border:1.5px solid {{ o.border }};background:{{ o.bg }};border-radius:11px;padding:16px 18px;cursor:pointer">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <span style="width:17px;height:17px;flex:none;border-radius:50%;border:1.5px solid {{ o.dotBorder }};background:{{ o.dotBg }};box-shadow:{{ o.dotShadow }}"></span>
+                      <div style="font-size:15px;font-weight:700">{{ o.title }}</div>
+                    </div>
+                    <div style="font-size:13.5px;color:#5e6b62;line-height:1.55;margin-top:9px;text-wrap:pretty">{{ o.body }}</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-top:13px;padding-top:13px;border-top:1px solid #eee6d0">
+                      <sc-for list="{{ o.points }}" as="p" hint-placeholder-count="3">
+                        <div style="display:flex;align-items:flex-start;gap:9px">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1f7a44" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          <div style="font-size:13.5px;line-height:1.5;text-wrap:pretty"><span style="font-weight:700">{{ p.strong }}</span> <span style="color:#5e6b62">{{ p.rest }}</span></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ step2 }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:20px 22px">
+              <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:6px">
+                <div style="flex:1">
+                  <div style="font-size:15px;font-weight:700">Velg leiligheter til bedriften</div>
+                  <div style="font-size:12.5px;color:#8a9187;margin-top:4px">Du velger hvilke av dine {{ myAptTotal }} leiligheter som legges inn. Resten forblir helt private.</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;background:#f2f7f3;border:1px solid #cfe0d3;border-radius:10px;padding:12px 15px;margin-top:12px">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+                <div style="font-size:12.5px;color:#1f5b3f;font-weight:600">Kun du ser hele listen. De andre vertene ser bare leilighetene du legger inn — mange verter holder premium-leilighetene utenfor og legger inn resten.</div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+                <sc-for list="{{ myAptStats }}" as="k" hint-placeholder-count="3">
+                  <div style="background:#faf6ec;border:1px solid #eee6d0;border-radius:11px;padding:13px 15px">
+                    <div style="font-size:11px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">{{ k.label }}</div>
+                    <div style="font-size:21px;font-weight:700;margin-top:5px">{{ k.value }}</div>
+                    <div style="font-size:11.5px;color:#8a9187;margin-top:2px">{{ k.sub }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:16px;border:1px solid #eee6d0;border-radius:11px;overflow:hidden">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 15px;background:#faf6ec;border-bottom:1px solid #eee6d0;flex-wrap:wrap">
+                  <div style="font-size:11px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">Standard</div>
+                  <div style="display:flex;gap:5px">
+                    <sc-for list="{{ segFilters }}" as="sf" hint-placeholder-count="5">
+                      <div onClick="{{ sf.onClick }}" style="padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;cursor:pointer;background:{{ sf.bg }};color:{{ sf.color }};border:1px solid {{ sf.border }};white-space:nowrap">{{ sf.label }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="flex:1;min-width:20px"></div>
+                  <div style="font-size:11.5px;color:#8a9187">{{ listSummary }}</div>
+                  <div onClick="{{ onSelectAll }}" style="font-size:11.5px;font-weight:700;color:#12352b;cursor:pointer;text-decoration:underline">Velg alle</div>
+                  <div onClick="{{ onSelectNone }}" style="font-size:11.5px;font-weight:700;color:#8a9187;cursor:pointer;text-decoration:underline">Fjern alle</div>
+                </div>
+                <div style="display:grid;grid-template-columns:24px 104px minmax(0,1fr) 108px 84px 132px 112px 92px;gap:18px;padding:9px 15px;background:#fdfbf5;border-bottom:1px solid #eee6d0;font-size:10.5px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">
+                  <div></div>
+                  <sc-for list="{{ aptCols }}" as="c" hint-placeholder-count="7">
+                    <div onClick="{{ c.onClick }}" style="cursor:pointer;text-align:{{ c.align }};color:{{ c.color }};white-space:nowrap" style-hover="color:#12352b">{{ c.label }}{{ c.arrow }}</div>
+                  </sc-for>
+                </div>
+                <sc-for list="{{ myApts }}" as="a" hint-placeholder-count="15">
+                  <div onClick="{{ a.onToggle }}" style="display:grid;grid-template-columns:24px 104px minmax(0,1fr) 108px 84px 132px 112px 92px;gap:18px;align-items:center;padding:10px 15px;border-top:1px solid #f7f2e6;cursor:pointer;background:{{ a.rowBg }}" style-hover="background:#f4f8f4">
+                    <span style="width:18px;height:18px;border-radius:5px;border:1.5px solid {{ a.boxBorder }};background:{{ a.boxBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ a.check }}</span>
+                    <span style="font-family:monospace;font-weight:700;font-size:10.5px;background:#f0ecdf;color:#43503f;border-radius:4px;padding:2px 6px;justify-self:start">{{ a.code }}</span>
+                    <span style="font-size:12.5px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:{{ a.nameColor }}">{{ a.name }}</span>
+                    <span style="font-size:12.5px;color:#5e6b62">{{ a.beds }}</span>
+                    <span style="font-size:12.5px;color:#5e6b62;text-align:right">{{ a.sqm }}</span>
+                    <span style="font-size:12.5px;color:#5e6b62;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.district }}</span>
+                    <span style="font-size:11.5px;font-weight:700;background:{{ a.segBg }};color:{{ a.segColor }};border-radius:999px;padding:3px 10px;justify-self:start;white-space:nowrap">{{ a.seg }}</span>
+                    <span style="font-size:12.5px;font-weight:700;text-align:right">{{ a.rate }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ step3 }}"          <sc-if value="{{ step3 }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:20px 22px">
+              <div style="font-size:15px;font-weight:700">Inviter verter</div>
+              <div style="font-size:12.5px;color:#8a9187;margin-top:4px;margin-bottom:16px">Hver invitert vert velger selv hvilke leiligheter de tar med, akkurat som deg.</div>
+              <div style="position:relative;margin-bottom:14px">
+                <div style="display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:9px;border:1px solid #ddd5bd;background:#fff">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a9187" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+                  <input value="{{ form.invite }}" onChange="{{ onFormInvite }}" placeholder="Søk etter navn, e-post eller vert-ID" style="flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:#1c2b23"></input>
+                </div>
+                <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;left:0;right:0;top:47px;z-index:5;background:#fff;border:1px solid #ddd5bd;border-radius:10px;box-shadow:0 12px 28px rgba(28,43,35,.13);overflow:hidden">
+                    <sc-for list="{{ searchResults }}" as="s" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:11px;padding:10px 13px;border-bottom:1px solid #f7f2e6">
+                        <div style="width:30px;height:30px;flex:none;border-radius:50%;background:#f0ecdf;color:#43503f;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700">{{ s.initials }}</div>
+                        <div style="flex:1;min-width:0">
+                          <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px">
+                            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.name }}</span>
+                            <sc-if value="{{ s.verified }}" hint-placeholder-val="{{ true }}"><span style="font-size:9.5px;font-weight:700;color:#1f7a44;background:#e5f3e9;border-radius:999px;padding:2px 6px">ID-VERIFISERT</span></sc-if>
+                          </div>
+                          <div style="font-size:11.5px;color:#9a9484;margin-top:2px">{{ s.meta }}</div>
+                        </div>
+                        <div onClick="{{ s.onInvite }}" style="flex:none;padding:7px 14px;border-radius:8px;background:{{ s.btnBg }};color:{{ s.btnColor }};border:1px solid {{ s.btnBorder }};font-size:12px;font-weight:700;cursor:pointer">{{ s.btnLabel }}</div>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ searchNone }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 13px;font-size:12.5px;color:#8a9187">Ingen treff. Verten må ha konto i Vietstay for å bli invitert.</div>
+                    </sc-if>
+                    <div style="padding:9px 13px;background:#faf6ec;font-size:11.5px;color:#8a9187">Før verten godtar ser du bare navn og vert-ID — aldri leiligheter, priser eller drift.</div>
+                  </div>
+                </sc-if>
+              </div>
+              <sc-for list="{{ setupMembers }}" as="m" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #f2ead9">
+                  <div style="width:34px;height:34px;flex:none;border-radius:50%;background:{{ m.avBg }};color:{{ m.avColor }};display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ m.initials }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px">
+                      <span>{{ m.name }}</span>
+                      <sc-if value="{{ m.isYou }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px;font-weight:700;color:#1f7a44;background:#e5f3e9;border-radius:999px;padding:2px 7px">DEG</span></sc-if>
+                    </div>
+                    <div style="font-size:11.5px;color:#8a9187;margin-top:2px">{{ m.meta }}</div>
+                  </div>
+                  <div style="flex:none;font-size:12.5px;font-weight:700;color:{{ m.aptColor }};background:{{ m.aptBg }};border-radius:999px;padding:4px 10px">{{ m.aptLabel }}</div>
+                  <div style="flex:none;width:104px;text-align:right;font-size:11.5px;font-weight:700;color:{{ m.stColor }}">{{ m.status }}</div>
+                </div>
+              </sc-for>
+              <sc-for list="{{ pendingRows }}" as="p" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #f2ead9;background:#fdfbf5">
+                  <div style="width:34px;height:34px;flex:none;border-radius:50%;background:#f0ecdf;color:#43503f;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ p.initials }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13.5px;font-weight:600">{{ p.name }}</div>
+                    <div style="font-size:11.5px;color:#8a9187;margin-top:2px">{{ p.meta }}</div>
+                  </div>
+                  <div style="flex:none;font-size:12px;font-weight:600;color:#9a9484;background:#f6f1e4;border-radius:999px;padding:4px 10px">Skjult til godkjenning</div>
+                  <div style="flex:none;width:104px;text-align:right;font-size:11.5px;font-weight:700;color:#c8861f">Venter svar</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ step4 }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:20px 22px">
+              <div style="font-size:15px;font-weight:700">Hvordan deler dere omsetningen?</div>
+              <div style="font-size:12.5px;color:#8a9187;margin-top:4px;margin-bottom:16px">Modellen bestemmer også hvor mye hver vert får se av den samlede økonomien.</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ models }}" as="o" hint-placeholder-count="3">
+                  <div onClick="{{ o.onClick }}" style="border:1.5px solid {{ o.border }};background:{{ o.bg }};border-radius:11px;padding:14px 16px;cursor:pointer;display:flex;gap:13px;align-items:flex-start">
+                    <span style="width:16px;height:16px;flex:none;margin-top:2px;border-radius:50%;border:1.5px solid {{ o.dotBorder }};background:{{ o.dotBg }};box-shadow:{{ o.dotShadow }}"></span>
+                    <div style="flex:1;min-width:0">
+                      <div style="display:flex;align-items:center;gap:9px">
+                        <div style="font-size:13.5px;font-weight:700">{{ o.title }}</div>
+                        <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:2px 8px;background:{{ o.tagBg }};color:{{ o.tagColor }}">{{ o.tag }}</span>
+                      </div>
+                      <div style="font-size:12.5px;color:#5e6b62;line-height:1.5;margin-top:6px;text-wrap:pretty">{{ o.body }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:18px;border:1px solid #eee6d0;border-radius:11px;overflow:hidden">
+                <div style="display:grid;grid-template-columns:minmax(0,1.3fr) .9fr .8fr .8fr .7fr;gap:10px;padding:10px 15px;background:#faf6ec;font-size:11px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">
+                  <div>Vert</div><div>Grunnlag</div><div>Vert siden</div><div>Vurdering</div><div style="text-align:right">Eierandel</div>
+                </div>
+                <sc-for list="{{ splitRows }}" as="r" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:minmax(0,1.3fr) .9fr .8fr .8fr .7fr;gap:10px;padding:11px 15px;border-top:1px solid #f7f2e6;align-items:center">
+                    <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</div>
+                    <div style="font-size:12px;color:#8a9187">{{ r.setupBasis }}</div>
+                    <div style="font-size:12px;color:#5e6b62">{{ r.since }}<span style="color:#9a9484"> · {{ r.years }}</span></div>
+                    <div style="font-size:12px;color:#5e6b62">{{ r.rating }}<span style="color:#9a9484"> · {{ r.stays }} opphold</span></div>
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px">
+                      <input value="{{ r.pctVal }}" onChange="{{ r.onPctChange }}" type="number" min="0" max="100" style="width:52px;padding:6px 7px;border-radius:7px;border:1px solid #ddd5bd;background:#fff;font-size:12.5px;font-weight:700;font-family:inherit;text-align:right;color:#1c2b23;outline:none;box-sizing:border-box"></input>
+                      <span style="font-size:12px;color:#8a9187">%</span>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-for list="{{ pendingRows }}" as="p" hint-placeholder-count="0">
+                  <div style="display:grid;grid-template-columns:minmax(0,1.3fr) .9fr .8fr .8fr .7fr;gap:10px;padding:11px 15px;border-top:1px solid #f7f2e6;align-items:center;background:#fdfbf5">
+                    <div style="font-size:13px;font-weight:600;color:#8a9187;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.name }}</div>
+                    <div style="font-size:12px;color:#b3ab98">Venter godkjenning</div>
+                    <div style="font-size:12px;color:#b3ab98">—</div>
+                    <div style="font-size:12px;color:#b3ab98">—</div>
+                    <div style="text-align:right;font-size:12px;color:#b3ab98">—</div>
+                  </div>
+                </sc-for>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-top:1px solid #eee6d0;background:#fdfbf5">
+                  <div style="flex:1;font-size:12px;color:#8a9187">{{ suggestedLabel }}</div>
+                  <div onClick="{{ onUseSuggested }}" style="font-size:11.5px;font-weight:700;color:#12352b;cursor:pointer;text-decoration:underline">Bruk forslaget</div>
+                  <div style="font-size:12.5px;font-weight:700;color:{{ shareTotalColor }};width:74px;text-align:right">{{ shareTotalLabel }}</div>
+                </div>
+                <div style="padding:11px 15px;border-top:1px solid #f7f2e6;font-size:12.5px;color:#5e6b62;line-height:1.5;text-wrap:pretty">{{ splitSetupNote }}<br></br><span style="font-weight:700;color:{{ shareTotalColor }}">{{ shareTotalNote }}</span></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;align-items:center;gap:10px;margin-top:16px">
+            <div onClick="{{ onStepBack }}" style="padding:11px 18px;border-radius:9px;border:1px solid #ddd5bd;background:#fff;font-size:13.5px;font-weight:600;color:#43503f;cursor:pointer" style-hover="background:#faf6ec">Tilbake</div>
+            <div style="flex:1;font-size:12.5px;color:#8a9187">{{ stepHint }}</div>
+            <div onClick="{{ onStepNext }}" style="padding:11px 20px;border-radius:9px;background:#12352b;color:#fff;font-size:13.5px;font-weight:700;cursor:pointer" style-hover="background:#1c4a3b">{{ nextLabel }}</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isActive }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ tabOverview }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:13px 15px">
+                <div style="font-size:11px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">{{ k.label }}</div>
+                <div style="font-size:22px;font-weight:700;margin-top:6px;letter-spacing:-.3px">{{ k.value }}</div>
+                <div style="font-size:11.5px;color:{{ k.subColor }};margin-top:3px">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:16px 18px">
+              <div style="font-size:14.5px;font-weight:700;margin-bottom:3px">Verter i bedriften</div>
+              <div style="font-size:12.5px;color:#8a9187;margin-bottom:6px">Hver vert eier sine egne leiligheter — bedriften forvalter dem</div>
+              <sc-for list="{{ members }}" as="m" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid #f2ead9">
+                  <div style="width:34px;height:34px;flex:none;border-radius:50%;background:{{ m.avBg }};color:{{ m.avColor }};display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ m.initials }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px">
+                      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.name }}</span>
+                      <sc-if value="{{ m.isYou }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px;font-weight:700;color:#1f7a44;background:#e5f3e9;border-radius:999px;padding:2px 7px">DEG</span></sc-if>
+                    </div>
+                    <div style="font-size:11.5px;color:#8a9187;margin-top:2px">{{ m.role }} · {{ m.teamLabel }}</div>
+                  </div>
+                  <div style="flex:none;text-align:right">
+                    <div style="font-size:13px;font-weight:700">{{ m.aptLabel }}</div>
+                    <div style="font-size:11px;color:#9a9484">i bedriften</div>
+                  </div>
+                  <div style="flex:none;width:88px;text-align:right">
+                    <div style="font-size:13px;font-weight:700;color:#1f7a44">{{ m.share }}</div>
+                    <div style="font-size:11px;color:#9a9484">{{ m.shareBasis }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:16px 18px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                  <div style="font-size:14.5px;font-weight:700;flex:1">Fordelingsmodell</div>
+                  <div onClick="{{ onGoModel }}" style="font-size:12px;font-weight:700;color:#1f7a44;cursor:pointer">Endre</div>
+                </div>
+                <div style="font-size:13.5px;font-weight:700;margin-bottom:4px">{{ modelLabel }}</div>
+                <div style="font-size:12.5px;color:#5e6b62;line-height:1.5;text-wrap:pretty">{{ modelSummary }}</div>
+                <div style="margin-top:12px;display:flex;flex-direction:column;gap:7px">
+                  <sc-for list="{{ splitRows }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:10px;font-size:12.5px">
+                      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+                      <span style="font-weight:700">{{ r.amount }}</span>
+                      <span style="width:44px;text-align:right;font-weight:700;color:#1f7a44">{{ r.pct }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:#fbf6ea;border:1px solid #eadfc4;border-radius:12px;padding:15px 17px">
+                <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Felles driftsteam er aktivt</div>
+                <div style="font-size:12.5px;color:#5e6b62;line-height:1.5;text-wrap:pretty">{{ teamCount }} personer fra tre verter varsles automatisk ved booking i bedriftens leiligheter. Fjerner du noen fra bedriften, blir de værende i din egen driftsliste.</div>
+                <div onClick="{{ onGoTeam }}" style="margin-top:11px;display:inline-block;padding:8px 14px;border-radius:8px;background:#12352b;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer" style-hover="background:#1c4a3b">Åpne driftsteam</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabMembers }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:minmax(0,1.7fr) 1fr 1fr 1fr .9fr;gap:12px;padding:11px 18px;background:#faf6ec;border-bottom:1px solid #eee6d0;font-size:11px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">
+              <div>Vert</div><div>Leiligheter inn</div><div>Utbetaling august</div><div>Driftsteam inn</div><div style="text-align:right">Andel</div>
+            </div>
+            <sc-for list="{{ members }}" as="m" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:minmax(0,1.7fr) 1fr 1fr 1fr .9fr;gap:12px;padding:13px 18px;border-bottom:1px solid #f2ead9;align-items:center" style-hover="background:#fcfaf4">
+                <div style="display:flex;align-items:center;gap:11px;min-width:0">
+                  <div style="width:32px;height:32px;flex:none;border-radius:50%;background:{{ m.avBg }};color:{{ m.avColor }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ m.initials }}</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.name }}</div>
+                    <div style="font-size:11px;color:#9a9484">{{ m.role }}</div>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:700">{{ m.aptLabel }}</div>
+                  <div style="font-size:11px;color:#9a9484">{{ m.aptPrivateLabel }}</div>
+                </div>
+                <div style="font-size:13px;font-weight:600">{{ m.revenue }}</div>
+                <div style="font-size:13px;font-weight:600">{{ m.teamLabel }}</div>
+                <div style="text-align:right;font-size:13px;font-weight:700;color:#1f7a44">{{ m.share }}</div>
+              </div>
+            </sc-for>
+            <div style="padding:13px 18px;font-size:12.5px;color:#5e6b62;line-height:1.5;text-wrap:pretty">Hver vert bestemmer selv hvilke av sine leiligheter som ligger i bedriften. Antallet privat-holdte leiligheter er skjult for de andre — du ser bare dine egne.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabModel }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ models }}" as="o" hint-placeholder-count="3">
+                <div onClick="{{ o.onClick }}" style="border:1.5px solid {{ o.border }};background:{{ o.bg }};border-radius:12px;padding:15px 17px;cursor:pointer;display:flex;gap:13px;align-items:flex-start">
+                  <span style="width:16px;height:16px;flex:none;margin-top:2px;border-radius:50%;border:1.5px solid {{ o.dotBorder }};background:{{ o.dotBg }};box-shadow:{{ o.dotShadow }}"></span>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+                      <div style="font-size:14px;font-weight:700">{{ o.title }}</div>
+                      <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:2px 8px;background:{{ o.tagBg }};color:{{ o.tagColor }}">{{ o.tag }}</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#5e6b62;line-height:1.55;margin-top:6px;text-wrap:pretty">{{ o.body }}</div>
+                    <div style="font-size:12px;color:#8a9187;margin-top:8px">Innsyn: {{ o.visibility }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;overflow:hidden">
+              <div style="padding:14px 17px;border-bottom:1px solid #f2ead9">
+                <div style="font-size:14.5px;font-weight:700">Slik slår modellen ut i august</div>
+                <div style="font-size:12.5px;color:#8a9187;margin-top:3px">Brutto omsetning 412,5M VND</div>
+              </div>
+              <sc-for list="{{ splitRows }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 17px;border-bottom:1px solid #f7f2e6">
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</div>
+                    <div style="font-size:11.5px;color:#9a9484;margin-top:2px">{{ r.basis }}</div>
+                  </div>
+                  <div style="flex:none;display:flex;align-items:center;gap:9px">
+                    <div style="font-size:13.5px;font-weight:700;width:74px;text-align:right">{{ r.amount }}</div>
+                    <input value="{{ r.pctVal }}" onChange="{{ r.onPctChange }}" type="number" min="0" max="100" style="width:54px;padding:6px 7px;border-radius:7px;border:1px solid #ddd5bd;background:#fff;font-size:12.5px;font-weight:700;font-family:inherit;text-align:right;color:#1c2b23;outline:none;box-sizing:border-box"></input>
+                    <span style="font-size:12px;color:#8a9187;width:12px">%</span>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:10px;padding:11px 17px;border-bottom:1px solid #f7f2e6;background:#fdfbf5">
+                <div style="flex:1;font-size:12px;color:#8a9187">{{ suggestedLabel }}</div>
+                <div onClick="{{ onUseSuggested }}" style="font-size:11.5px;font-weight:700;color:#12352b;cursor:pointer;text-decoration:underline">Bruk forslaget</div>
+                <div style="font-size:12.5px;font-weight:700;color:{{ shareTotalColor }};width:52px;text-align:right">{{ shareTotalLabel }}</div>
+              </div>
+              <div style="padding:13px 17px;font-size:12.5px;color:#5e6b62;line-height:1.55;text-wrap:pretty">{{ splitNote }}<br></br><span style="font-weight:700;color:{{ shareTotalColor }}">{{ shareTotalNote }}</span></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabTeam }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;overflow:hidden">
+            <div style="display:flex;align-items:flex-start;gap:14px;padding:15px 18px;border-bottom:1px solid #f2ead9">
+              <div style="flex:1">
+                <div style="font-size:14.5px;font-weight:700">Felles driftsteam</div>
+                <div style="font-size:12.5px;color:#8a9187;margin-top:4px;line-height:1.5;text-wrap:pretty">Driftsteamene til alle tre vertene er smeltet inn. Alle verter kan sende oppgaver og meldinger til hele teamet, og teamet varsles automatisk ved nye bookinger.</div>
+              </div>
+              <div style="flex:none;font-size:12.5px;font-weight:700;color:#43503f;background:#f0ecdf;border-radius:999px;padding:5px 11px">{{ teamActiveLabel }}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:minmax(0,1.6fr) 1fr 1fr 1.1fr 120px;gap:12px;padding:11px 18px;background:#faf6ec;border-bottom:1px solid #eee6d0;font-size:11px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em">
+              <div>Person</div><div>Rolle</div><div>Kom inn fra</div><div>Varsles ved booking</div><div style="text-align:right">I bedriften</div>
+            </div>
+            <sc-for list="{{ team }}" as="p" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:minmax(0,1.6fr) 1fr 1fr 1.1fr 120px;gap:12px;padding:12px 18px;border-bottom:1px solid #f2ead9;align-items:center;background:{{ p.rowBg }}">
+                <div style="display:flex;align-items:center;gap:11px;min-width:0">
+                  <div style="width:32px;height:32px;flex:none;border-radius:50%;background:{{ p.avBg }};color:{{ p.avColor }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;opacity:{{ p.opacity }}">{{ p.initials }}</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:{{ p.opacity }}">{{ p.name }}</div>
+                    <div style="font-size:11px;color:#9a9484">{{ p.phone }}</div>
+                  </div>
+                </div>
+                <div style="font-size:12.5px;color:#43503f">{{ p.role }}</div>
+                <div><span style="font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;background:{{ p.srcBg }};color:{{ p.srcColor }};white-space:nowrap">{{ p.source }}</span></div>
+                <div style="font-size:12.5px;font-weight:600;color:{{ p.notifyColor }}">{{ p.notify }}</div>
+                <div style="text-align:right">
+                  <span onClick="{{ p.onToggle }}" style="font-size:12px;font-weight:700;border-radius:8px;padding:6px 11px;border:1px solid {{ p.btnBorder }};background:{{ p.btnBg }};color:{{ p.btnColor }};cursor:pointer;white-space:nowrap">{{ p.btnLabel }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;background:#f2f7f3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v.01"></path><path d="M12 11v5"></path></svg>
+              <div style="font-size:12.5px;color:#1f5b3f;font-weight:600">Fjerner du noen fra bedriften, mister de bare tilgang til bedriftens leiligheter — de blir værende i driftsteamet til vertene som eier dem.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabProfile }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start">
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:18px 20px">
+              <div style="display:flex;align-items:flex-start;gap:14px">
+                <div style="flex:1">
+                  <div style="font-size:14.5px;font-weight:700">Registrert selskap</div>
+                  <div style="font-size:12.5px;color:#8a9187;margin-top:4px;line-height:1.5;text-wrap:pretty">Valgfritt tilvalg. Uten registrering fungerer bedriften som en avtale mellom vertene, og hver vert fakturerer selv.</div>
+                </div>
+                <div onClick="{{ onToggleLegal }}" style="flex:none;width:46px;height:26px;border-radius:999px;background:{{ legalTrackBg }};position:relative;cursor:pointer;transition:background .18s ease">
+                  <span style="position:absolute;top:3px;left:{{ legalKnobLeft }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s ease"></span>
+                </div>
+              </div>
+              <sc-if value="{{ legalOn }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px">
+                  <sc-for list="{{ legalFields }}" as="f" hint-placeholder-count="4">
+                    <div>
+                      <div style="font-size:11.5px;font-weight:700;color:#9a9484;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">{{ f.label }}</div>
+                      <div style="padding:10px 13px;border-radius:9px;border:1px solid #ddd5bd;background:#faf6ec;font-size:13.5px;font-weight:600">{{ f.value }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="margin-top:16px;display:flex;align-items:center;gap:10px;background:#f2f7f3;border:1px solid #cfe0d3;border-radius:10px;padding:12px 15px">
+                  <div style="font-size:12.5px;color:#1f5b3f;font-weight:600">MVA legges automatisk på fakturaer til gjester og eiere når selskapet er registrert.</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ legalOff }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:18px;background:#fbf6ea;border:1px solid #eadfc4;border-radius:11px;padding:14px 16px">
+                  <div style="font-size:13px;font-weight:700;margin-bottom:5px">Avtalebasert drift</div>
+                  <div style="font-size:12.5px;color:#5e6b62;line-height:1.55;text-wrap:pretty">Bedriften har navn, felles portefølje, delt omsetning og felles driftsteam — men ingen org.nr. Utbetaling går direkte til hver vert etter fordelingsmodellen.</div>
+                </div>
+              </sc-if>
+            </div>
+            <div style="background:#fff;border:1px solid #eee6d0;border-radius:12px;padding:18px 20px">
+              <div style="font-size:14.5px;font-weight:700;margin-bottom:12px">Bedriftsprofil</div>
+              <sc-for list="{{ profileFields }}" as="f" hint-placeholder-count="5">
+                <div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #f2ead9;font-size:13px">
+                  <span style="color:#8a9187">{{ f.label }}</span>
+                  <span style="font-weight:600;text-align:right">{{ f.value }}</span>
+                </div>
+              </sc-for>
+              <div style="margin-top:14px;font-size:12.5px;color:#8a9187;line-height:1.5;text-wrap:pretty">Navn og profil vises på annonser for leiligheter som ligger i bedriften. Leiligheter du holder privat markedsføres fortsatt i ditt eget navn.</div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+  </div>
+  <sc-if value="{{ isActive }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:0 0 252px;box-sizing:border-box;background:#f7efe6;border-left:1px solid #ecdfd2;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+      <div style="background:#fff;border:1px solid #ecdfd2;border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:#a58472;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Din posisjon</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-.3px">{{ myShareAmount }}</div>
+        <div style="font-size:12px;color:#8a9187;margin-top:2px">{{ myShareSub }}</div>
+        <div style="margin-top:11px;padding-top:11px;border-top:1px solid #f2ead9;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px"><span style="color:#8a9187;white-space:nowrap">Leiligheter inne</span><span style="font-weight:700;white-space:nowrap">{{ myIncludedCount }} av {{ myAptTotal }}</span></div>
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px"><span style="color:#8a9187;white-space:nowrap">Oppgjør</span><span style="font-weight:700;white-space:nowrap">10. hver mnd</span></div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #ecdfd2;border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:#a58472;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Handlinger</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div onClick="{{ onOpenAptModal }}" style="padding:10px 14px;border-radius:8px;background:#8a4b32;color:#fff;font-weight:700;font-size:13.5px;text-align:center;cursor:pointer" style-hover="background:#733c27">Mine leiligheter ({{ myIncludedCount }}/{{ myAptTotal }})</div>
+          <div style="padding:10px 14px;border-radius:8px;border:1px solid #e3cfc0;background:#fff;color:#7a4630;font-weight:600;font-size:13.5px;text-align:center;cursor:pointer" style-hover="border-color:#8a4b32">Inviter vert</div>
+          <div onClick="{{ onGoModel }}" style="padding:10px 14px;border-radius:8px;border:1px solid #e3cfc0;background:#fff;color:#7a4630;font-weight:600;font-size:13.5px;text-align:center;cursor:pointer" style-hover="border-color:#8a4b32">Endre fordeling</div>
+          <div onClick="{{ onOpenHow }}" style="font-size:12.5px;font-weight:700;color:#8a4b32;text-decoration:underline;cursor:pointer;text-align:center;margin-top:2px">Slik fungerer bedriften</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #ecdfd2;border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:#a58472;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px">Felles driftsteam</div>
+        <div style="font-size:13.5px;font-weight:700">{{ teamActiveLabel }}</div>
+        <div style="font-size:12px;color:#8a9187;margin-top:4px;text-wrap:pretty">Varsles automatisk ved booking i bedriftens leiligheter.</div>
+        <div onClick="{{ onGoTeam }}" style="font-size:12.5px;font-weight:700;color:#8a4b32;text-decoration:underline;cursor:pointer;margin-top:9px">Åpne driftsteam →</div>
+      </div>
+    </div>
+  </sc-if>
+  </div>
+  <sc-if value="{{ isActive }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;padding:12px 22px;background:#3d241b;box-shadow:0 -4px 16px rgba(0,0,0,.15);display:flex;align-items:center;gap:13px">
+      <div style="flex:none;font-size:12.5px;color:#d3ab95;white-space:nowrap">{{ barContext }}</div>
+      <div style="flex:1"></div>
+      <div style="font-size:13px;font-weight:700;color:{{ dirtyColor }};white-space:nowrap">{{ dirtyLabel }}</div>
+      <div onClick="{{ onResetChanges }}" style="padding:10px 18px;border-radius:8px;border:1px solid #61402f;background:transparent;font-size:13.5px;font-weight:700;color:#e8d3c6;cursor:pointer;white-space:nowrap" style-hover="border-color:#e8d3c6">Angre</div>
+      <div onClick="{{ onSaveChanges }}" style="padding:10px 22px;border-radius:8px;background:{{ saveBg }};border:1px solid {{ saveBorder }};color:{{ saveColor }};font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap">Lagre endringer</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ aptModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseAptModal }}" style="position:absolute;inset:0;background:rgba(11,23,18,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:32px">
+      <div onClick="{{ stop }}" style="width:760px;max-width:100%;max-height:100%;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:18px 22px;border-bottom:1px solid #f2ead9;display:flex;align-items:flex-start;gap:14px">
+          <div style="flex:1">
+            <div style="font-size:17px;font-weight:700">Mine leiligheter i bedriften</div>
+            <div style="font-size:12.5px;color:#8a9187;margin-top:4px">Velg hvilke av dine {{ myAptTotal }} leiligheter som skal forvaltes av {{ companyTitle }}.</div>
+          </div>
+          <div onClick="{{ onCloseAptModal }}" style="flex:none;font-size:15px;color:#8a9187;cursor:pointer;padding:2px 6px">✕</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 22px;background:#f2f7f3;border-bottom:1px solid #e4efe7">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+          <div style="font-size:12.5px;color:#1f5b3f;font-weight:600;flex:1">Privat liste — de andre vertene ser aldri denne oversikten</div>
+          <div onClick="{{ onSelectAll }}" style="font-size:12px;font-weight:700;color:#1f5b3f;cursor:pointer;white-space:nowrap">Velg alle</div>
+          <div onClick="{{ onSelectNone }}" style="font-size:12px;font-weight:700;color:#8a9187;cursor:pointer;white-space:nowrap">Fjern alle</div>
+        </div>
+        <div style="flex:1;overflow-y:auto">
+          <sc-for list="{{ myApts }}" as="a" hint-placeholder-count="8">
+            <div onClick="{{ a.onToggle }}" style="display:flex;align-items:center;gap:13px;padding:12px 22px;border-bottom:1px solid #f7f2e6;cursor:pointer;background:{{ a.rowBg }}" style-hover="background:#fcfaf4">
+              <span style="width:20px;height:20px;flex:none;border-radius:6px;border:1.5px solid {{ a.boxBorder }};background:{{ a.boxBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ a.check }}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name }}</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:3px">
+                  <span style="font-family:monospace;font-weight:700;font-size:10.5px;background:#f0ecdf;color:#43503f;border-radius:4px;padding:1px 5px">{{ a.code }}</span>
+                  <span style="font-size:11.5px;color:#9a9484">{{ a.beds }} · {{ a.sqm }} · {{ a.district }}</span>
+                </div>
+              </div>
+              <div style="flex:none;text-align:right">
+                <div style="font-size:12.5px;font-weight:700">{{ a.rate }}</div>
+                <div style="font-size:11px;color:#9a9484">{{ a.occ }}</div>
+              </div>
+              <div style="flex:none;width:104px;text-align:right;font-size:11.5px;font-weight:700;color:{{ a.stColor }}">{{ a.state }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:14px 22px;border-top:1px solid #f2ead9;display:flex;align-items:center;gap:12px">
+          <div style="flex:1;font-size:12.5px;color:#5e6b62">{{ modalSummary }}</div>
+          <div onClick="{{ onCloseAptModal }}" style="padding:10px 16px;border-radius:9px;border:1px solid #ddd5bd;font-size:13px;font-weight:600;color:#43503f;cursor:pointer" style-hover="background:#faf6ec">Avbryt</div>
+          <div onClick="{{ onCloseAptModal }}" style="padding:10px 18px;border-radius:9px;background:#12352b;color:#fff;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#1c4a3b">Lagre utvalg</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ howOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseHow }}" style="position:absolute;inset:0;background:rgba(11,23,18,.6);z-index:70;display:flex;align-items:center;justify-content:center;padding:32px">
+      <div onClick="{{ stop }}" style="width:560px;max-width:100%;background:#fff;border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,.38);overflow:hidden;display:flex;flex-direction:column">
+        <div style="height:230px;flex:none;background:#f2ead9;border-bottom:1px solid #eee6d0;display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="text-align:center;color:#a89f88">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Illustrasjon</div>
+            <div style="font-size:13px;margin-top:5px">{{ howCurrent.art }}</div>
+          </div>
+          <div onClick="{{ onCloseHow }}" style="position:absolute;top:12px;right:14px;font-size:14px;font-weight:700;color:#8a9187;cursor:pointer;background:#fff;border-radius:999px;padding:5px 10px">Hopp over</div>
+        </div>
+        <div style="padding:22px 26px 8px">
+          <div style="font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b0a894">{{ howCurrent.counter }}</div>
+          <div style="font-size:20px;font-weight:700;margin-top:6px;letter-spacing:-.2px">{{ howCurrent.title }}</div>
+          <div style="font-size:14px;color:#5e6b62;line-height:1.6;margin-top:8px;text-wrap:pretty;min-height:66px">{{ howCurrent.body }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 26px 20px">
+          <div style="display:flex;gap:6px;flex:1">
+            <sc-for list="{{ howDots }}" as="d" hint-placeholder-count="6">
+              <span onClick="{{ d.onClick }}" style="width:{{ d.w }};height:7px;border-radius:999px;background:{{ d.bg }};cursor:pointer"></span>
+            </sc-for>
+          </div>
+          <sc-if value="{{ howHasBack }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ onHowBack }}" style="padding:10px 16px;border-radius:8px;border:1px solid #ddd5bd;font-size:13.5px;font-weight:600;color:#43503f;cursor:pointer" style-hover="background:#faf6ec">Tilbake</div>
+          </sc-if>
+          <div onClick="{{ onHowNext }}" style="padding:10px 20px;border-radius:8px;background:#12352b;color:#fff;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:#1c4a3b">{{ howNextLabel }}</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1296,&quot;height&quot;:720}}">
+const MY_APTS = [
+  {code:'SUN-1204', name:"Sunrise - City View & Pool - D7 - 2BR", beds:'2 soverom', bedsN:2, sqm:'68 m²', sqmN:68, district:"D7", rate:'1,8M', rateN:1.8, occ:'82 % belegg', seg:'Over middels'},
+  {code:'SUN-1807', name:"Sunrise - Høy etasje - D7 - 1BR", beds:'1 soverom', bedsN:1, sqm:'52 m²', sqmN:52, district:"D7", rate:'1,4M', rateN:1.4, occ:'77 % belegg', seg:'Standard'},
+  {code:'VIN-A1203', name:"Vinhomes CP - Park View - Bình Thạnh - 1BR", beds:'1 soverom', bedsN:1, sqm:'54 m²', sqmN:54, district:"Bình Thạnh", rate:'1,6M', rateN:1.6, occ:'88 % belegg', seg:'Standard'},
+  {code:'VIN-B0905', name:"Vinhomes CP - Landmark-utsikt - Bình Thạnh - 2BR", beds:'2 soverom', bedsN:2, sqm:'61 m²', sqmN:61, district:"Bình Thạnh", rate:'1,7M', rateN:1.7, occ:'74 % belegg', seg:'Over middels'},
+  {code:'MAS-B1702', name:"Masteri - Elvebredden - Thủ Đức - 2BR", beds:'2 soverom', bedsN:2, sqm:'72 m²', sqmN:72, district:"Thủ Đức", rate:'2,1M', rateN:2.1, occ:'91 % belegg', seg:'Premium'},
+  {code:'MAS-C0410', name:"Masteri - Rolig side - Thủ Đức - 1BR", beds:'1 soverom', bedsN:1, sqm:'58 m²', sqmN:58, district:"Thủ Đức", rate:'1,5M', rateN:1.5, occ:'69 % belegg', seg:'Standard'},
+  {code:'NAS-0906', name:"Nassim - Hjørneleilighet - D2 - 2BR", beds:'2 soverom', bedsN:2, sqm:'61 m²', sqmN:61, district:"D2", rate:'1,9M', rateN:1.9, occ:'80 % belegg', seg:'Over middels'},
+  {code:'SAP-R1401', name:"Saigon Pearl - Ruby Tower - Bình Thạnh - 3BR", beds:'3 soverom', bedsN:3, sqm:'88 m²', sqmN:88, district:"Bình Thạnh", rate:'2,6M', rateN:2.6, occ:'64 % belegg', seg:'Premium'},
+  {code:'SAP-T2103', name:"Saigon Pearl - Topaz elvutsikt - Bình Thạnh - 2BR", beds:'2 soverom', bedsN:2, sqm:'76 m²', sqmN:76, district:"Bình Thạnh", rate:'2,2M', rateN:2.2, occ:'71 % belegg', seg:'Over middels'},
+  {code:'SUW-0508', name:"Sunwah - Bassengetasje - D3 - 2BR", beds:'2 soverom', bedsN:2, sqm:'64 m²', sqmN:64, district:"D3", rate:'1,8M', rateN:1.8, occ:'85 % belegg', seg:'Standard'},
+  {code:'MIL-1109', name:"Millennium - Kanalutsikt - D4 - 1BR", beds:'1 soverom', bedsN:1, sqm:'48 m²', sqmN:48, district:"D4", rate:'1,1M', rateN:1.1, occ:'59 % belegg', seg:'Standard'},
+  {code:'MIL-1802', name:"Millennium - Kompakt sør - D4 - Studio", beds:'Studio', bedsN:0, sqm:'32 m²', sqmN:32, district:"D4", rate:'1,0M', rateN:1, occ:'62 % belegg', seg:'Standard'},
+  {code:'TRE-0703', name:"Tresor - Elvepromenade - D4 - 1BR", beds:'1 soverom', bedsN:1, sqm:'55 m²', sqmN:55, district:"D4", rate:'1,3M', rateN:1.3, occ:'73 % belegg', seg:'Standard'},
+  {code:'ZEN-0201', name:"Zenity - Sentrum kompakt - D1 - Studio", beds:'Studio', bedsN:0, sqm:'34 m²', sqmN:34, district:"D1", rate:'0,9M', rateN:0.9, occ:'54 % belegg', seg:'Standard', note:'Egen bruk i høysesong'},
+  {code:'GRM-1501', name:"Grand Marina - Familieleilighet - D1 - 3BR", beds:'3 soverom', bedsN:3, sqm:'96 m²', sqmN:96, district:"D1", rate:'—', rateN:0, occ:'privat bruk', seg:'Premium', note:'Aldri utleid'}
+];
+
+const SEG_STYLE = {'Standard':['#f0ecdf','#5e6b62'], 'Over middels':['#e6ecf6','#2f4f86'], 'Premium':['#f7ecdd','#8a5a2b']};
+const SEG_ORDER = {'Standard':0, 'Over middels':1, 'Premium':2};
+
+const EXCLUDED_DEFAULT = [];
+
+const TEAM = [
+  {initials:'TP', name:'Trang Pham', phone:'+84 90 221 44 87', role:'Renhold-koordinator', source:'Mai (deg)', src:'me'},
+  {initials:'NV', name:'Nguyen Van Hai', phone:'+84 91 553 21 09', role:'Renhold', source:'Mai (deg)', src:'me'},
+  {initials:'BL', name:'Bao Linh', phone:'+84 93 118 76 20', role:'Vaktmester', source:'Mai (deg)', src:'me'},
+  {initials:'KT', name:'Kim Thu', phone:'+84 90 774 15 63', role:'Innsjekk-vert', source:'Lars', src:'lars'},
+  {initials:'DH', name:'Duc Huy', phone:'+84 92 640 88 41', role:'Renhold', source:'Lars', src:'lars'},
+  {initials:'PL', name:'Phuong Lan', phone:'+84 96 305 27 74', role:'Renhold', source:'Hoa', src:'hoa'},
+  {initials:'TQ', name:'Tran Quang', phone:'+84 94 812 60 35', role:'Teknisk / rørlegger', source:'Hoa', src:'hoa'}
+];
+const SRC_STYLE = {me:['#e8f0e9','#1f5b3f'], lars:['#f7ecdd','#8a5a2b'], hoa:['#e6ecf6','#2f4f86']};
+
+const HOST_FACTS = {
+  'Mai Nguyen': {since:'mars 2021', years:'5 år', rating:'4,86', reviews:'214', stays:'318', active:'I dag', mix:null,
+    badges:[['ID-verifisert','#e5f3e9','#1f7a44'],['Eierskap 15/15','#e6ecf6','#2f4f86']]},
+  'Lars Ø. Bakken': {since:'nov 2023', years:'2 år', rating:'4,62', reviews:'88', stays:'96', active:'I dag', 
+    mix:[['Bình Thạnh','2 soverom','61 m²'],['Bình Thạnh','1 soverom','48 m²'],['Bình Thạnh','2 soverom','72 m²'],['Bình Thạnh','Studio','36 m²'],['D2','1 soverom','52 m²'],['D2','2 soverom','66 m²'],['D1','3 soverom','94 m²']],
+    badges:[['ID-verifisert','#e5f3e9','#1f7a44'],['Eierskap 5/7','#fbeaea','#b3421f']]},
+  'Hoa Nguyen': {since:'jan 2019', years:'7 år', rating:'4,91', reviews:'402', stays:'640', active:'2 dager siden',
+    mix:[['Thủ Đức','2 soverom','70 m²'],['Thủ Đức','1 soverom','55 m²'],['D7','2 soverom','64 m²']],
+    badges:[['ID-verifisert','#e5f3e9','#1f7a44'],['MVA-registrert','#f7ecdd','#8a5a2b'],['Eierskap 3/3','#e6ecf6','#2f4f86']]}
+};
+
+const HOST_DIRECTORY = [
+  {initials:'TN', name:'Thanh Ngo', id:'VS-2841', city:'Ho Chi Minh City', verified:true},
+  {initials:'KA', name:'Kari Aasen', id:'VS-3190', city:'Ho Chi Minh City', verified:true},
+  {initials:'MH', name:'Minh Ha Le', id:'VS-1176', city:'Ha Noi', verified:true},
+  {initials:'JD', name:'Jonas Dahl', id:'VS-4402', city:'Da Nang', verified:false},
+  {initials:'PT', name:'Phuong Tran', id:'VS-2255', city:'Ho Chi Minh City', verified:true}
+];
+
+const MEMBERS = [
+  {initials:'MN', name:'Mai Nguyen', role:'Oppretter', isYou:true, own:15, inn:12, revenue:'268,0M', team:3, av:['#e8f0e9','#1f5b3f']},
+  {initials:'LB', name:'Lars Ø. Bakken', role:'Vert', isYou:false, own:7, inn:7, revenue:'108,5M', team:2, av:['#f4e6d8','#8a5a2b']},
+  {initials:'HN', name:'Hoa Nguyen', role:'Vert', isYou:false, own:3, inn:3, revenue:'36,0M', team:2, av:['#e6ecf6','#2f4f86']}
+];
+
+const HOW_STEPS = [
+  {title:'Flere verter, én bedrift', art:'Tre verter samles under én paraply',
+   body:'En forvaltningsbedrift er et paraplyselskap der flere verter forvalter leilighetene sine sammen — med felles portefølje, felles team og avtalt fordeling.'},
+  {title:'Du velger hvilke leiligheter som blir med', art:'Leilighetsliste med haker',
+   body:'Ingen leiligheter flyttes automatisk. Du huker av de du vil ha inn, og resten forblir helt private — de andre vertene ser dem aldri.'},
+  {title:'Inviter medverter du stoler på', art:'Søk etter vert · invitasjon sendt',
+   body:'Søk opp verten og send invitasjon. Før hun godtar ser du bare navn og vert-ID — og hun ser ingenting av din drift.'},
+  {title:'Bli enige om fordelingen', art:'Tre fordelingsmodeller side om side',
+   body:'Felles pott, fast eierandel eller provisjon per leilighet. Modellen bestemmer både utbetalingen og hvor mye hver vert får se av økonomien.'},
+  {title:'Selg hverandres leiligheter', art:'Booking sendes videre til medvert',
+   body:'Er din leilighet opptatt, tilbyr du kunden en av medvertenes med én gang. I høysesong deler dere forespørslene mellom dere.'},
+  {title:'Ett driftsteam for alt', art:'Felles team varsles ved booking',
+   body:'Driftsteamene slås sammen og varsles automatisk ved booking i bedriftens leiligheter. Flere oppgaver på samme team gir lavere kostnad per opphold.'},
+  {title:'Oppgjør hver måned', art:'Utbetalingsoversikt per vert',
+   body:'Omsetningen fordeles etter modellen og utbetales den 10. hver måned. Org.nr og MVA er valgfritt — dere kan starte avtalebasert i dag.'}
+];
+
+class Component extends DCLogic {
+  state = { mode:'empty', tab:0, step:1, model:'pott', legalOn:false, aptModalOpen:false,
+    excluded:EXCLUDED_DEFAULT.slice(), teamOut:[], form:{name:'', tagline:'', invite:''},
+    shares:null, pending:[], toast:false, howOpen:false, howStep:0, aptSort:'district', aptSortDir:1, segFilter:'Alle',
+  };
+
+
+
+  componentDidUpdate(prev){
+    if (this.props.demoMode && (this.props.demoMode !== prev.demoMode || this.props.navToken !== prev.navToken))
+      this.setState({mode:this.props.demoMode, tab:0, step:1});
+  }
+
+  meName(){ return this.props.hostName || 'Mai Nguyen'; }
+
+  meInitials(){ return this.props.hostInitials || this.meName().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+
+  apts(){ const p = this.props.apartments; return (p && p.length) ? p : MY_APTS; }
+
+  goStep(n){ this.setState({step:n}); }
+
+  radio(on){ return { border: on?'#1f7a44':'#e8e0cc', bg: on?'#f1f8f3':'#fff',
+    dotBorder: on?'#1f7a44':'#c3bca8', dotBg: on?'#1f7a44':'#fff', dotShadow: on?'inset 0 0 0 3px #fff':'none' }; }
+
+  modelDefs(){
+    return [
+      {id:'pott', title:'Felles pott', tag:'Full åpenhet', tagBg:'#e5f3e9', tagColor:'#1f7a44',
+        body:'All omsetning fra bedriftens leiligheter samles i én pott og fordeles etter eierandel. Alle verter ser den samlede omsetningen og hver enkelt bookings bidrag.',
+        visibility:'alle ser alt'},
+      {id:'eierandel', title:'Fast eierandel', tag:'Forhandlet', tagBg:'#e6ecf6', tagColor:'#2f4f86',
+        body:'Dere avtaler faste prosenter uavhengig av hvor omsetningen kommer fra — nyttig når noen bidrar med arbeid framfor leiligheter. Alle ser totalen, ikke hverandres leilighetstall.',
+        visibility:'total synlig, detaljer skjult'},
+      {id:'provisjon', title:'Provisjon per leilighet', tag:'Hver sin økonomi', tagBg:'#f7ecdd', tagColor:'#8a5a2b',
+        body:'Hver vert beholder inntekten fra sine egne leiligheter. Bedriften tar 12 % provisjon som dekker felles drift og markedsføring, og fordeles etter eierandel.',
+        visibility:'kun egne leiligheter + felles pott'}
+    ];
+  }
+
+  hostAptCounts(){
+    const mine = this.apts().filter(a=>this.state.excluded.indexOf(a.code) === -1).length;
+    return [mine, 7, 3];
+  }
+
+  suggestedShares(){
+    const c = this.hostAptCounts(), tot = c.reduce((a,b)=>a+b,0) || 1;
+    const raw = c.map(n=>Math.round(n/tot*100));
+    raw[0] += 100 - raw.reduce((a,b)=>a+b,0);
+    return {me:raw[0], lars:raw[1], hoa:raw[2]};
+  }
+
+  currentShares(){ return this.state.shares || this.suggestedShares(); }
+
+  splitFor(model){
+    const GROSS = 412.5, KEYS = ['me','lars','hoa'];
+    const sh = this.currentShares(), counts = this.hostAptCounts();
+    const factKeys = ['Mai Nguyen','Lars Ø. Bakken','Hoa Nguyen'];
+    const names = [this.meName() + ' (deg)','Lars Ø. Bakken','Hoa Nguyen'];
+    const own = [268.0, 108.5, 36.0];
+    const fmt = n => n.toFixed(1).replace('.', ',') + 'M';
+    const pool = own.reduce((a,b)=>a+b,0) * 0.12;
+    const rows = KEYS.map((k,i)=>{
+      const pct = sh[k];
+      const amount = model === 'provisjon' ? own[i]*0.88 + pool*pct/100 : GROSS*pct/100;
+      const basis = model === 'pott' ? (counts[i] + ' leiligheter inn')
+        : model === 'eierandel' ? 'Avtalt eierandel'
+        : (i === 0 ? 'Egne ' + fmt(own[i]) + ' − 12 % + ' + pct + ' % av potten'
+                  : 'Egne inntekter − 12 % + ' + pct + ' % av potten');
+      const setupBasis = model === 'pott' ? (counts[i] + ' leiligheter inn')
+        : model === 'eierandel' ? 'Avtalt eierandel'
+        : 'Egne inntekter − 12 % + ' + pct + ' % av potten';
+      const fx = HOST_FACTS[factKeys[i]];
+      return {key:k, name:names[i], basis, setupBasis,
+        since:fx.since, years:fx.years, rating:fx.rating, stays:fx.stays, amount:fmt(amount), pct:pct + ' %', pctVal:String(pct)};
+    });
+    const notes = {
+      pott:'Eierandelen er forhandlet mellom vertene — antall leiligheter er bare et utgangspunkt for forslaget. Juster prosentene direkte i tabellen.',
+      eierandel:'Prosentene settes manuelt og krever godkjenning fra alle verter før de gjelder. Endringer får virkning fra neste oppgjørsperiode.',
+      provisjonSetup:'Bedriften tar 12 % provisjon av hver vert sine leiligheter. Potten dekker felles driftsteam, markedsføring og kundeservice, og overskuddet fordeles etter eierandelene over.',
+      provisjon:'Provisjonspotten på ' + fmt(pool) + ' dekker felles driftsteam, markedsføring og kundeservice. Overskuddet i potten fordeles etter eierandelene under.'
+    };
+    const setupNote = model === 'provisjon' ? notes.provisjonSetup : notes[model];
+    return {rows, note: notes[model] || notes.provisjon, setupNote: setupNote + ' Beløp vises først når bedriften er i drift.'};
+  }
+
+  renderVals(){
+    const st = this.state;
+    const mode = st.mode;
+    const bl = st.saved || {ex: EXCLUDED_DEFAULT.slice().sort().join(','), team:'', shares:'', legal:false, model:'pott'};
+    const snap = {ex: st.excluded.slice().sort().join(','), team: st.teamOut.slice().sort().join(','),
+      shares: st.shares ? JSON.stringify(st.shares) : '', legal: st.legalOn, model: st.model};
+    const chgCount = ['ex','team','shares','legal','model'].filter(k=>snap[k] !== bl[k]).length;
+    const excludedReal = st.excluded.filter(c=>this.apts().some(a=>a.code===c)).length;
+    const included = this.apts().filter(a=>st.excluded.indexOf(a.code) === -1);
+    const myIncludedCount = included.length;
+    const companyAptCount = myIncludedCount + 7 + 3;
+    const split = this.splitFor(st.model);
+    const sug = this.suggestedShares(), cur = this.currentShares();
+    const shareTotal = cur.me + cur.lars + cur.hoa;
+    const setShare = (k,v)=>{ const n = Math.max(0, Math.min(100, parseInt(v,10) || 0));
+      this.setState(s=>({shares:{...(s.shares || this.suggestedShares()), [k]:n}})); };
+    const modelDef = this.modelDefs().find(m=>m.id===st.model);
+    const q = (st.form.invite || '').trim().toLowerCase();
+    const hits = q ? HOST_DIRECTORY.filter(h=>h.name.toLowerCase().indexOf(q) !== -1 || h.id.toLowerCase().indexOf(q) !== -1 || (h.name.toLowerCase().replace(/ /g,'.') + '@epost.vn').indexOf(q) !== -1).slice(0,4) : [];
+    const teamIn = TEAM.filter(p=>st.teamOut.indexOf(p.name) === -1);
+    const tabs = ['Oversikt','Verter og leiligheter','Fordeling','Driftsteam','Bedriftsprofil'];
+    const tab = Math.min(st.tab, tabs.length-1);
+    const howStep = Math.min(st.howStep || 0, HOW_STEPS.length-1);
+    const sortKey = st.aptSort || 'district', sortDir = st.aptSortDir || 1;
+    const segF = st.segFilter || 'Alle';
+    const sortVal = (a)=>({code:a.code, name:a.name, beds:a.bedsN, sqm:a.sqmN, district:a.district, seg:SEG_ORDER[a.seg]||0, rate:a.rateN||0})[sortKey];
+    const visibleApts = this.apts().filter(a=>segF === 'Alle' || a.seg === segF).slice().sort((x,y)=>{
+      const a = sortVal(x), b = sortVal(y);
+      const c = typeof a === 'number' ? a - b : String(a).localeCompare(String(b), 'nb');
+      return (c || x.name.localeCompare(y.name, 'nb')) * sortDir;
+    });
+
+    return {
+      isEmpty: mode === 'empty', isSetup: mode === 'setup', isActive: mode === 'active',
+      modes:[['empty','Ingen bedrift'],['setup','Oppsett'],['active','Aktiv bedrift']].map(([id,label])=>{
+        const on = mode===id;
+        return {label, weight:on?700:500, bg:on?'#1f7a44':'transparent', color:on?'#fff':'#5e6b62',
+          demoBg:on?'#1f7a44':'transparent', demoColor:on?'#fff':'#7fa392',
+          onClick:()=>this.setState({mode:id, tab:0, step:1})};
+      }),
+
+      onStartSetup: ()=>this.setState({mode:'setup', step:1, howOpen:false}),
+      onOpenHow: ()=>this.setState({howOpen:true, howStep:0}),
+      onCloseHow: ()=>this.setState({howOpen:false}),
+      howOpen: st.howOpen,
+      howCurrent: {...HOW_STEPS[howStep], counter:'Steg ' + (howStep+1) + ' av ' + HOW_STEPS.length},
+      howDots: HOW_STEPS.map((s,i)=>({w: i===howStep ? '22px' : '7px', bg: i===howStep ? '#1f7a44' : '#e2d9c4',
+        onClick:()=>this.setState({howStep:i})})),
+      howHasBack: howStep > 0,
+      howNextLabel: howStep === HOW_STEPS.length-1 ? 'Opprett forvaltningsbedrift' : 'Neste',
+      onHowBack: ()=>this.setState({howStep:Math.max(0, howStep-1)}),
+      onHowNext: ()=>{ if (howStep === HOW_STEPS.length-1) this.setState({howOpen:false, mode:'setup', step:1});
+        else this.setState({howStep:howStep+1}); },
+      onAcceptInvite: ()=>this.setState({mode:'setup', step:2}),
+
+      steps:[1,2,3,4].map(n=>{
+        const on = st.step===n, done = n < st.step;
+        return {label:['Navn og form','Dine leiligheter','Inviter verter','Fordeling'][n-1],
+          mark: done ? '✓' : String(n), markColor: done ? '#fff' : (on ? '#1f7a44' : '#9a9484'),
+          dotBg: done ? '#12352b' : '#fff',
+          dotBorder: on ? '2px solid #1f7a44' : (done ? '2px solid #12352b' : '2px solid #ddd5bd'),
+          labelColor: (on || done) ? '#12352b' : '#9a9484',
+          hasLine: n < 4, lineColor: n < st.step ? '#12352b' : '#e5decb',
+          onClick: ()=>this.goStep(n)};
+      }),
+      step1: st.step===1, step2: st.step===2, step3: st.step===3, step4: st.step===4,
+      stepHint: ['Navnet kan endres senere.','Du kan justere utvalget når som helst.','Vertene får varsel i dashbordet.','Modellen kan endres med samtykke fra alle verter.'][st.step-1],
+      nextLabel: st.step===4 ? 'Opprett bedriften' : 'Neste',
+      onStepNext: ()=>{ if (st.step===4) this.setState({mode:'active', tab:0}); else this.goStep(st.step+1); },
+      onStepBack: ()=>{ if (st.step===1) this.setState({mode:'empty'}); else this.goStep(st.step-1); },
+      onCancelSetup: ()=>this.setState({mode:'empty', step:1}),
+      form: st.form,
+      onFormName: e=>this.setState({form:{...st.form, name:e.target.value}}),
+      onFormTagline: e=>this.setState({form:{...st.form, tagline:e.target.value}}),
+      onFormInvite: e=>this.setState({form:{...st.form, invite:e.target.value}}),
+      searchOpen: q.length > 0,
+      searchNone: q.length > 0 && hits.length === 0,
+      searchResults: hits.map(h=>{
+        const sent = st.pending.indexOf(h.id) !== -1;
+        return {initials:h.initials, name:h.name, verified:h.verified,
+          meta:'Vert-ID ' + h.id + ' · ' + h.city,
+          btnLabel: sent ? 'Invitert' : 'Inviter',
+          btnBg: sent ? '#f0ecdf' : '#1f7a44', btnColor: sent ? '#8a9187' : '#fff', btnBorder: sent ? '#e2d9c4' : '#1f7a44',
+          onInvite: ()=>{ if (sent) return; this.setState(s=>({pending:s.pending.concat([h.id]), form:{...s.form, invite:''}})); }};
+      }),
+      pendingRows: st.pending.map(id=>{
+        const h = HOST_DIRECTORY.find(x=>x.id===id);
+        return {initials:h.initials, name:h.name, meta:'Invitert i dag · vert-ID ' + h.id};
+      }),
+
+
+      legalOptions:[
+        {id:false, title:'Avtalebasert samarbeid', body:'Bedriften er en avtale mellom vertene: felles navn, felles portefølje og delt omsetning, men ingen juridisk enhet.',
+          points:[
+            {strong:'Start i dag —', rest:'ingen org.nr, ingen papirer, ingen kostnad.'},
+            {strong:'Egen økonomi —', rest:'hver vert fakturerer og skatter selv.'},
+            {strong:'Lett å gå ut av —', rest:'du tar leilighetene med deg uten oppløsning.'}
+          ]},
+        {id:true, title:'Registrert selskap', body:'Bedriften registreres som eget selskap med org.nr, og fakturerer gjester og eiere i eget navn.',
+          points:[
+            {strong:'Én faktura —', rest:'selskapet fakturerer, MVA legges på automatisk.'},
+            {strong:'Tydelig ansvar —', rest:'avtaler og bankkonto ligger på selskapet, ikke på deg.'},
+            {strong:'Kan legges til senere —', rest:'oppsettet og leilighetene beholdes som de er.'}
+          ]}
+      ].map(o=>({...o, ...this.radio(st.legalOn===o.id), onClick:()=>this.setState({legalOn:o.id})})),
+
+      setupMembers: MEMBERS.map(m=>{
+        const fx = HOST_FACTS[m.name];
+        const myDist = (()=>{ const c={}; included.forEach(a=>{ c[a.district]=(c[a.district]||0)+1; });
+          return Object.keys(c).sort((a,b)=>c[b]-c[a]).map(k=>({label:k, count:String(c[k])})); })();
+        const invited = m.name==='Lars Ø. Bakken' ? 'Godtok 8. aug' : 'Godtok 9. aug';
+        return {
+          initials: m.isYou ? this.meInitials() : m.initials, name: m.isYou ? this.meName() : m.name, isYou:m.isYou, avBg:m.av[0], avColor:m.av[1],
+          cardBg: m.isYou ? '#fbfaf5' : '#fff',
+          meta: m.isYou ? 'Oppretter · velger egne leiligheter' : (invited + ' · har ' + m.inn + ' leiligheter'),
+          badges: fx.badges.map(([label,bg,color])=>({label,bg,color})),
+          districts: fx.mix ? fx.mix.map(([d,b,s])=>({label:d + ' · ' + b, count:s}))
+            : included.map(a=>({label:a.district + ' · ' + a.beds, count:a.sqm})),
+          signals:[
+            {label:'Vurdering', value:fx.rating, color:'#1c2b23'},
+            {label:'Omtaler', value:fx.reviews, color:'#43503f'},
+            {label:'Vert siden', value:fx.since, color:'#43503f'},
+            {label:'Ansiennitet', value:fx.years, color:'#1c2b23'},
+            {label:'Fullførte opphold', value:fx.stays, color:'#43503f'},
+            {label:'Sist aktiv', value:fx.active, color:'#43503f'}
+          ],
+          aptLabel: (m.isYou ? myIncludedCount : m.inn) + ' leiligheter',
+          aptBg: '#f0ecdf', aptColor: '#43503f',
+          since: fx.since, rating: fx.rating, reviews: fx.reviews + ' omtaler', stays: fx.stays, years: fx.years,
+          status: m.isYou ? 'Oppretter' : 'Godtatt', stColor: '#1f7a44'
+        };
+      }),
+
+      myAptTotal: String(this.apts().length),
+      myIncludedCount: String(myIncludedCount),
+      companyAptCount: String(companyAptCount),
+      companyTitle: (st.form.name || '').trim() || 'Saigon Homes Forvaltning',
+      legalBadge: st.legalOn ? 'Registrert selskap' : 'Avtalebasert',
+      legalBadgeBg: st.legalOn ? '#e5f3e9' : '#f7ecdd',
+      legalBadgeColor: st.legalOn ? '#1f7a44' : '#8a5a2b',
+      myAptStats:[
+        {label:'Dine leiligheter', value:String(this.apts().length), sub:'totalt i din konto'},
+        {label:'Lagt inn i bedriften', value:String(myIncludedCount), sub:'synlig for de andre vertene'},
+        {label:'Holdt privat', value:String(excludedReal), sub:'kun du ser disse'}
+      ],
+      models: this.modelDefs().map(m=>({...m, ...this.radio(st.model===m.id), onClick:()=>this.setState({model:m.id})})),
+      splitRows: split.rows.map(r=>({...r, onPctChange: e=>setShare(r.key, e.target.value)})),
+      splitNote: split.note, splitSetupNote: split.setupNote,
+      shareTotalLabel: shareTotal + ' %',
+      shareTotalColor: shareTotal === 100 ? '#1f7a44' : '#b3421f',
+      shareTotalNote: shareTotal === 100 ? 'Fordelingen summerer til 100 %' : 'Må summere til 100 % før oppgjør (nå ' + shareTotal + ' %)',
+      suggestedLabel: 'Foreslått ut fra leilighetstall: ' + sug.me + ' / ' + sug.lars + ' / ' + sug.hoa + ' %',
+      onUseSuggested: ()=>this.setState({shares:null}),
+      sharesEdited: !!st.shares,
+      modelLabel: modelDef.title, modelSummary: modelDef.body,
+      onGoModel: ()=>this.setState({tab:2}),
+
+      tabs: tabs.map((label,i)=>({label, weight:i===tab?700:600, color:i===tab?'#8a4b32':'#8a9187',
+        borderColor:i===tab?'#8a4b32':'transparent', onClick:()=>this.setState({tab:i})})),
+      notActive: mode !== 'active',
+      myShareAmount: split.rows[0].amount,
+      myShareSub: split.rows[0].pct + ' etter ' + modelDef.title.toLowerCase(),
+      barContext: 'Oppgjør 10. hver måned · ' + companyAptCount + ' leiligheter i bedriften',
+      dirtyLabel: chgCount === 0 ? 'Alt er lagret' : (chgCount === 1 ? '1 endring venter' : chgCount + ' endringer venter'),
+      dirtyColor: chgCount ? '#e0a458' : '#a58472',
+      saveBg: chgCount ? '#e0793a' : '#543324',
+      saveBorder: chgCount ? '#e0793a' : '#61402f',
+      saveColor: chgCount ? '#fff' : '#a58472',
+      onSaveChanges: ()=>{ if(!chgCount) return; this.setState({saved:snap}); },
+      onResetChanges: ()=>{ if(!chgCount) return;
+        this.setState({ excluded: bl.ex ? bl.ex.split(',') : [], teamOut: bl.team ? bl.team.split(',') : [],
+          shares: bl.shares ? JSON.parse(bl.shares) : null, legalOn: bl.legal, model: bl.model }); },
+      crest: ((st.form.name || 'Saigon Homes').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('') || 'SH').toUpperCase(),
+      pageTitle: mode === 'active' ? ((st.form.name || '').trim() || 'Saigon Homes Forvaltning')
+        : mode === 'setup' ? 'Opprett forvaltningsbedrift' : 'Forvaltningsbedrift',
+      pageSubtitle: mode === 'active' ? ('3 verter · ' + companyAptCount + ' leiligheter i bedriften · ' + modelDef.title)
+        : mode === 'setup' ? 'Fire steg — navn og form, dine leiligheter, verter og fordeling'
+        : 'Paraplyselskap for flere verter — felles portefølje, egen eller delt omsetning og ett driftsteam',
+      tabOverview: tab===0, tabMembers: tab===1, tabModel: tab===2, tabTeam: tab===3, tabProfile: tab===4,
+
+      kpis:[
+        {label:'Leiligheter i bedriften', value:String(companyAptCount), sub:myIncludedCount+' dine · 10 fra andre verter', subColor:'#8a9187'},
+        {label:'Omsetning august', value:'412,5M', sub:'VND brutto, alle verter', subColor:'#8a9187'},
+        {label:'Felles driftsteam', value:String(teamIn.length), sub:'fra 3 verter · varsles ved booking', subColor:'#8a9187'}
+      ],
+      members: MEMBERS.map((m,i)=>({
+        own: m.isYou ? this.apts().length : m.own,
+        initials: m.isYou ? this.meInitials() : m.initials, name: m.isYou ? this.meName() : m.name, isYou:m.isYou, role:m.role, avBg:m.av[0], avColor:m.av[1],
+        aptLabel: (m.isYou ? myIncludedCount : m.inn) + ' av ' + (m.isYou ? this.apts().length : m.own),
+        aptPrivateLabel: m.isYou ? (excludedReal + ' holdt privat') : 'privat antall skjult',
+        revenue: split.rows[i].amount, teamLabel: m.team + ' personer',
+        share: split.rows[i].pct, shareBasis: st.model==='provisjon' ? 'egne + pott' : 'av total'
+      })),
+
+      teamCount: String(teamIn.length),
+      teamActiveLabel: teamIn.length + ' av ' + TEAM.length + ' aktive i bedriften',
+      team: TEAM.map(p=>{
+        const out = st.teamOut.indexOf(p.name) !== -1;
+        const s = SRC_STYLE[p.src];
+        return {initials:p.initials, name:p.name, phone:p.phone, role:p.role, source:p.source,
+          srcBg:s[0], srcColor:s[1], avBg:s[0], avColor:s[1],
+          rowBg: out ? '#faf7f0' : '#fff', opacity: out ? 0.45 : 1,
+          notify: out ? 'Nei · kun egen vert' : 'Ja · alle bookinger',
+          notifyColor: out ? '#9a9484' : '#1f7a44',
+          btnLabel: out ? 'Legg inn' : 'Fjern',
+          btnBg: out ? '#12352b' : '#fff', btnColor: out ? '#fff' : '#b4531f', btnBorder: out ? '#12352b' : '#e6cfc2',
+          onToggle: ()=>this.setState(s2=>({teamOut: out ? s2.teamOut.filter(n=>n!==p.name) : s2.teamOut.concat([p.name])}))};
+      }),
+
+      legalOn: st.legalOn, legalOff: !st.legalOn,
+      onToggleLegal: ()=>this.setState({legalOn: !st.legalOn}),
+      legalTrackBg: st.legalOn ? '#1f7a44' : '#d8d0ba',
+      legalKnobLeft: st.legalOn ? '23px' : '3px',
+      legalFields:[
+        {label:'Org.nr', value:'0316 482 771'},
+        {label:'MVA', value:'Registrert · 8 %'},
+        {label:'Selskapsform', value:'Company limited'},
+        {label:'Registrert adresse', value:'12 Nguyen Hue, District 1'}
+      ],
+      profileFields:[
+        {label:'Navn', value:(st.form.name || '').trim() || 'Saigon Homes Forvaltning'},
+        {label:'Verter', value:'3'},
+        {label:'Leiligheter', value:String(companyAptCount)},
+        {label:'Fordelingsmodell', value:modelDef.title},
+        {label:'Oppgjør', value:'Månedlig, 10. hver mnd'},
+        {label:'Opprettet', value:'9. august 2026'}
+      ],
+
+      aptModalOpen: st.aptModalOpen,
+      onOpenAptModal: ()=>this.setState({aptModalOpen:true}),
+      onCloseAptModal: ()=>this.setState({aptModalOpen:false}),
+      stop: e=>e.stopPropagation(),
+      onSelectAll: ()=>this.setState({excluded:[]}),
+      onSelectNone: ()=>this.setState({excluded:this.apts().map(a=>a.code)}),
+      aptCols: [
+        {key:'code', label:'Kode', align:'left'},
+        {key:'name', label:'Leilighetsnavn', align:'left'},
+        {key:'beds', label:'Soverom', align:'left'},
+        {key:'sqm', label:'Kvm', align:'right'},
+        {key:'district', label:'Distrikt', align:'left'},
+        {key:'seg', label:'Standard', align:'left'},
+        {key:'rate', label:'Dagspris', align:'right'}
+      ].map(c=>({...c,
+        arrow: sortKey === c.key ? (sortDir === 1 ? ' \u2191' : ' \u2193') : '',
+        color: sortKey === c.key ? '#12352b' : '#9a9484',
+        onClick: ()=>this.setState(s2=>({aptSort:c.key, aptSortDir: s2.aptSort === c.key ? -(s2.aptSortDir||1) : 1}))})),
+      segFilters: ['Alle','Standard','Over middels','Premium'].map(label=>{
+        const on = (st.segFilter || 'Alle') === label;
+        return {label, bg: on ? '#12352b' : '#fff', color: on ? '#fff' : '#5e6b62', border: on ? '#12352b' : '#e2d9c4',
+          onClick: ()=>this.setState({segFilter: label})};
+      }),
+      listSummary: visibleApts.length + ' av ' + this.apts().length + ' vist \u00b7 ' + myIncludedCount + ' lagt inn',
+      myApts: visibleApts.map(a=>{
+        const on = st.excluded.indexOf(a.code) === -1;
+        return {...a, check: on ? '\u2713' : '', boxBorder: on ? '#1f7a44' : '#c3bca8', boxBg: on ? '#1f7a44' : '#fff',
+          rowBg: on ? '#fff' : '#faf7f0', nameColor: on ? '#1c2b23' : '#8a9187',
+          segBg: (SEG_STYLE[a.seg]||SEG_STYLE['Standard'])[0], segColor: (SEG_STYLE[a.seg]||SEG_STYLE['Standard'])[1],
+          state: on ? 'I bedriften' : (a.note || 'Privat'),
+          stColor: on ? '#1f7a44' : '#9a9484',
+          onToggle: ()=>this.setState(s2=>({excluded: on ? s2.excluded.concat([a.code]) : s2.excluded.filter(c=>c!==a.code)}))};
+      }),
+      modalSummary: myIncludedCount + ' av ' + this.apts().length + ' leiligheter legges inn i bedriften · ' + excludedReal + ' holdes privat'
+    };
+  }
+}
+</script>
+</body>
+</html>

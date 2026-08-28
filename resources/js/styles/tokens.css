@@ -1,0 +1,63 @@
+:root {
+    /* Brand colours */
+    --vs-primary: #12352b;
+    --vs-accent: #e0793a;
+    --vs-sand: #e0a458;
+    --vs-bg: #f2ead9;
+    --vs-panel-sand: #f7f2e6;
+    --vs-panel-sand-alt: #f7f3e8;
+    --vs-border: #eee6d0;
+    --vs-border-input: #ddd5bd;
+    --vs-border-sand: #e8dcc0;
+    --vs-divider: #f2ead9;
+
+    /* Sidebar — Aug 20 design uses 224px */
+    --vs-sidebar-width: 224px;
+    --vs-sidebar-text: #c9d6cd;
+    --vs-sidebar-text-bright: #dfe6dd;
+    --vs-sidebar-brand: #e9e4d4;
+
+    /* Surfaces */
+    --vs-surface: #ffffff;
+
+    /* Text */
+    --vs-text: #1c2b23;
+    --vs-text-secondary: #5e6b62;
+    --vs-text-secondary-dark: #43503f;
+    --vs-text-muted: #8a9187;
+    --vs-text-label: #9a9484;
+    --vs-placeholder: #c9c2ac;
+    --vs-neutral: #b8b0a0;
+
+    /* Status */
+    --vs-success: #1f7a44;
+    --vs-success-bg: #e5f3ea;
+    --vs-success-border: #bfe3cd;
+    --vs-warning: #b5651d;
+    --vs-warning-bg: #fbead3;
+    --vs-warning-border: #f0cf9e;
+    --vs-error: #c4502a;
+    --vs-error-dark: #8a3a2a;
+    --vs-draft-bg: #f2ead9;
+    --vs-draft-text: #8a6a3d;
+
+    /* Period types */
+    --vs-period-vietstays: #12352b;
+    --vs-period-blocked: #e0793a;
+    --vs-period-external: #c9c2ac;
+
+    /* Radius */
+    --vs-radius-sm: 8px;
+    --vs-radius-md: 10px;
+    --vs-radius-lg: 12px;
+    --vs-radius-xl: 14px;
+
+    /* Shadows */
+    --vs-shadow-menu: 0 12px 30px rgba(0, 0, 0, 0.15);
+    --vs-shadow-modal: rgba(0, 0, 0, 0.4);
+    --vs-shadow-sticky: 0 -4px 16px rgba(0, 0, 0, 0.15);
+    --vs-shadow-toast: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+    /* Typography */
+    --vs-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}

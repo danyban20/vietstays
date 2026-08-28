@@ -1,0 +1,1990 @@
+/* Host apartment wizard & manage page — Nav v3 2026 mockup */
+
+:root {
+    --vv2026-green: #1e4d3a;
+    --vv2026-green-dark: #163a2c;
+    --vv2026-orange: #e8751a;
+    --vv2026-orange-hover: #d06815;
+    --vv2026-cream: #f3ebe0;
+    --vv2026-cream-border: #ddd3c4;
+    --vv2026-page-bg: #c8c4bc;
+    --vv2026-text: #2c2c2c;
+    --vv2026-muted: #6b6b6b;
+}
+
+/* Full-page wizard takeover inside admin content area */
+body.vv-apt2026-wizard-active .main-content,
+html.vv-apt2026-wizard-active .main-content {
+    padding: 0 !important;
+}
+
+body.vv-apt2026-wizard-active .main-content .container-fluid,
+html.vv-apt2026-wizard-active .main-content .container-fluid {
+    max-width: none;
+    padding: 0;
+}
+
+body.vv-apt2026-wizard-active .section__content {
+    padding: 0 !important;
+}
+
+body.vv-apt2026-wizard-active footer,
+body.vv-apt2026-wizard-active .footer {
+    display: none;
+}
+
+html.vv-apt2026-wizard-active .header-desktop,
+body.vv-apt2026-wizard-active .header-desktop {
+    display: none;
+}
+
+html.vv-apt2026-wizard-active .main-content .container-fluid > .row,
+body.vv-apt2026-wizard-active .main-content .container-fluid > .row {
+    display: none;
+}
+
+.vv-apt2026-overlay {
+    position: fixed;
+    top: 0;
+    left: 300px;
+    right: 0;
+    bottom: 0;
+    background: var(--vv2026-page-bg);
+    z-index: 100;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 24px 48px;
+}
+
+html.vv-apt2026-wizard-active .vv-apt2026-overlay,
+body.vv-apt2026-wizard-active .vv-apt2026-overlay {
+    top: 0;
+}
+
+@media (max-width: 991px) {
+    .vv-apt2026-overlay {
+        left: 0;
+        top: 60px;
+        padding: 16px 12px 32px;
+    }
+}
+
+.vv-apt2026-modal {
+    width: 100%;
+    max-width: 920px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+    overflow: visible;
+}
+
+/* Dark green title bar */
+.vv-apt2026-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--vv2026-green);
+    color: #fff;
+}
+
+.vv-apt2026-modal__header h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.vv-apt2026-modal__close {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 22px;
+    line-height: 1;
+    text-decoration: none;
+    padding: 0 4px;
+}
+
+.vv-apt2026-modal__close:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+a.vv-apt2026-modal__close {
+    text-decoration: none;
+    line-height: 1;
+}
+
+/* Step tabs row — segmented bar (Nav v3 mockup) */
+.vv-apt2026-step-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: none;
+}
+
+.vv-apt2026-step-tabs a,
+.vv-apt2026-step-tabs span {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vv2026-muted);
+    text-decoration: none;
+    background: var(--vv2026-cream);
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    transition: background 0.15s, color 0.15s;
+}
+
+.vv-apt2026-step-tabs a:last-child,
+.vv-apt2026-step-tabs span:last-child {
+    border-right: none;
+}
+
+.vv-apt2026-step-tabs .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
+    margin-right: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--vv2026-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.vv-apt2026-step-tabs a.is-active .num,
+.vv-apt2026-step-tabs span.is-active .num {
+    background: #fff;
+    color: var(--vv2026-orange);
+}
+
+.vv-apt2026-step-tabs a.is-done .num,
+.vv-apt2026-step-tabs span.is-done .num {
+    background: rgba(255, 255, 255, 0.95);
+    color: #2d5a45;
+}
+
+.vv-apt2026-step-tabs a.is-future .num,
+.vv-apt2026-step-tabs span.is-future .num {
+    background: rgba(255, 255, 255, 0.75);
+    color: #aaa;
+}
+
+.vv-apt2026-step-tabs a.is-active,
+.vv-apt2026-step-tabs span.is-active {
+    background: var(--vv2026-orange);
+    color: #fff;
+}
+
+.vv-apt2026-step-tabs a.is-done,
+.vv-apt2026-step-tabs span.is-done {
+    background: #5a8f72;
+    color: #fff;
+}
+
+.vv-apt2026-step-tabs a.is-future,
+.vv-apt2026-step-tabs span.is-future {
+    background: #f7f2ea;
+    color: #b0a99e;
+}
+
+.vv-apt2026-step-tabs a:hover {
+    text-decoration: none;
+    color: var(--vv2026-green);
+}
+
+.vv-apt2026-step-tabs a.is-active:hover {
+    color: #fff;
+}
+
+.vv-apt2026-body {
+    padding: 24px 28px 8px;
+    overflow-y: auto;
+    max-height: calc(100vh - 260px);
+}
+
+.vv-apt2026-body .vv-apt2026-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--vv2026-text);
+    margin-bottom: 6px;
+}
+
+.vv-apt2026-body .vv-apt2026-sublabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--vv2026-muted);
+    margin-top: 2px;
+}
+
+.vv-apt2026-field-group {
+    margin-bottom: 20px;
+}
+
+.vv-apt2026-field,
+.vv-apt2026-body select.vv-apt2026-field,
+.vv-apt2026-body textarea.vv-apt2026-field {
+    width: 100%;
+    background: var(--vv2026-cream);
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--vv2026-text);
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.vv-apt2026-field.is-filled,
+.vv-apt2026-field:focus,
+.vv-apt2026-body select.vv-apt2026-field:focus,
+.vv-apt2026-body textarea.vv-apt2026-field:focus {
+    background: #fff;
+    border-color: var(--vv2026-green);
+    outline: none;
+    box-shadow: none;
+}
+
+.vv-apt2026-hint {
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+.vv-apt2026-name-inline {
+    font-size: 12px;
+    color: var(--vv2026-green);
+    font-weight: 600;
+    margin-top: 8px;
+    min-height: 18px;
+}
+
+.vv-apt2026-type-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.vv-apt2026-type-pills label {
+    margin: 0;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+}
+
+.vv-apt2026-type-pills input {
+    display: none;
+}
+
+.vv-apt2026-type-pills span {
+    display: block;
+    padding: 10px 6px;
+    text-align: center;
+    background: var(--vv2026-cream);
+    border-right: 1px solid var(--vv2026-cream-border);
+    font-size: 13px;
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-type-pills label:last-child span {
+    border-right: none;
+}
+
+.vv-apt2026-type-pills input:checked + span {
+    background: var(--vv2026-orange);
+    color: #fff;
+    border-color: var(--vv2026-orange);
+}
+
+/* 3-tier quality (mockup) */
+.vv-apt2026-quality-tiers {
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 640px) {
+    .vv-apt2026-quality-tiers {
+        flex-direction: column;
+    }
+}
+
+.vv-apt2026-quality-tiers label {
+    flex: 1;
+    margin: 0;
+    cursor: pointer;
+}
+
+.vv-apt2026-quality-tiers input {
+    display: none;
+}
+
+.vv-apt2026-quality-tiers .tier-box {
+    display: block;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    background: var(--vv2026-cream);
+    line-height: 1.35;
+}
+
+.vv-apt2026-quality-tiers .tier-box strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.vv-apt2026-quality-tiers .tier-box small {
+    display: block;
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    margin-top: 2px;
+}
+
+.vv-apt2026-quality-tiers input:checked + .tier-box {
+    background: var(--vv2026-green);
+    border-color: var(--vv2026-green);
+    color: #fff;
+}
+
+.vv-apt2026-quality-tiers input:checked + .tier-box small {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Description NO / EN inline tabs */
+.vv-apt2026-desc-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.vv-apt2026-locale-inline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-size: 12px;
+    font-weight: 600;
+    position: relative;
+    z-index: 5;
+}
+
+.vv-apt2026-locale-inline .vv-apt2026-locale-tab {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--vv2026-muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    position: relative;
+    z-index: 6;
+    pointer-events: auto;
+    border-radius: 3px;
+}
+
+.vv-apt2026-locale-inline .vv-apt2026-locale-tab:hover {
+    color: var(--vv2026-green);
+    background: rgba(30, 77, 58, 0.08);
+}
+
+.vv-apt2026-locale-inline .vv-apt2026-locale-tab.is-active {
+    color: var(--vv2026-orange);
+    background: rgba(232, 117, 26, 0.1);
+}
+
+.vv-apt2026-locale-inline button {
+    background: none;
+    border: none;
+    padding: 2px 6px;
+    cursor: pointer;
+    color: var(--vv2026-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.vv-apt2026-locale-inline button.is-active {
+    color: var(--vv2026-orange);
+}
+
+.vv-apt2026-locale-inline .sep {
+    color: #ccc;
+    padding: 0 2px;
+}
+
+.apt2026-locale-pane {
+    display: none !important;
+}
+
+.apt2026-locale-pane.is-active {
+    display: block !important;
+}
+
+.apt2026-locale-pane[hidden] {
+    display: none !important;
+}
+
+.vv-apt2026-locale-pane-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vv2026-muted);
+    margin: 0 0 6px;
+}
+
+.vv-apt2026-char-count {
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    text-align: right;
+    margin-top: 4px;
+}
+
+.vv-apt2026-example {
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    font-style: italic;
+    margin-top: 8px;
+    line-height: 1.45;
+    padding: 8px 10px;
+    background: #fafafa;
+    border-radius: 4px;
+}
+
+/* Footer */
+.vv-apt2026-footer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px 24px;
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.vv-apt2026-footer-left {
+    justify-self: start;
+}
+
+.vv-apt2026-btn-back {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--vv2026-text);
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 9px 16px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.vv-apt2026-btn-back:hover {
+    text-decoration: none;
+    color: var(--vv2026-text);
+    background: #f8f8f8;
+}
+
+.vv-apt2026-cancel {
+    font-size: 13px;
+    color: var(--vv2026-muted);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    justify-self: center;
+    text-align: center;
+}
+
+.vv-apt2026-cancel:hover {
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-footer-right {
+    text-align: right;
+    justify-self: end;
+}
+
+.vv-apt2026-footer-hint {
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    margin: 0 0 6px;
+}
+
+.vv-apt2026-btn-next {
+    display: inline-block;
+    background: var(--vv2026-orange);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.vv-apt2026-btn-next:hover:not(:disabled) {
+    background: var(--vv2026-orange-hover);
+    color: #fff;
+}
+
+.vv-apt2026-btn-next:disabled {
+    background: var(--vv2026-cream);
+    border: 1px solid var(--vv2026-cream-border);
+    cursor: not-allowed;
+    color: #999;
+}
+
+.vv-apt2026-btn-next.is-success {
+    background: var(--vv2026-green);
+}
+
+.vv-apt2026-btn-next.is-success:hover:not(:disabled) {
+    background: var(--vv2026-green-dark);
+}
+
+/* Legacy step pills — keep for other steps if needed */
+.vv-apt2026-steps { display: none; }
+
+.vv-apt2026-dropzone {
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    padding: 48px 20px;
+    text-align: center;
+    background: #fff;
+    cursor: pointer;
+}
+
+.vv-apt2026-btn-pick {
+    background: var(--vv2026-orange);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.vv-apt2026-btn-pick:hover {
+    background: var(--vv2026-orange-hover);
+    color: #fff;
+}
+
+.vv-apt2026-photo-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 16px;
+}
+
+.vv-apt2026-photo-tabs {
+    border-bottom: none;
+}
+
+.vv-apt2026-photo-tabs .nav-link {
+    color: var(--vv2026-muted);
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 0;
+    padding: 10px 16px;
+    background: var(--vv2026-cream);
+    margin-right: 2px;
+}
+
+.vv-apt2026-photo-tabs .nav-link.active {
+    background: #fff;
+    color: var(--vv2026-text);
+    border-bottom: 3px solid var(--vv2026-orange);
+}
+
+.vv-apt2026-photo-counter {
+    font-size: 13px;
+    font-weight: 700;
+    background: #222;
+    color: var(--vv2026-orange);
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.vv-apt2026-upload-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.vv-apt2026-link-orange {
+    color: var(--vv2026-orange) !important;
+    font-weight: 600;
+}
+
+.vv-apt2026-facility-tabs .nav-link.active {
+    border-bottom: 3px solid var(--vv2026-orange);
+    color: var(--vv2026-text);
+    font-weight: 600;
+}
+
+.vv-apt2026-dropzone:hover,
+.vv-apt2026-dropzone.is-dragover {
+    border-color: var(--vv2026-green);
+    background: #ebe3d6;
+}
+
+.vv-apt2026-dropzone.is-uploading {
+    opacity: 0.55;
+    pointer-events: none;
+    border-color: var(--vv2026-green);
+    background: #ebe3d6;
+}
+
+.vv-apt2026-upload-progress {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 6px;
+    border: 1px solid #c8e6c9;
+    background: #f1f8e9;
+}
+
+.vv-apt2026-upload-progress.is-complete {
+    border-color: #c3e6cb;
+    background: #d4edda;
+}
+
+.vv-apt2026-upload-progress.is-error {
+    border-color: #f5c6cb;
+    background: #f8d7da;
+}
+
+.vv-apt2026-upload-progress__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.vv-apt2026-upload-progress__label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-upload-progress__spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(45, 90, 61, 0.2);
+    border-top-color: var(--vv2026-green);
+    border-radius: 50%;
+    animation: vv-apt2026-spin 0.75s linear infinite;
+    flex-shrink: 0;
+}
+
+.vv-apt2026-upload-progress.is-complete .vv-apt2026-upload-progress__spinner,
+.vv-apt2026-upload-progress.is-error .vv-apt2026-upload-progress__spinner {
+    animation: none;
+    border: none;
+    width: auto;
+    height: auto;
+}
+
+.vv-apt2026-upload-progress.is-complete .vv-apt2026-upload-progress__spinner::before {
+    content: '✓';
+    color: #155724;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.vv-apt2026-upload-progress.is-error .vv-apt2026-upload-progress__spinner::before {
+    content: '!';
+    color: #721c24;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.vv-apt2026-upload-progress__bar-wrap {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.vv-apt2026-upload-progress__bar {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--vv2026-green) 0%, #5cb85c 100%);
+    transition: width 0.15s ease-out;
+}
+
+.vv-apt2026-upload-progress.is-error .vv-apt2026-upload-progress__bar {
+    background: #dc3545;
+}
+
+.vv-apt2026-upload-progress__detail {
+    font-size: 12px;
+    color: var(--vv2026-muted);
+    word-break: break-word;
+}
+
+.vv-apt2026-btn-pick:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+@keyframes vv-apt2026-spin {
+    to { transform: rotate(360deg); }
+}
+
+.vv-apt2026-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.vv-apt2026-image-card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+}
+
+.vv-apt2026-image-card.is-cover {
+    box-shadow: 0 0 0 2px var(--vv2026-green);
+}
+
+.vv-apt2026-image-card__cover--building {
+    background: #3d6b8a;
+    font-size: 10px;
+}
+
+.vv-apt2026-image-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+}
+
+.vv-apt2026-image-card__body {
+    padding: 8px;
+}
+
+.vv-apt2026-image-card__cover {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: var(--vv2026-green);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    z-index: 1;
+}
+
+.vv-apt2026-image-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vv-apt2026-image-card__actions .btn-link {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.vv-manage2026-approval-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    background: #fff8e6;
+    border: 1px solid #f0d78c;
+    border-radius: 4px;
+}
+
+.vv-apt2026-facility-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px 16px;
+}
+
+.vv-apt2026-facility-grid--4col {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 768px) {
+    .vv-apt2026-facility-grid--4col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Apartment facilities — clickable orange checkboxes */
+.vv-apt2026-facility-item--apt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+    border: none;
+    background: transparent;
+}
+
+.vv-apt2026-facility-item--apt input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    pointer-events: none;
+}
+
+.vv-apt2026-facility-item--apt {
+    position: relative;
+    cursor: pointer;
+}
+
+.vv-apt2026-facility-box {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--vv2026-orange);
+    border-radius: 3px;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    transition: background 0.12s, border-color 0.12s;
+}
+
+.vv-apt2026-facility-item--apt.is-checked .vv-apt2026-facility-box {
+    background: var(--vv2026-orange);
+    border-color: var(--vv2026-orange);
+}
+
+.vv-apt2026-facility-item--apt.is-checked .vv-apt2026-facility-box::after {
+    content: '';
+    width: 6px;
+    height: 11px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-top: -2px;
+}
+
+.vv-apt2026-facility-item--apt .vv-apt2026-facility-icon {
+    width: 18px;
+    text-align: center;
+    color: #555;
+    flex-shrink: 0;
+}
+
+.vv-apt2026-facility-item--apt.is-checked .vv-apt2026-facility-icon,
+.vv-apt2026-facility-item--apt.is-checked .vv-apt2026-facility-label {
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-facility-item--apt:not(.is-checked) .vv-apt2026-facility-icon,
+.vv-apt2026-facility-item--apt:not(.is-checked) .vv-apt2026-facility-label {
+    color: #888;
+}
+
+.vv-apt2026-facility-label {
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+/* Building amenities — read-only display (not clickable) */
+.vv-apt2026-facility-item--building {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    border: none;
+    background: transparent;
+}
+
+.vv-apt2026-facility-item--building.is-confirmed .vv-apt2026-facility-box {
+    background: var(--vv2026-green);
+    border: none;
+    color: #fff;
+}
+
+.vv-apt2026-facility-item--building.is-confirmed .vv-apt2026-facility-icon,
+.vv-apt2026-facility-item--building.is-confirmed .vv-apt2026-facility-label {
+    color: var(--vv2026-green);
+    font-weight: 500;
+}
+
+.vv-apt2026-facility-item--building.is-unconfirmed .vv-apt2026-facility-box {
+    background: #f0f0f0;
+    border: 2px solid #ddd;
+    color: transparent;
+}
+
+.vv-apt2026-facility-item--building.is-unconfirmed .vv-apt2026-facility-icon,
+.vv-apt2026-facility-item--building.is-unconfirmed .vv-apt2026-facility-label {
+    color: #bbb;
+}
+
+.vv-apt2026-facility-tabs .nav-link.active {
+    color: var(--vv2026-orange);
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: 600;
+}
+
+.vv-apt2026-preview-intro {
+    font-size: 13px;
+    color: var(--vv2026-muted);
+    margin-bottom: 20px;
+}
+
+.vv-apt2026-preview-card {
+    border: 1px solid #e5ddd0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.vv-apt2026-preview-card__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 0;
+}
+
+@media (max-width: 768px) {
+    .vv-apt2026-preview-card__layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.vv-apt2026-preview-card__media {
+    padding: 16px;
+    background: #faf8f5;
+    border-right: 1px solid #eee;
+}
+
+.vv-apt2026-preview-card__hero {
+    height: 200px;
+    background: #5a9e8f center/cover no-repeat;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.vv-apt2026-preview-card__hero.is-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 48px;
+}
+
+.vv-apt2026-preview-card__cover-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: var(--vv2026-orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 3px;
+}
+
+.vv-apt2026-preview-card__thumbs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.vv-apt2026-preview-card__thumb {
+    height: 64px;
+    background: #5a9e8f center/cover no-repeat;
+    border-radius: 4px;
+}
+
+.vv-apt2026-preview-card__body {
+    padding: 20px 22px;
+}
+
+.vv-apt2026-preview-card__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--vv2026-green);
+    margin: 0 0 6px;
+    line-height: 1.3;
+}
+
+.vv-apt2026-preview-card__location {
+    font-size: 13px;
+    color: var(--vv2026-muted);
+    margin-bottom: 14px;
+}
+
+.vv-apt2026-preview-card__price {
+    background: var(--vv2026-cream);
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+}
+
+.vv-apt2026-preview-card__price strong {
+    display: block;
+    font-size: 16px;
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-preview-card__price small {
+    display: block;
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    margin-top: 2px;
+}
+
+.vv-apt2026-preview-tags {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.vv-apt2026-preview-tags span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    background: var(--vv2026-cream);
+    color: var(--vv2026-text);
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--vv2026-cream-border);
+}
+
+.vv-apt2026-preview-card__more-photos {
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    margin-bottom: 12px;
+}
+
+.vv-apt2026-preview-card__rules {
+    background: var(--vv2026-cream);
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--vv2026-muted);
+}
+
+.vv-apt2026-preview-card__about {
+    margin-top: 16px;
+    padding: 16px 20px 20px;
+    background: var(--vv2026-cream);
+    border-top: 1px solid #eee;
+}
+
+.vv-apt2026-preview-card__about h6 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--vv2026-green);
+    margin: 0 0 8px;
+}
+
+.vv-apt2026-preview-card__about p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--vv2026-text);
+    line-height: 1.5;
+}
+
+.vv-apt2026-building-modal .vv-apt2026-building-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.vv-apt2026-building-modal img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.vv-apt2026-building-modal label {
+    display: block;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 4px;
+    margin: 0;
+}
+
+.vv-apt2026-building-modal label.is-selected {
+    border-color: var(--vv2026-green);
+    background: #eef6f2;
+}
+
+/* Manage page (unchanged structure, updated colors) */
+.vv-manage2026-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.vv-manage2026-header h1 {
+    font-size: 1.35rem;
+    margin: 0;
+}
+
+.vv-manage2026-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 24px 28px;
+    max-width: 720px;
+}
+
+.vv-bookings2026 .form-control.vv-apt2026-field {
+    height: auto;
+    padding: 10px 12px;
+    font-size: 13px;
+}
+
+.vv-manage2026-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.vv-manage2026-badge--pending { background: #fff3cd; color: #856404; }
+.vv-manage2026-badge--active { background: #d4edda; color: #155724; }
+.vv-manage2026-badge--draft { background: #e2e3e5; color: #383d41; }
+
+.vv-manage2026-tabs .nav-link { color: var(--vv2026-green); font-size: 13px; border-radius: 0; }
+.vv-manage2026-tabs .nav-link.active { background: var(--vv2026-green); color: #fff; }
+
+.vv-manage2026-ai-price {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--vv2026-green);
+}
+
+.vv-manage2026-level-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.vv-manage2026-level-pills label { margin: 0; cursor: pointer; }
+.vv-manage2026-level-pills input { display: none; }
+.vv-manage2026-level-pills span {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+}
+.vv-manage2026-level-pills input:checked + span {
+    background: var(--vv2026-green);
+    color: #fff;
+    border-color: var(--vv2026-green);
+}
+
+.vv-manage2026-sidebar {
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 16px;
+}
+
+.vv-manage2026-sidebar dt {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #888;
+    margin-top: 10px;
+}
+
+.vv-manage2026-sidebar dd { margin: 0 0 4px; font-size: 13px; }
+
+.vv-manage2026-mini-cal { font-size: 11px; }
+.vv-manage2026-mini-cal td, .vv-manage2026-mini-cal th { text-align: center; padding: 4px; width: 28px; }
+.vv-manage2026-mini-cal .booked { background: #28a745; color: #fff; border-radius: 3px; }
+.vv-manage2026-mini-cal .blocked { background: #ffc107; border-radius: 3px; }
+.vv-manage2026-mini-cal .external { background: #6f42c1; color: #fff; border-radius: 3px; }
+
+.vv-manage2026-cal-nav .btn { min-width: 34px; }
+.vv-manage2026-cal-block + .vv-manage2026-cal-block { margin-top: 0; }
+.vv-manage2026-period-table td { vertical-align: middle; }
+.vv-manage2026-period-badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eee;
+}
+.vv-period-type--vietstays { background: #d4edda; color: #155724; }
+.vv-period-type--manual_block { background: #fff3cd; color: #856404; }
+.vv-period-type--external_airbnb { background: #e2d9f3; color: #4a2c7a; }
+
+.vv-manage2026-pricing-suggest {
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 12px 14px;
+}
+
+.vv-building-price-matrix input.form-control-sm { min-width: 72px; }
+
+.vv-manage2026-approval-bar,
+.vv-manage2026-rejection-notice { margin-bottom: 16px; }
+
+.vv-manage2026-stat-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 14px 16px;
+    height: 100%;
+}
+
+.vv-manage2026-stat-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.vv-manage2026-stat-value {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.vv-manage2026-stat-value--sm {
+    font-size: 1.15rem;
+}
+
+.vv-manage2026-stat-sub {
+    display: block;
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+
+.vv-manage2026-check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.vv-manage2026-check-row:last-child {
+    border-bottom: none;
+}
+
+.vv-apt2026-images-cover-hint {
+    font-size: 12px;
+    color: #666;
+}
+
+.vv-apt2026-image-card__order {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+#manage2026PeriodDetail dl dt { font-size: 12px; color: #666; }
+
+.vv-apt2026-building-request {
+    border: 1px dashed var(--vv2026-cream-border);
+    background: #faf8f5;
+}
+
+.vv-apt2026-location-cascade .row { margin-left: -8px; margin-right: -8px; }
+.vv-apt2026-location-cascade .col-md-4 { padding-left: 8px; padding-right: 8px; }
+
+.vv-apt2026-quality-grid { display: none; }
+
+/* Host bookings list (Nav v3) */
+.vv-bookings2026-table thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--vv2026-muted);
+    border-top: none;
+    white-space: nowrap;
+}
+
+.vv-bookings2026-table tbody td {
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.vv-bookings2026-modal__header {
+    background: var(--vv2026-green);
+    color: #fff;
+}
+
+.vv-bookings2026-modal__header .modal-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.vv-bookings2026 .vv-manage2026-tabs .badge {
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* ---- Nav v3 wizard mockup (Add New Apartment) ---- */
+
+.vv-apt2026-modal {
+    max-width: 1040px;
+}
+
+.vv-apt2026-body {
+    padding: 28px 32px 12px;
+    background: #fff;
+}
+
+.vv-apt2026-form-row {
+    margin-left: -10px;
+    margin-right: -10px;
+    margin-bottom: 4px;
+}
+
+.vv-apt2026-form-row > [class*="col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.vv-apt2026-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.vv-apt2026-label-note {
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.vv-apt2026-name-preview {
+    font-size: 12px;
+    color: var(--vv2026-green);
+    font-weight: 600;
+    margin: 6px 0 0;
+    min-height: 18px;
+}
+
+.vv-apt2026-type-pills--spaced {
+    border: none;
+    gap: 8px;
+    overflow: visible;
+}
+
+.vv-apt2026-type-pills--spaced label {
+    flex: 0 1 auto;
+}
+
+.vv-apt2026-type-pills--spaced span {
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    padding: 10px 18px;
+    min-width: 64px;
+    background: var(--vv2026-cream);
+}
+
+.vv-apt2026-standard-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.vv-apt2026-standard-pills label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.vv-apt2026-standard-pills input {
+    display: none;
+}
+
+.vv-apt2026-standard-pills span {
+    display: block;
+    padding: 10px 14px;
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    background: var(--vv2026-cream);
+    font-size: 13px;
+    color: var(--vv2026-text);
+    text-align: center;
+    min-width: 110px;
+    line-height: 1.35;
+}
+
+.vv-apt2026-standard-pills span strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.vv-apt2026-standard-pills span small {
+    display: block;
+    font-size: 11px;
+    color: var(--vv2026-muted);
+    margin-top: 2px;
+}
+
+.vv-apt2026-standard-pills input:checked + span {
+    background: var(--vv2026-green);
+    border-color: var(--vv2026-green);
+    color: #fff;
+}
+
+.vv-apt2026-standard-pills input:checked + span small {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.vv-apt2026-building-request {
+    border: 1px dashed var(--vv2026-cream-border);
+    background: #faf8f5;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.vv-apt2026-btn-pick--sm {
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
+.vv-apt2026-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--vv2026-green);
+    margin: 0 0 8px;
+}
+
+.vv-apt2026-footer--first {
+    grid-template-columns: 1fr 1fr;
+}
+
+.vv-apt2026-footer--first .vv-apt2026-cancel {
+    justify-self: start;
+}
+
+.vv-apt2026-footer--first .vv-apt2026-footer-left {
+    display: none;
+}
+
+.vv-apt2026-footer--first .vv-apt2026-footer-right {
+    justify-self: end;
+}
+
+.vv-apt2026-dropzone {
+    border: 2px double #bbb;
+    border-radius: 6px;
+    padding: 56px 24px;
+    background: #fff;
+}
+
+.vv-apt2026-dropzone__icon {
+    color: #333;
+}
+
+.vv-apt2026-dropzone-tip {
+    color: #999;
+}
+
+.vv-apt2026-photo-toolbar {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.vv-apt2026-photo-tabs .nav-link {
+    background: var(--vv2026-cream);
+    border-radius: 0;
+    margin-right: 0;
+    border: 1px solid #e5e5e5;
+    border-bottom: none;
+}
+
+.vv-apt2026-photo-tabs .nav-link.active {
+    background: #fff;
+    border-bottom: 3px solid var(--vv2026-orange);
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-photo-counter {
+    border: 2px solid var(--vv2026-orange);
+    background: #1a1a1a;
+    color: var(--vv2026-orange);
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 4px;
+}
+
+.vv-apt2026-images-grid--5col {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 991px) {
+    .vv-apt2026-images-grid--5col {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .vv-apt2026-images-grid--5col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.vv-apt2026-image-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+}
+
+.vv-apt2026-image-card.is-cover,
+.vv-apt2026-image-card.is-selected {
+    box-shadow: 0 0 0 2px var(--vv2026-orange);
+}
+
+.vv-apt2026-image-card__thumb {
+    background: #5a9e8f;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vv-apt2026-image-card__thumb img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.vv-apt2026-image-card__cover {
+    position: absolute;
+    bottom: 52px;
+    left: 8px;
+    right: 8px;
+    background: var(--vv2026-orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 3px;
+    z-index: 2;
+    text-align: center;
+}
+
+.vv-apt2026-image-card__menu,
+.vv-apt2026-image-card__remove {
+    position: absolute;
+    top: 6px;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: 24px;
+    height: 24px;
+    line-height: 22px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.vv-apt2026-image-card__menu {
+    left: 6px;
+}
+
+.vv-apt2026-image-card__remove {
+    right: 6px;
+    color: #c00;
+}
+
+.vv-apt2026-field--caption {
+    border: none;
+    border-top: 1px solid #eee;
+    border-radius: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.vv-apt2026-image-card__actions {
+    display: none;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px;
+    border-top: 1px solid #eee;
+}
+
+.vv-apt2026-image-card.is-selected .vv-apt2026-image-card__actions {
+    display: flex;
+}
+
+.vv-apt2026-image-card__actions button {
+    background: var(--vv2026-orange);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.vv-apt2026-facility-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.vv-apt2026-facility-tabs {
+    border-bottom: none;
+}
+
+.vv-apt2026-facility-tabs .nav-link {
+    background: var(--vv2026-cream);
+    border: none;
+    border-radius: 0;
+    color: var(--vv2026-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    margin-right: 2px;
+}
+
+.vv-apt2026-facility-tabs .nav-link.active {
+    background: #fff;
+    color: var(--vv2026-text);
+    border-bottom: 3px solid var(--vv2026-orange);
+}
+
+.vv-apt2026-facility-counter {
+    font-size: 12px;
+    font-weight: 700;
+    border: 2px solid var(--vv2026-orange);
+    color: var(--vv2026-orange);
+    padding: 6px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-bottom: 8px;
+}
+
+.vv-apt2026-info-box {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #fff9e6;
+    border: 1px solid #f0d78c;
+    border-radius: 4px;
+    padding: 12px 14px;
+}
+
+.vv-apt2026-info-box p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.45;
+}
+
+.vv-apt2026-building-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.vv-apt2026-building-grid label {
+    position: relative;
+    display: block;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    padding: 4px;
+    margin: 0;
+    background: #fff;
+}
+
+.vv-apt2026-building-grid label.is-selected {
+    border-color: var(--vv2026-orange);
+    background: rgba(232, 117, 26, 0.06);
+}
+
+.vv-apt2026-building-grid img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #5a9e8f;
+    display: block;
+}
+
+.vv-apt2026-building-grid .vv-apt2026-building-grid__label {
+    font-size: 11px;
+    text-align: center;
+    margin-top: 6px;
+    color: var(--vv2026-text);
+}
+
+.vv-apt2026-footer {
+    background: #faf8f5;
+}
+
+.vv-apt2026-building-grid label.is-selected::before {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    background: var(--vv2026-orange);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 3px;
+}
+
+.vv-apt2026-building-grid label:not(.is-selected)::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #ccc;
+    border-radius: 3px;
+}
+
+/* Beat admin theme defaults inside the wizard modal */
+.vv-apt2026-modal .vv-apt2026-field,
+.vv-apt2026-modal select.vv-apt2026-field,
+.vv-apt2026-modal textarea.vv-apt2026-field {
+    background: var(--vv2026-cream);
+    border: 1px solid var(--vv2026-cream-border);
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.vv-apt2026-modal .vv-apt2026-field.is-filled,
+.vv-apt2026-modal .vv-apt2026-field:focus,
+.vv-apt2026-modal select.vv-apt2026-field:focus,
+.vv-apt2026-modal textarea.vv-apt2026-field:focus {
+    background: #fff;
+    border-color: var(--vv2026-green);
+}
+
+/* Vue wizard overlay — fills host content area (sidebar stays visible, like WP) */
+.host-content .vv-apt2026-overlay,
+.vv-apt2026-overlay.host-wizard-embed {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 24px 48px;
+    background: var(--vv2026-page-bg);
+}
+
+.vv-apt2026-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px 4px;
+}
+
+.vv-apt2026-form-row > .col-md-6 {
+    box-sizing: border-box;
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0 10px;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+    .vv-apt2026-form-row > .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.vv-apt2026-form-row > .col-md-6 .vv-apt2026-field-group.mb-0 {
+    margin-bottom: 0;
+}
+
+/* Legacy WP fixed overlay (standalone admin) — disabled in Vue host shell */
+.host-app .vv-apt2026-overlay:not(.host-wizard-embed) {
+    position: absolute;
+    inset: 0;
+    left: 0;
+}
+
+.vv-apt2026-step-tabs button {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vv2026-muted);
+    background: var(--vv2026-cream);
+    border: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.vv-apt2026-step-tabs button:last-child {
+    border-right: none;
+}
+
+.vv-apt2026-step-tabs button:disabled {
+    cursor: default;
+}
+
+.vv-apt2026-step-tabs button.is-active {
+    background: var(--vv2026-orange);
+    color: #fff;
+}
+
+.vv-apt2026-step-tabs button.is-done {
+    background: #5a8f72;
+    color: #fff;
+}
+
+.vv-apt2026-step-tabs button.is-future {
+    background: #f7f2ea;
+    color: #b0a99e;
+}
+
+.vv-apt2026-step-tabs button .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
+    margin-right: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--vv2026-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.vv-apt2026-step-tabs button.is-active .num {
+    background: #fff;
+    color: var(--vv2026-orange);
+}
+
+.vv-apt2026-step-tabs button.is-done .num {
+    background: rgba(255, 255, 255, 0.95);
+    color: #2d5a45;
+}
+
+.vv-apt2026-step-tabs button.is-future .num {
+    background: rgba(255, 255, 255, 0.75);
+    color: #aaa;
+}
+
+.vv-apt2026-photo-tabs,
+.vv-apt2026-facility-tabs {
+    display: flex;
+    gap: 0;
+}
+
+.vv-apt2026-building-grid label {
+    display: block;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 4px;
+    text-align: center;
+}
+
+.vv-apt2026-building-grid label.is-selected {
+    border-color: var(--vv2026-orange);
+    background: #fff5eb;
+}
+
+.vv-apt2026-building-grid .vv-apt2026-image-card__thumb {
+    min-height: 80px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #fff;
+    padding: 8px;
+}

@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Strip trailing slashes before internal rewrite (prevents /admin/ → /public/admin)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} ^(.+)/$
+    RewriteRule ^ %1 [R=301,L]
+
+    # Redirect legacy /public URLs to site root
+    RewriteRule ^public/?(.*)$ /$1 [R=301,L]
+
+    # Serve Laravel from the public/ folder (internal rewrite only)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

@@ -1,0 +1,186 @@
+@charset "utf-8";
+/* Responsive CSS */
+
+@media (max-width: 1800px) {
+.container { width:1400px; }
+
+.explore_slider {margin-right: calc(-100vw / 2 + 980px / 2);}
+
+.offer_block p { font-size:20px; }
+#we_make .we_make_left { padding-right:0; }
+
+.offer_block .new_price { font-size:42px; }
+.offer_block .old_price { font-size:28px; }
+.explore_block h4 { font-size:18px; }
+.explore_block h3 { font-size:26px; }
+#free_membership h3 { font-size:26px; }
+#campaigns h3 { font-size:26px; }
+#we_make .title_box h3 { font-size:26px; }
+#free_membership ul li { font-size:26px; }
+#benifits .desc ul li   { font-size:26px; }
+#we_make .title_box { margin-bottom:40px; }
+#benifits .desc { padding-left:20px; }
+
+
+	
+}
+
+@media (max-width: 1440px) {
+.container { width:1170px; }
+
+h1, .heading-1 { font-size:45px; }
+
+.explore_slider {margin-right: calc(-100vw / 2 + 750px / 2);}
+
+#nav ul li { padding:0 25px; }
+
+.offer_block p { font-size:20px; }
+#we_make .we_make_left { padding-right:0; }
+
+.offer_block .new_price { font-size:38px; }
+.offer_block .old_price { font-size:26px; }
+.explore_block h4 { font-size:16px; }
+.explore_block h3 { font-size:22px; }
+#we_make .title_box h3 { font-size:20px; padding-right:120px; }
+#free_membership ul li { font-size:22px; background-size: 24px auto;    padding-left: 40px; }
+#free_membership h3 { font-size:22px; }
+#campaigns h3 { font-size:22px; }
+#benifits .desc ul li   { font-size:22px;     margin-bottom: 40px; }
+#we_make .title_box { margin-bottom:30px; }
+#benifits .desc { padding-left:0px; }
+
+.offer_block .per { width:90px; line-height:90px; font-size:32px; top:20px; right:20px; }
+.offer_block .cap { left:20px; }
+.offer_block { height:300px; }
+.offer_block.disable { margin-bottom:-150px; }
+#we_make .title_box .read_more { right:20px; }
+.explore_block { height:300px; }
+
+	
+}
+
+
+@media (max-width: 1200px) {
+.container { width:970px; }
+
+h1, .heading-1 { font-size:40px; }
+body { font-size:16px; }
+
+#nav ul li { padding:0 20px; } 
+
+.explore_block .cap { top:20px; left:20px; }
+#free_membership ul li { font-size:20px; }
+.explore_slider { margin-right:calc(-100vw / 2 + 500px / 2); }
+#free_membership .btn { padding:20px; font-size:22px; }
+.offer_block .new_price { font-size:32px; }
+.offer_block .old_price { font-size:22px; }
+#free_membership .seel_all_btn { padding:0; }
+#footer ul li { padding:0 15px; }
+
+#campaigns .seel_all_btn { padding:0 20px; }
+
+
+}
+
+
+@media (max-width: 992px) {
+.container { width:750px; padding:0 15px; }
+
+h1, .heading-1 { font-size:34px; }
+body { font-size:14px; }
+
+#nav ul li a { font-size:14px; }
+#header .btn { font-size:14px; padding:9px 20px; }
+#header .lang { margin:0 15px 0 10px; }
+#nav ul li { padding:0 15px; }
+
+#home_slider .input_submit input[type="submit"] { width:150px; }
+#home_slider .book_block .input_wrap { padding-left:50px; }
+#home_slider .book_block .input_wrap:after { left:15px; }
+#home_slider .book_block {width:100%; max-width:720px; }
+#home_slider .book_block label { font-size:16px; }
+.explore_block .btn { padding:12px 15px; }
+
+#we_make .we_make_left { margin-bottom:50px; }
+#benifits .video_block { margin-bottom:50px; }
+#footer .f_inn { flex-wrap: wrap; }
+#footer ul { padding-top:10px; }
+#benifits .desc ul li { margin-bottom:40px; }
+
+}
+
+
+@media (max-width: 767px) {
+.container { width:100%; padding:0 20px; }
+
+.alignnone, .alignleft, .alignright { display:block; float:none; margin:0 auto 30px; }
+
+.typography ul, .typography ol { padding-left:15px; }
+
+.typography div.gallery { margin-left:0 !important; }
+.typography div.gallery .gallery-item { float:none !important; width:100% !important; padding-left:0 !important; }
+
+.wpforms-form .wpforms-field { width:100% !important; margin-left:0 !important; margin-right:0 !important; }
+.wpforms-form .wpforms-field-html { text-align:center; }
+.wpforms-form .wpforms-submit-container { text-align:center; }
+.wpforms-form .wpforms-field label.wpforms-error { position:static; }
+
+blockquote { padding:30px; font-size:30px; }
+blockquote:before { position:static; margin-bottom:15px; }
+
+.table { overflow-x:auto; }
+.table table { margin-bottom:0; }
+
+body.menu_open { overflow:hidden; }
+#header { padding:15px 0; }
+#header .head_right { display:none; position: fixed;    top: 82px;   background: #000;    left: 0;    width: 100%;    padding: 20px 30px; bottom:0; overflow-y:auto; }
+#nav ul { display:block; }
+#nav ul li { padding:15px 0; }
+#header .lang { margin:0 0 15px 0; }
+#nav ul li a { line-height:normal; font-size:16px; }
+
+#menubtn { display:block; }
+
+#home_slider .book_block { display:block; border-radius:20px; padding:10px 20px 20px 20px; width:auto; margin:0 20px; }
+#home_slider .book_block .input_wrap { border-right:none; border-bottom:1px solid #D6D6D6; padding-top:15px; padding-bottom:15px; }
+#home_slider .book_block .input_wrap:last-child { border-bottom:0; }
+#home_slider .input_submit input[type="submit"] { width:100%; border-radius:20px; margin-top:20px; }
+#home_slider .cap > p { font-size:15px; margin-bottom:20px; }
+
+#explore { padding:50px 0; }
+.prev_next {  position: relative;    top: auto;    right: auto; text-align: right;   transform: translateY(0); margin-top:20px; }
+#explore .top_title { margin-bottom:40px; }
+.explore_slider { margin-right:0; }
+
+#free_membership { padding-top:60px; }
+#free_membership h2 { margin-bottom:40px; }
+#free_membership ul { display:block; padding:0 0 20px 0; }
+#free_membership ul li { width:100%; margin-bottom:20px; }
+.offer_block.disable { display:none; }
+#free_membership .btn { width:320px; line-height:60px; font-size:20px; bottom:-30px; padding:0; }
+#we_make { padding:70px 0; }
+#we_make .title_box { padding:0; }
+#we_make .title_box .icon { position:static; transform:translateY(0); text-align:center; margin-bottom:20px; }
+#benifits { padding:50px 0; }
+#benifits h2 { margin-bottom:30px; }
+#benifits .video_block .play_btn { width:80px; height:80px; }
+#benifits .desc ul li { padding-left:50px; }
+#benifits .desc ul li .icon { width:35px; }
+#footer .footer { padding:40px 0; }
+#footer .f_inn { display:block; text-align:center; }
+#footer .social { justify-content: center; margin: 15px 0; }
+#footer ul li { padding:5px 0; border-right:none; }
+#footer ul { display:block; border-right:none; }
+
+#we_make h2 { margin-bottom:40px; }
+
+#campaigns .seel_all_btn { width:320px; font-size:18px; }
+#footer .skyline_img { height:120px; background-size:100% auto !important; }
+
+
+}
+
+
+@media (max-width: 580px) {
+
+}

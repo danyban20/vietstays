@@ -1,0 +1,159 @@
+[13-Oct-2023 01:21:43 UTC] PHP Fatal error:  Uncaught Error: Undefined class constant 'POST_TYPE' in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php:291
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/class-wp-hook.php(310): visitVietnam->remove_quick_edit(Array, Object(WP_Post))
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/plugin.php(205): WP_Hook->apply_filters(Array, Array)
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/includes/class-wp-posts-list-table.php(1573): apply_filters('post_row_action...', Array, Object(WP_Post))
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/includes/class-wp-posts-list-table.php(1067): WP_Posts_List_Table->handle_row_actions(Object(WP_Post), 'title', 'title')
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/includes/class-wp-list-table.php(1743): WP_Posts_List_Table->_column_title(Object(WP_Post), 'title column-ti...', 'data-colname="T... in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 291
+[18-Nov-2023 04:22:23 UTC] PHP Parse error:  syntax error, unexpected ';', expecting ')' in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 175
+[18-Nov-2023 04:23:16 UTC] PHP Fatal error:  Uncaught Error: Call to a member function add_rewrite_tag() on null in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php:176
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/class-wp-post-type.php(696): add_rewrite_tag('%apartment%', '(.+?)', 'apartment=')
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/post.php(1727): WP_Post_Type->add_rewrite_rules()
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(162): register_post_type('apartment', Array)
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(65): visitVietnam->create_post_type()
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(260): visitVietnam->__construct()
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(473): include_once('/home/customer/...')
+#6 /home/customer in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php on line 176
+[18-Nov-2023 04:23:17 UTC] PHP Fatal error:  Uncaught Error: Call to a member function add_rewrite_tag() on null in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php:176
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/class-wp-post-type.php(696): add_rewrite_tag('%apartment%', '(.+?)', 'apartment=')
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/post.php(1727): WP_Post_Type->add_rewrite_rules()
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(162): register_post_type('apartment', Array)
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(65): visitVietnam->create_post_type()
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(260): visitVietnam->__construct()
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(473): include_once('/home/customer/...')
+#6 /home/customer in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php on line 176
+[18-Nov-2023 04:23:31 UTC] PHP Fatal error:  Uncaught Error: Call to a member function add_rewrite_tag() on null in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php:176
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/class-wp-post-type.php(696): add_rewrite_tag('%apartment%', '(.+?)', 'apartment=')
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/post.php(1727): WP_Post_Type->add_rewrite_rules()
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(162): register_post_type('apartment', Array)
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(65): visitVietnam->create_post_type()
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(259): visitVietnam->__construct()
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(473): include_once('/home/customer/...')
+#6 /home/customer in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php on line 176
+[18-Nov-2023 04:24:51 UTC] PHP Fatal error:  Uncaught Error: Call to a member function add_rewrite_tag() on null in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php:176
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/class-wp-post-type.php(696): add_rewrite_tag('%apartment%', '(.+?)', 'apartment=')
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/post.php(1727): WP_Post_Type->add_rewrite_rules()
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(162): register_post_type('apartment', Array)
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(65): visitVietnam->create_post_type()
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(259): visitVietnam->__construct()
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(473): include_once('/home/customer/...')
+#6 /home/customer in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/rewrite.php on line 176
+[08-Jul-2025 12:11:10 UTC] PHP Warning:  include(inc/class-promocodes.php): failed to open stream: No such file or directory in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 16
+[08-Jul-2025 12:11:10 UTC] PHP Warning:  include(): Failed opening 'inc/class-promocodes.php' for inclusion (include_path='.:/usr/local/php74/pear') in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 16
+[08-Jul-2025 12:11:10 UTC] PHP Fatal error:  Uncaught Error: Class 'vvPromoCodes' not found in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php:73
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(344): visitVietnam->__construct()
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(545): include_once('/home/customer/...')
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-config.php(105): require_once('/home/customer/...')
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-load.php(50): require_once('/home/customer/...')
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/admin-ajax.php(22): require_once('/home/customer/...')
+#5 {main}
+  thrown in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 73
+[26-Aug-2025 06:37:47 UTC] PHP Warning:  include(inc/class-invoices.php): Failed to open stream: No such file or directory in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 06:37:47 UTC] PHP Warning:  include(): Failed opening 'inc/class-invoices.php' for inclusion (include_path='.:/usr/local/php82/pear') in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 06:37:47 UTC] PHP Fatal error:  Uncaught Error: Class "vvInvoices" not found in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php:82
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(368): visitVietnam->__construct()
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(545): include_once('/home/customer/...')
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-config.php(105): require_once('/home/customer/...')
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-load.php(50): require_once('/home/customer/...')
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/admin.php(35): require_once('/home/customer/...')
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/index.php(10): require_once('/home/customer/...')
+#6 {main}
+  thrown in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 82
+[26-Aug-2025 07:23:42 UTC] PHP Warning:  include(inc/class-invoices.php): Failed to open stream: No such file or directory in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 07:23:42 UTC] PHP Warning:  include(): Failed opening 'inc/class-invoices.php' for inclusion (include_path='.:/usr/local/php82/pear') in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 07:23:42 UTC] PHP Fatal error:  Uncaught Error: Class "vvInvoices" not found in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php:82
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(368): visitVietnam->__construct()
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(545): include_once('/home/customer/...')
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-config.php(105): require_once('/home/customer/...')
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-load.php(50): require_once('/home/customer/...')
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/admin.php(35): require_once('/home/customer/...')
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/index.php(10): require_once('/home/customer/...')
+#6 {main}
+  thrown in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 82
+[26-Aug-2025 07:25:34 UTC] PHP Notice:  Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>acf</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/functions.php on line 6121
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property ACF::$fields is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields.php on line 138
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_loop::$loops is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/loop.php on line 28
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property ACF::$loop is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/loop.php on line 269
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property ACF::$revisions is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/revisions.php on line 387
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_validation::$errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/validation.php on line 28
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property ACF::$validation is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/validation.php on line 215
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 28
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_fields is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 29
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 30
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property ACF::$form_front is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-front.php on line 600
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 34
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_reference is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 35
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 36
+[26-Aug-2025 07:25:34 UTC] PHP Deprecated:  Creation of dynamic property ACF::$admin_tools is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/admin/admin-tools.php on line 282
+[26-Aug-2025 07:25:34 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 11
+[26-Aug-2025 07:25:34 UTC] PHP Warning:  include(inc/class-invoices.php): Failed to open stream: No such file or directory in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 07:25:34 UTC] PHP Warning:  include(): Failed opening 'inc/class-invoices.php' for inclusion (include_path='.:/usr/local/php82/pear') in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 07:25:34 UTC] PHP Fatal error:  Uncaught Error: Class "vvInvoices" not found in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php:82
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(368): visitVietnam->__construct()
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(545): include_once('/home/customer/...')
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-config.php(105): require_once('/home/customer/...')
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-load.php(50): require_once('/home/customer/...')
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/admin.php(35): require_once('/home/customer/...')
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/index.php(10): require_once('/home/customer/...')
+#6 {main}
+  thrown in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 82
+[26-Aug-2025 07:25:35 UTC] PHP Notice:  Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>acf</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/functions.php on line 6121
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property ACF::$fields is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields.php on line 138
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_loop::$loops is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/loop.php on line 28
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property ACF::$loop is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/loop.php on line 269
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property ACF::$revisions is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/revisions.php on line 387
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_validation::$errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/validation.php on line 28
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property ACF::$validation is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/validation.php on line 215
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 28
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_fields is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 29
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 30
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property ACF::$form_front is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-front.php on line 600
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 34
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_reference is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 35
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 36
+[26-Aug-2025 07:25:35 UTC] PHP Deprecated:  Creation of dynamic property ACF::$admin_tools is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/admin/admin-tools.php on line 282
+[26-Aug-2025 07:25:35 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 11
+[26-Aug-2025 07:25:35 UTC] PHP Warning:  include(inc/class-invoices.php): Failed to open stream: No such file or directory in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 07:25:35 UTC] PHP Warning:  include(): Failed opening 'inc/class-invoices.php' for inclusion (include_path='.:/usr/local/php82/pear') in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 32
+[26-Aug-2025 07:25:35 UTC] PHP Fatal error:  Uncaught Error: Class "vvInvoices" not found in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php:82
+Stack trace:
+#0 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php(368): visitVietnam->__construct()
+#1 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-settings.php(545): include_once('/home/customer/...')
+#2 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-config.php(105): require_once('/home/customer/...')
+#3 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-load.php(50): require_once('/home/customer/...')
+#4 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/admin.php(35): require_once('/home/customer/...')
+#5 /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-admin/index.php(10): require_once('/home/customer/...')
+#6 {main}
+  thrown in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 82
+[26-Aug-2025 07:26:24 UTC] PHP Notice:  Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>acf</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/functions.php on line 6121
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property ACF::$fields is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields.php on line 138
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_loop::$loops is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/loop.php on line 28
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property ACF::$loop is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/loop.php on line 269
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property ACF::$revisions is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/revisions.php on line 387
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_validation::$errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/validation.php on line 28
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property ACF::$validation is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/validation.php on line 215
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 28
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_fields is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 29
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_form_customizer::$preview_errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-customizer.php on line 30
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property ACF::$form_front is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-front.php on line 600
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 34
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_reference is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 35
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_form_widget::$preview_errors is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/forms/form-widget.php on line 36
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property ACF::$admin_tools is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/admin/admin-tools.php on line 282
+[26-Aug-2025 07:26:24 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 11
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_field_oembed::$width is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields/class-acf-field-oembed.php on line 31
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_field_oembed::$height is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields/class-acf-field-oembed.php on line 32
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_field_google_map::$default_values is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields/class-acf-field-google-map.php on line 33
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_field__group::$have_rows is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/includes/fields/class-acf-field-group.php on line 31
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_field_clone::$cloning is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/pro/fields/class-acf-field-clone.php on line 34
+[26-Aug-2025 07:26:24 UTC] PHP Deprecated:  Creation of dynamic property acf_field_clone::$have_rows is deprecated in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/advanced-custom-fields-pro/pro/fields/class-acf-field-clone.php on line 35
+[26-Aug-2025 07:26:25 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-content/plugins/visitvietnam/visitvietnam.php on line 92
+[26-Aug-2025 07:26:26 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/functions.php:6121) in /home/customer/www/visitvietnam.dev.wiise.no/public_html/wp-includes/pluggable.php on line 1450

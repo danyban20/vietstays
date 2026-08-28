@@ -1,0 +1,511 @@
+@charset "utf-8";
+/* Responsive CSS */
+
+@media (max-width: 1800px) {
+.container { width:1400px; }
+.home .container { width:1600px; }
+
+.explore_slider {margin-right: calc(-100vw / 2 + 980px / 2);}
+
+.offer_block p { font-size:20px; }
+#we_make .we_make_left { padding-right:0; }
+
+.offer_block .new_price { font-size:42px; }
+.offer_block .old_price { font-size:28px; }
+.explore_block h4 { font-size:18px; }
+.explore_block h3 { font-size:26px; }
+#free_membership h3 { font-size:26px; }
+#campaigns h3 { font-size:26px; }
+#we_make .title_box h3 { font-size:26px; }
+#free_membership ul li { font-size:26px; }
+#benifits .desc ul li   { font-size:26px; }
+#we_make .title_box { margin-bottom:40px; }
+#benifits .desc { padding-left:20px; }
+
+.rooom_dropdown { padding:15px 45px; }
+.rooom_dropdown ul li { margin-bottom:10px; }
+.city_dropdown { padding:10px 0; }
+
+
+#home_slider .slider_cap { top:20%; }
+
+.app_book_block { max-width:560px; }
+#app_rightbar_inn { max-width:400px; }
+	
+}
+
+@media (max-width: 1600px) {
+
+.home .container { width:1400px; }
+	
+}
+
+
+
+@media (max-width: 1600px) {
+.container { width:1170px; }
+.home .container { width:1400px; }
+
+h1, .heading-1 { font-size:45px; }
+
+.explore_slider {margin-right: calc(-100vw / 2 + 750px / 2);}
+
+#nav ul li { padding:0 25px; }
+
+.offer_block p { font-size:20px; }
+#we_make .we_make_left { padding-right:0; }
+
+.offer_block .new_price { font-size:38px; }
+.offer_block .old_price { font-size:26px; }
+.explore_block h4 { font-size:16px; }
+.explore_block h3 { font-size:22px; }
+#we_make .title_box h3 { font-size:20px; padding-right:105px; }
+#free_membership ul li { font-size:22px; background-size: 24px auto;    padding-left: 40px; }
+#free_membership h3 { font-size:22px; }
+#campaigns h3 { font-size:22px; }
+#benifits .desc ul li   { font-size:22px;     margin-bottom: 40px; }
+#we_make .title_box { margin-bottom:30px; }
+#benifits .desc { padding-left:0px; }
+
+.offer_block .per { width:90px; line-height:90px; font-size:32px; top:20px; right:20px; }
+.offer_block .cap { left:20px; }
+.offer_block { height:300px; }
+.offer_block.disable { margin-bottom:-150px; }
+#we_make .title_box .read_more { right:20px; }
+.explore_block { height:300px; }
+
+#fancybox-wrap .content_box { padding:30px; }
+
+#fancybox-wrap .content_box  p{ font-size:22px; }
+
+
+/* 21/08/2023 */
+
+.app_gall .app_gall_right_inn {    margin-right: calc(-100vw / 2 + 963px / 2);}
+.app_per_info .app_per_info_inn { gap:30px; }
+.app_per_info_bot { gap:20px; } 
+.app_per_info_bot ul li { font-size:20px; }
+.app_here_app .app_here_app_inn { padding:0 60px; }
+
+.app_book_block { max-width:456px; }
+#app_rightbar_inn { max-width:400px; }
+.app_book_block .input_wrap.date_sel { padding-left:70px; }
+.app_book_block .input_wrap.date_sel:after { left:30px; }
+.app_book_block .guest_opt { padding-left:30px; }
+
+/*19-09-2024*/
+#city_wrap .city_app_block_1 .cap .price { font-size: 34px; }
+#city_wrap .city_app_block_1 .cap .price strong { font-size: 24px; }
+
+
+#accordian .acc_box h3 { font-size: 20px; }
+
+	
+}
+
+@media (max-width: 1440px) {
+	
+.app_gall .app_gall_right_inn {    margin-right: calc(-100vw / 2 + 866px / 2);}	
+
+.home .container { width:1170px; }
+	
+}
+
+
+@media (max-width: 1400px) {
+
+#home_slider .cap { top:60%; }
+
+.app_gall .app_gall_right_inn {    margin-right: calc(-100vw / 2 + 838px / 2);}	
+
+}
+
+@media (max-width: 1366px) {
+	
+.app_gall .app_gall_right_inn {    margin-right: calc(-100vw / 2 + 798px / 2);}		
+
+.app_book_block {margin-bottom:10px;  }
+.app_book_block h2 { font-size:20px; }
+.app_book_block h5 { font-size:12px; margin-bottom:5px; }
+.app_book_block label { font-size:11px; }
+.app_book_block input[name="datefilter"] { font-size:11px; }
+.app_book_block .guest_opt .guest_opt_left label { font-size:11px; }
+.app_book_block .guest_opt .guest_opt_left .valtxt { font-size:11px; }
+.app_book_block .guest_opt .room_btn { font-size:14px; }
+.app_book_block .app_price ul li { font-size:11px; padding:3px; }
+.checkout_late_block  { padding:5px 20px 10px 20px; }
+.checkout_late_block  h2{ font-size:20px; }
+.checkout_late_block h5 { margin-bottom:0; font-size:12px; }
+.checkout_late_block p { font-size:10px; }	
+.checkout_late_block .btn { font-size:12px; }
+.app_book_block .guest_opt { margin-bottom:10px; }
+}
+
+@media (max-width: 1280px) {
+	
+.app_gall .app_gall_right_inn {    margin-right: calc(-100vw / 2 + 718px / 2);}		
+	
+}
+
+@media (max-width: 1200px) {
+.container { width:970px; }
+.home .container { width:970px; }
+
+h1, .heading-1 { font-size:40px; }
+h2, .heading-2 { font-size:32px; }
+h3, .heading-3 { font-size:26px; }
+h4, .heading-4 { font-size:20px; }
+h5, .heading-5 { font-size:16px; }
+h6, .heading-6 { font-size:12px; }
+body { font-size:16px; }
+
+#nav ul li { padding:0 20px; } 
+
+.explore_block .cap { top:20px; left:20px; }
+#free_membership ul li { font-size:20px; }
+.explore_slider { margin-right:calc(-100vw / 2 + 500px / 2); }
+#free_membership .btn { padding:20px; font-size:22px; }
+.offer_block .new_price { font-size:32px; }
+.offer_block .old_price { font-size:22px; }
+#free_membership .seel_all_btn { padding:0; }
+#footer ul li { padding:0 15px; }
+
+#campaigns .seel_all_btn { padding:0 20px; }
+
+#fancybox-wrap .content_box p { font-size:20px; }
+
+
+/* 21/08/2023 */
+.app_gall .app_gall_right_inn {    margin-right: calc(-100vw / 2 + 631px / 2);} 
+
+.app_content .app_facility ul { gap:20px; }
+.app_content .app_facility ul li { font-size:19px; padding-left:45px; }
+.app_per_info .app_per_info_inn .block { padding-left:45px; }
+.app_per_info .app_per_info_inn h4 { font-size:20px; }
+.app_per_info .app_per_info_inn .icon { width:35px; }
+.app_here_app h3 .map_open  { right:20px; }
+.app_here_app .app_here_app_inn { padding:0 20px; }
+.app_rev_block { padding:20px; }
+.checkout_late_block { padding:30px 20px; }
+.checkout_late_block h2 { font-size:35px; }
+.checkout_late_block h5 { font-size:16px; }
+
+.app_content .app_rightbar { padding-left:20px; }
+.app_content .border_btn { padding:20px; font-size:18px; }
+.checkout_late_block .btn { padding:20px; font-size:18px; }
+#facilities_data ul { gap:20px; }
+
+.app_book_block { max-width:416px; } 
+#app_rightbar_inn { max-width:400px; }
+.app_book_block label,.app_book_block .guest_opt .room_btn,.app_book_block .guest_opt .guest_opt_left label { font-size:15px; }
+.app_book_block .input_wrap.date_sel { padding-right:20px; }
+.app_book_block label { font-size:14px; }
+
+
+/*19-09-2024*/
+#city_wrap .city_display_title h2 {  font-size: 20px; }
+
+#city_wrap .col-sm-8 > .city_app_list .row > .col-md-4 { width: 50%; }
+#city_wrap .district_block_1 .cap_1 h5 { font-size: 16px; }
+#city_wrap .district_block_1 .cap_2 .date_text { font-size: 16px; }
+
+}
+
+
+@media (max-width: 992px) {
+.container { width:750px; padding:0 15px; }
+.home .container { width:750px; }
+
+h1, .heading-1 { font-size:34px; }
+body { font-size:14px; }
+
+#nav ul li a { font-size:14px; }
+#header .btn { font-size:14px; padding:9px 20px; }
+#header .lang { margin:0 15px 0 10px; }
+#nav ul li { padding:0 15px; }
+
+#home_slider .input_submit input[type="submit"] { width:150px; }
+#home_slider .book_block .input_wrap { padding-left:50px; }
+#home_slider .book_block .input_wrap:after { left:15px; }
+#home_slider .book_block {width:100%; max-width:720px; }
+#home_slider .book_block label { font-size:16px; }
+.explore_block .btn { padding:12px 15px; }
+
+#we_make .we_make_left { margin-bottom:50px; }
+#benifits .video_block { margin-bottom:50px; }
+#footer .f_inn { flex-wrap: wrap; }
+#footer ul { padding-top:10px; }
+#benifits .desc ul li { margin-bottom:40px; }
+#home_slider .cap { top:50%; }
+
+#fancybox-wrap .content_box { padding:20px; }
+
+#fancybox-wrap .content_box p { font-size:18px; }
+
+/* 21/08/2023 */
+.app_gall .app_gall_right_inn { margin-right:calc(-100vw / 2 + 444px / 2); }
+.app_content .app_rightbar { padding-left:0; }
+
+.app_content .app_content_inn { display:block; width:100%; }
+.app_content .app_leftbar { width:100%; }
+.app_content .app_rightbar { width:100%; }
+
+.app_per_info .app_per_info_inn .icon { margin-top:0; }
+
+.app_per_info_bot ul li { font-size:18px; }
+.app_rev_block { font-size:18px; }
+
+.content_box.fancybox-content { max-width:90%; }
+#facilities_data { max-width:90%; }
+#practical_information  { max-width:90%; }
+.fancybox-content.content_box p { font-size:18px; }
+.app_book_block { position:static !important; margin:30px 0 !important; }
+.app_book_block { max-width:100%; } 
+#app_rightbar_inn { position:static !important; margin:30px 0 !important; max-width:100%; }
+
+/*19-09-2024*/
+/*#city_wrap h1 { font-size: 34px; }
+#city_visit h2 { font-size: 34px; }
+#other_city h2 { font-size: 34px; } */
+#other_city .other_city_block .btn { right: 10px; font-size: 13px; }
+#city_wrap .city_display_title .city_display_title_left { width: 50%; }
+
+#any_que_form .any_que_form_right { padding-left: 0; }
+#any_que_form h3 { font-size: 18px; }
+#any_que_form select { font-size: 16px; }
+#get_started .get_started_block .num { font-size: 100px; margin-top: -40px; }
+#get_started .get_started_block { padding: 0 20px 20px; }
+#get_started .get_started_block h3 { font-size: 24px; }
+
+#howmuch_earn .price strong { font-size: 100px;  }
+#howmuch_earn .price strong small { font-size: 45px; }
+#any_que_form .any_que_form_inn { padding: 30px 20px; }
+
+#howmuch_earn .price_img { top: -60%;    right: 80%;    width: 50% }
+
+#city_wrap .tab_content.show_div > .row .col-sm-8:has(> .city_app_list.active) .show_div .col-md-4 {width: 50%; }
+
+#city_wrap .district_block_1 .img img { height: 250px; }
+#city_wrap .col-sm-8 .district_block_1 .img img { height: 200px; }
+#city_wrap .city_app_block_1 .img img { height: 250px; }
+
+#city_wrap .city_display_title_left { width: 60%; }
+
+
+
+}
+
+
+@media (max-width: 767px) {
+.container { width:100%; padding:0 20px; }
+.home .container { width:100%; }
+
+.alignnone, .alignleft, .alignright { display:block; float:none; margin:0 auto 30px; }
+
+.typography ul, .typography ol { padding-left:15px; }
+
+.typography div.gallery { margin-left:0 !important; }
+.typography div.gallery .gallery-item { float:none !important; width:100% !important; padding-left:0 !important; }
+
+.wpforms-form .wpforms-field { width:100% !important; margin-left:0 !important; margin-right:0 !important; }
+.wpforms-form .wpforms-field-html { text-align:center; }
+.wpforms-form .wpforms-submit-container { text-align:center; }
+.wpforms-form .wpforms-field label.wpforms-error { position:static; }
+
+blockquote { padding:30px; font-size:30px; }
+blockquote:before { position:static; margin-bottom:15px; }
+
+.table { overflow-x:auto; }
+.table table { margin-bottom:0; }
+
+body.menu_open { overflow:hidden; }
+#header { padding:15px 0; }
+#header .head_right { display:none; position: fixed;    top: 82px;   background: #000;    left: 0;    width: 100%;    padding: 20px 30px; bottom:0; overflow-y:auto; z-index:9999; }
+#nav ul { display:block; }
+#nav ul li { padding:15px 0; }
+#header .lang { margin:0 0 15px 0; }
+#nav ul li a { line-height:normal; font-size:16px; }
+
+#menubtn { display:block; }
+
+#home_slider .book_block { display:block; border-radius:20px; padding:10px 20px 20px 20px; width:auto; margin:0 20px; }
+#home_slider .book_block .input_wrap { border-right:none; border-bottom:1px solid #D6D6D6; }
+#home_slider .book_block .input_wrap:last-child { border-bottom:0; }
+#home_slider .input_submit input[type="submit"] { width:100%; border-radius:20px; margin-top:20px; }
+#home_slider .slider_cap p { font-size:15px; margin-bottom:20px; }
+#home_slider .slider_cap { top:8%; }
+#home_slider .cap { top:42%; }
+
+#explore { padding:50px 0; }
+.prev_next {  position: relative;    top: auto;    right: auto; text-align: center;   transform: translateY(0); margin-top:20px;  }
+.prev_next .swiper-button-prev, .prev_next .swiper-button-next { margin:0 15px; }
+#explore .top_title { margin-bottom:40px; }
+.explore_slider { margin-right:0; }
+
+#free_membership { padding-top:60px; }
+#free_membership h2 { margin-bottom:40px; }
+#free_membership ul { display:block; padding:0 0 20px 0; }
+#free_membership ul li { width:100%; margin-bottom:20px; }
+.offer_block.disable { display:none; }
+#free_membership .btn { width:320px; line-height:60px; font-size:20px; bottom:-30px; padding:0; }
+#we_make { padding:70px 0; }
+#we_make .title_box { padding:0; }
+#we_make .title_box h3 { font-size: 20px;    padding-right: 40px;    padding-left: 60px }
+#we_make .title_box .icon { width:40px; left:10px; }
+#we_make .title_box .title_box_link { right:15px; padding-right:0; }
+/*#we_make .title_box .icon { position:static; transform:translateY(0); text-align:center; margin-bottom:20px; }*/
+#benifits { padding:50px 0; }
+#benifits h2 { margin-bottom:30px; }
+#benifits .video_block .play_btn { width:80px; height:80px; }
+#benifits .desc ul li { padding-left:50px; }
+#benifits .desc ul li .icon { width:35px; }
+#footer .footer { padding:40px 0; }
+#footer .f_inn { display:block; text-align:center; }
+#footer .social { justify-content: center; margin: 15px 0; }
+#footer ul li { padding:5px 0; border-right:none; }
+#footer ul { display:block; border-right:none; }
+
+#we_make h2 { margin-bottom:40px; }
+
+#campaigns .seel_all_btn { width:320px; font-size:18px; }
+#footer .skyline_img { height:120px; background-size:100% auto !important; }
+
+.city_dropdown,.rooom_dropdown {padding: 12px 0;border-radius: 10px;width:100%;margin-top: 10px;box-shadow: 0px 6px 5px rgb(0 0 0 / 20%);}
+.city_dropdown { left:0; }
+.city_dropdown ul li { padding:0 20px; }
+.city_dropdown ul li a { padding:10px 0; font-size:12px; }
+.city_dropdown ul li a strong { font-size:16px; }
+.rooom_dropdown .lbltxt { font-size:16px; }
+.rooom_dropdown { padding:15px 20px; }
+
+#fancybox-wrap .content_box { padding:50px 10px 10px 10px; }
+
+#fancybox-wrap .content_box p { font-size:16px; }
+
+.book_block input[name="datefilter"] { width:100%; }
+body .daterangepicker {  margin-left: 0 !important;    left: 40px !important;    margin-top: 10px; box-shadow: 0px 6px 5px rgb(0 0 0 / 20%);     border-radius: 10px; padding:15px; }
+
+#fancybox-wrap{ max-width:90%; }
+.we_make_slider .video_block .play_btn { width:80px; height:80px; }
+.explore_slider  { margin-right:-20px; }
+.explore_slider .swiper-slide { width:80%; }
+
+/* 21/08/2023 */
+.single_app_top .app_title { display:block; }
+.single_app_top .app_title .share_link { margin-top:10px; }
+.app_gall { display:block; }
+.app_gall .app_gall_left { width:100%; padding:0; }
+.app_gall .app_gall_right { width:100%; padding:0; }
+.app_gall .app_gall_right_inn { margin-right:-160px; }
+.app_feature ul { flex-wrap:wrap; margin:0 -10px; }
+.app_feature ul li { padding:0 10px; }
+.app_feature ul li .icon { width:90px; height:90px; }
+.app_content .app_facility ul { display:block; }
+.app_content .app_facility ul li { width:100%; margin-bottom:20px; }
+.app_content .app_leftbar hr { margin:40px 0; }
+.app_content .app_leftbar h3 { margin-bottom:20px; }
+.app_per_info .app_per_info_inn { display:block; }
+.app_per_info .app_per_info_inn .block { width:100%; margin-bottom:30px; }
+.app_per_info_bot { display:block; padding:0; }
+.app_per_info_bot .block { width:100%; margin-bottom:30px; }
+.app_here_app h3 .map_open { position:static; float:right; margin-top:10px; margin-right:20px; }
+.app_here_app { border-radius:20px; padding-bottom:40px; }
+.app_here_app .host_info { display:block; text-align:center; }
+.app_here_app .host_info .user_img { margin:0 auto 20px; }
+.app_here_app .host_info .user_desc { width:auto; text-align:center; }
+.app_here_app .host_info .btns { margin:20px auto 0; }
+.checkout_late_block h2 { font-size:30px; }
+.checkout_late_block h5 { font-size:14px;  }
+
+#facilities_data ul { display:block; }
+#facilities_data ul li { width:100%; margin-bottom:20px; }
+
+.app_book_block .check_in_out_date { border-radius:30px; display:block; }
+.app_book_block .input_wrap.date_sel { width:100%;  }
+.app_book_block .guest_opt .room_sel { padding-left:0; }
+.app_book_block .guest_opt { border-radius:30px; }
+
+#topbar .topbar { display:block; }
+#topbar .topbar ul li { margin-right:10px; }
+#topbar .topbar ul li a { font-size:12px; padding: 15px 0; }
+#topbar .topbar .btn {     font-size: 13px;    padding: 10px 10px; }
+#topbar .topbar .topbar_left { text-align:center; }
+#topbar .topbar .topbar_left img { width:140px; }
+#topbar .topbar .topbar_right { justify-content: center; }
+.app_book_block .input_wrap.date_sel:first-child:before { display:none; }
+
+.popup_scroll  { height:90vh; overflow-y:auto; }
+.app_book_block .guest_opt .room_sel { padding-left:40px; }
+
+/*19-09-2024*/
+#city_visit h2 { font-size: 34px; }
+
+#city_wrap .city_filter { display: block; }
+#city_wrap .city_filter .city_filter_left { display: block; }
+#city_wrap .city_filter select { width: 100%; margin: 0 0 15px 0; }
+#city_wrap .city_display_title { display: block; }
+#city_wrap .city_filter .city_filter_right { text-align: center; }
+#city_wrap .city_display_title .city_display_title_left { width: 100%; margin: 0 0 20px 0; }
+#city_wrap .city_tab { justify-content: center; }
+#city_wrap .city_tab a { margin: 0 10px; }
+#city_wrap .show_more_btn a { padding: 18px 20px; margin-bottom: 30px; }
+#search_form_app .desc { padding-left: 0; }
+#search_form_app .search_form_app_left { padding-bottom: 20px; }
+#city_visit .img_wrap { display: block; }
+#city_visit .img_wrap .img_1 { width: 50%; margin: 0 0 -5% 25%; } 
+#city_visit .img_wrap .img_3 { width: 50%; margin: -5% 0 0 25%; } 
+#city_visit .img_wrap .img_2 { width: 100%; }
+#other_city .other_city_block { margin-bottom: 30px; }
+
+
+#howmuch_earn { padding-bottom: 50px; }
+#howmuch_earn .price strong { font-size: 80px;  }
+#howmuch_earn .price strong small { font-size: 40px; }
+#howmuch_earn h1 {font-size: 40px; }
+#share_app h2 {font-size: 35px; }
+
+#cust_program { padding: 50px 0; }
+#get_started { padding: 50px 0; }
+#extended_services { padding: 50px 0; }
+#any_que_form { padding: 50px 0; }
+#cust_program .img { margin-bottom: 20px; }
+#get_started .col-sm-4:nth-child(2) .get_started_block { margin-top: 0; } 
+#get_started .col-sm-4:nth-child(4) .get_started_block, #get_started .col-sm-4:nth-child(6) .get_started_block { margin-top: 0; } 
+#get_started .get_started_block .num{ margin-top: -50px; }
+#any_que_form .any_que_form_inn { display: block; }
+#any_que_form .any_que_form_left { width: 100%; }
+#any_que_form .any_que_form_right { padding: 30px 0 0 0; width: 100%; }
+
+#district_facility { padding: 50px 0; }
+#district_facility .district_facility_left ul { display: block; }
+#district_facility .district_facility_left ul li { width: 100%; }
+#district_facility .district_facility_left ul li:nth-last-child(2) { border-bottom: 1px solid #BEA473; }
+#district_facility .district_facility_title { display: block;         padding: 30px 0 0 0; }
+#district_facility h3 { margin-bottom: 20px; }
+.days_slider_wrap { margin: 0 50px 0 0; }
+
+#howmuch_earn .price_img { top: -45px;right: 50%;    width: 50%;  }
+
+#city_wrap .city_display_title_left { width: 100%; margin: 0 0 30px 0; }
+#any_que_form h3 { font-size: 22px; }
+
+#city_banner { padding-top: 140px; }
+
+
+#city_wrap .tab_content.show_div > .row .col-sm-8:has(> .city_app_list.active) .show_div .col-md-4 {width: 100%; }
+#city_wrap .col-sm-8 > .city_app_list .row > .col-md-4 { width: 100%; }
+#city_wrap .col-sm-8 .district_block_1 .cap_1 p { font-size: 14px; } 
+
+#city_wrap .district_block_1 .img img { height: 250px; }
+#city_wrap .city_app_block_1 .img img { height: 250px; }
+#city_wrap .col-sm-8 .district_block_1 .img img { height: 250px; }
+
+#unique_city .unique_city_slider_block img { height: 250px; }
+#unique_city .unique_city_slider .cap { display: none; }
+
+}
+
+
+@media (max-width: 580px) {
+
+}
