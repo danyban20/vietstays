@@ -16,7 +16,7 @@ class DashboardController extends Controller
         $apartmentQuery = Apartment::query();
         $bookingQuery = Booking::query();
 
-        if ($user->isPartner() && ! $user->isAdmin()) {
+        if (($user->isPartner() || $user->isHost()) && ! $user->isAdmin()) {
             $apartmentQuery->where('user_id', $user->legacy_wp_id);
             $bookingQuery->whereIn('apartment_id', function ($q) use ($user) {
                 $q->select('ID')
@@ -25,19 +25,27 @@ class DashboardController extends Controller
             });
         }
 
+        $today = now()->startOfDay();
+        $monthStart = now()->startOfMonth();
+        $monthEnd = now()->endOfMonth();
+
         $activeApartments = (clone $apartmentQuery)->where('status', 'active')->count();
-        $draftApartments = (clone $apartmentQuery)->where('status', 'draft')->count();
         $pendingBookings = (clone $bookingQuery)->where('status', 'pending')->count();
-        $upcomingBookings = (clone $bookingQuery)
-            ->where('check_in_date', '>=', now()->startOfDay())
+        $checkInsToday = (clone $bookingQuery)
+            ->whereDate('check_in_date', $today)
+            ->where('status', 'confirmed')
             ->count();
+        $revenueMonth = (clone $bookingQuery)
+            ->where('status', 'confirmed')
+            ->whereBetween('check_in_date', [$monthStart, $monthEnd])
+            ->sum('total');
 
         return response()->json([
             'stats' => [
                 ['key' => 'active_apartments', 'label' => 'Active apartments', 'value' => $activeApartments],
-                ['key' => 'draft_apartments', 'label' => 'Draft apartments', 'value' => $draftApartments],
                 ['key' => 'pending_bookings', 'label' => 'Pending bookings', 'value' => $pendingBookings],
-                ['key' => 'upcoming_bookings', 'label' => 'Upcoming check-ins', 'value' => $upcomingBookings],
+                ['key' => 'check_ins_today', 'label' => 'Check-ins today', 'value' => $checkInsToday],
+                ['key' => 'revenue_month', 'label' => 'Revenue (month)', 'value' => (int) $revenueMonth, 'format' => 'vnd'],
             ],
         ]);
     }

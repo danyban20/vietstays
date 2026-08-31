@@ -1,272 +1,261 @@
 <template>
     <div class="host-bk-detail">
-        <div v-if="loading" class="host-loading">Loading booking…</div>
+        <div v-if="loading" class="host-loading">{{ t('bookingDetail.loading') }}</div>
 
         <template v-else>
-            <div ref="scrollEl" class="host-bk-detail__scroll">
-                <header class="host-bk-detail__hero">
-                    <div class="host-bk-detail__hero-media">
-                        <img
-                            v-if="heroImage"
-                            :src="heroImage"
-                            alt=""
-                            class="host-bk-detail__hero-img"
-                        />
-                        <div v-else class="host-bk-detail__hero-placeholder">🏠</div>
+            <header class="host-bk-detail__page-header">
+                <span class="host-bk-detail__page-icon" aria-hidden="true">
+                    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="16" rx="2.5" />
+                        <path d="M3 10h18M8 3v4M16 3v4" />
+                        <path d="M8.6 15.2l2.2 2.2 4.4-4.6" />
+                    </svg>
+                </span>
+                <div class="host-bk-detail__page-title-wrap">
+                    <div class="host-bk-detail__page-title">
+                        <span class="host-bk-detail__page-id">{{ displayId }}</span>
+                        <span class="host-bk-detail__page-sep">|</span>
+                        <span class="host-bk-detail__page-guest">{{ editForm.guest_name || booking.guest }}</span>
                     </div>
-                    <div class="host-bk-detail__hero-body">
-                        <router-link
-                            v-if="booking.apartment_id"
-                            :to="{ name: 'apartment-detail', params: { id: booking.apartment_id } }"
-                            class="host-bk-detail__apt-link"
-                        >
-                            {{ booking.apartment_detail?.name ?? booking.apartment }}
-                        </router-link>
-                        <h1 v-else class="host-bk-detail__apt-name">
-                            {{ booking.apartment_detail?.name ?? booking.apartment }}
-                        </h1>
-                        <p class="host-bk-detail__meta">
-                            Booking {{ booking.booking_num ? `#${booking.booking_num}` : `#${bookingId}` }}
-                            <span v-if="booking.created_at"> · Created {{ formatDate(booking.created_at) }}</span>
-                        </p>
-                        <p v-if="locationLabel" class="host-bk-detail__location">{{ locationLabel }}</p>
-                    </div>
-                </header>
-
-                <div class="host-bk-detail__key-fields">
-                    <div v-for="field in keyFields" :key="field.id" class="host-bk-detail__key-field">
-                        <span class="host-bk-detail__key-label">{{ field.label }}</span>
-                        <div class="host-bk-detail__key-value-row">
-                            <template v-if="editingField === field.id">
-                                <input
-                                    v-if="field.type === 'date'"
-                                    v-model="editForm[field.model]"
-                                    type="date"
-                                    class="host-input host-bk-detail__key-input"
-                                    @change="onDateFieldChange(field.id)"
-                                />
-                                <input
-                                    v-else-if="field.type === 'number'"
-                                    v-model.number="editForm[field.model]"
-                                    type="number"
-                                    min="1"
-                                    class="host-input host-bk-detail__key-input"
-                                />
-                                <input
-                                    v-else-if="field.type === 'nights'"
-                                    v-model.number="nightsDraft"
-                                    type="number"
-                                    min="1"
-                                    class="host-input host-bk-detail__key-input"
-                                    @change="applyNightsDraft"
-                                />
-                                <button
-                                    type="button"
-                                    class="host-bk-detail__key-done"
-                                    aria-label="Done editing"
-                                    @click="editingField = null"
-                                >
-                                    ✓
-                                </button>
-                            </template>
-                            <template v-else>
-                                <span class="host-bk-detail__key-value">{{ field.display }}</span>
-                                <button
-                                    type="button"
-                                    class="host-bk-detail__key-edit"
-                                    aria-label="Edit"
-                                    @click="startEditField(field.id)"
-                                >
-                                    ✎
-                                </button>
-                            </template>
-                        </div>
+                    <div class="host-bk-detail__page-meta">
+                        <span class="host-bk-detail__page-pill">{{ t('bookingDetail.bookingPill') }}</span>
+                        <span class="host-bk-detail__page-apt">{{ apartmentName }}</span>
                     </div>
                 </div>
+                <router-link :to="{ name: 'bookings' }" class="host-bk-detail__back-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 5l-7 7 7 7" />
+                    </svg>
+                    {{ t('bookingDetail.back') }}
+                </router-link>
+            </header>
 
-                <div class="host-bk-detail__grid">
-                    <div class="host-bk-detail__main">
-                        <section class="host-panel host-bk-detail__card">
-                            <h2 class="host-bk-detail__card-title">Order summary</h2>
+            <div ref="scrollEl" class="host-bk-detail__scroll">
+                <div class="host-bk-detail__layout">
+                    <div class="host-bk-detail__main-col">
+                        <section class="host-bk-detail__main-card">
+                            <div class="host-bk-detail__hero-wrap">
+                                <img
+                                    v-if="heroImage"
+                                    :src="heroImage"
+                                    alt=""
+                                    class="host-bk-detail__hero-img"
+                                />
+                                <div v-else class="host-bk-detail__hero-placeholder">🏠</div>
+                            </div>
+
+                            <div class="host-bk-detail__apt-bar">
+                                <div class="host-bk-detail__apt-bar-name">{{ apartmentName }}</div>
+                                <router-link
+                                    v-if="booking.apartment_id"
+                                    :to="{ name: 'apartment-detail', params: { id: booking.apartment_id } }"
+                                    class="host-bk-detail__edit-apt-btn"
+                                >
+                                    {{ t('bookingDetail.editApartment') }}
+                                </router-link>
+                            </div>
+
+                            <div class="host-bk-detail__tags">
+                                <span v-if="matchCode" class="host-bk-detail__tag host-bk-detail__tag--code">{{ matchCode }}</span>
+                                <span class="host-bk-detail__tag host-bk-detail__tag--booking">{{ displayId }}</span>
+                                <span v-if="receivedLabel">{{ receivedLabel }}</span>
+                            </div>
+
+                            <div v-if="showRejectAlert" class="host-bk-detail__alert">
+                                <span class="host-bk-detail__alert-icon" aria-hidden="true">⚑</span>
+                                <p class="host-bk-detail__alert-text">
+                                    {{ t('bookingDetail.rejectDeadline', { countdown: rejectCountdown }) }}
+                                </p>
+                            </div>
+
+                            <h2 class="host-bk-detail__section-label">{{ t('bookingDetail.detailsTitle') }}</h2>
+
+                            <div class="host-bk-detail__fields">
+                                <div
+                                    v-for="field in detailFields"
+                                    :key="field.id"
+                                    class="host-bk-detail__field"
+                                    :class="{
+                                        'host-bk-detail__field--editable': field.editable,
+                                        'host-bk-detail__field--active': editingField === field.id,
+                                    }"
+                                >
+                                    <div class="host-bk-detail__field-head">
+                                        <span class="host-bk-detail__field-label">{{ field.label }}</span>
+                                        <button
+                                            v-if="field.editable && editingField !== field.id"
+                                            type="button"
+                                            class="host-bk-detail__field-edit"
+                                            aria-label="Edit"
+                                            @click="startEditField(field.id)"
+                                        >
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <template v-if="editingField === field.id">
+                                        <input
+                                            v-if="field.type === 'date'"
+                                            v-model="editForm[field.model]"
+                                            type="date"
+                                            class="host-input host-bk-detail__field-input"
+                                            @change="onDateFieldChange(field.id)"
+                                        />
+                                        <input
+                                            v-else-if="field.type === 'number'"
+                                            v-model.number="editForm[field.model]"
+                                            type="number"
+                                            min="1"
+                                            class="host-input host-bk-detail__field-input"
+                                            @keyup.enter="editingField = null"
+                                        />
+                                        <input
+                                            v-else-if="field.type === 'nights'"
+                                            v-model.number="nightsDraft"
+                                            type="number"
+                                            min="1"
+                                            class="host-input host-bk-detail__field-input"
+                                            @change="applyNightsDraft"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="host-bk-detail__field-done"
+                                            @click="editingField = null"
+                                        >
+                                            ✓
+                                        </button>
+                                    </template>
+                                    <template v-else>
+                                        <div class="host-bk-detail__field-value">{{ field.display }}</div>
+                                        <div v-if="field.sub" class="host-bk-detail__field-sub">{{ field.sub }}</div>
+                                    </template>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="host-bk-detail__order-card">
+                            <div class="host-bk-detail__order-head">
+                                <h2 class="host-bk-detail__section-label host-bk-detail__section-label--inline">
+                                    {{ t('bookingDetail.orderSummary') }}
+                                </h2>
+                            </div>
+
                             <div class="host-price-summary host-bk-detail__summary">
-                                <div class="host-price-summary__row">
-                                    <span
-                                        >Nightly rate × {{ liveNights }} night{{
-                                            liveNights === 1 ? '' : 's'
-                                        }}</span
-                                    >
+                                <div class="host-bk-detail__summary-row host-bk-detail__summary-row--large">
+                                    <span>{{ t('bookingDetail.bookingTotal') }}</span>
                                     <span>{{ formatVnd(liveRoomTotal) }}</span>
                                 </div>
+
                                 <div v-if="booking.cleaning_fee" class="host-price-summary__row">
-                                    <span>Cleaning fee</span>
+                                    <span>{{ t('bookingDetail.cleaningFee') }}</span>
                                     <span>{{ formatVnd(booking.cleaning_fee) }}</span>
                                 </div>
-                                <div v-if="booking.extra_cleaning_fee" class="host-price-summary__row">
-                                    <span>Extra cleaning</span>
-                                    <span>{{ formatVnd(booking.extra_cleaning_fee) }}</span>
-                                </div>
+
                                 <div
                                     v-if="booking.campaign_discount"
                                     class="host-price-summary__row host-price-summary__row--discount"
                                 >
                                     <span>{{
                                         booking.promo_code
-                                            ? `Discount · ${booking.promo_code}`
-                                            : 'Discount'
+                                            ? `${t('bookingDetail.discount')} · ${booking.promo_code}`
+                                            : t('bookingDetail.discount')
                                     }}</span>
                                     <span>− {{ formatVnd(booking.campaign_discount) }}</span>
                                 </div>
-                                <div class="host-price-summary__row host-price-summary__row--total">
-                                    <span>Total the guest pays</span>
-                                    <span>{{ formatVnd(liveGuestTotal) }}</span>
-                                </div>
-                                <div class="host-price-summary__row">
-                                    <span>{{ booking.commission_label ?? 'Cash points (3%)' }}</span>
-                                    <span>{{ formatVnd(booking.cash_points) }}</span>
-                                </div>
-                                <div class="host-price-summary__row">
-                                    <span>Platform fee (5%)</span>
-                                    <span>− {{ formatVnd(booking.platform_fee) }}</span>
-                                </div>
-                                <div class="host-price-summary__row host-price-summary__row--emph">
-                                    <span>Net to you</span>
+
+                                <div class="host-bk-detail__summary-row host-bk-detail__summary-row--large host-bk-detail__summary-row--net">
+                                    <span>{{ t('bookingDetail.netProfit') }}</span>
                                     <span>{{ formatVnd(liveHostNet) }}</span>
                                 </div>
-                            </div>
-                        </section>
 
-                        <section class="host-panel host-bk-detail__card">
-                            <h2 class="host-bk-detail__card-title">Stay timeline</h2>
-                            <div class="host-bk-detail__timeline">
-                                <div class="host-bk-detail__timeline-track">
-                                    <div
-                                        class="host-bk-detail__timeline-stay"
-                                        :style="timelineStayStyle"
-                                    />
-                                    <div
-                                        v-if="timelineTodayPct != null"
-                                        class="host-bk-detail__timeline-today"
-                                        :style="{ left: `${timelineTodayPct}%` }"
-                                    />
+                                <div class="host-price-summary__row">
+                                    <span>{{ booking.commission_label ?? t('bookingDetail.cashPoints') }}</span>
+                                    <span>{{ formatVnd(booking.cash_points) }}</span>
                                 </div>
-                                <div class="host-bk-detail__timeline-labels">
-                                    <span>{{ formatDate(editForm.check_in_date) }}</span>
-                                    <span v-if="timelineTodayPct != null" class="host-bk-detail__timeline-now"
-                                        >Today</span
-                                    >
-                                    <span>{{ formatDate(editForm.check_out_date) }}</span>
+
+                                <div class="host-price-summary__row">
+                                    <span>{{ t('bookingDetail.platformFee') }}</span>
+                                    <span>− {{ formatVnd(booking.platform_fee) }}</span>
                                 </div>
                             </div>
-                        </section>
-
-                        <section class="host-panel host-bk-detail__card">
-                            <h2 class="host-bk-detail__card-title">Cleaning schedule</h2>
-                            <p class="host-bk-detail__cleaning-text">
-                                Standard cleaning scheduled after check-out on
-                                <strong>{{ formatDate(editForm.check_out_date) }}</strong>
-                                <span v-if="booking.apartment_detail?.check_out_time">
-                                    (check-out from {{ booking.apartment_detail.check_out_time }})</span
-                                >.
-                            </p>
                         </section>
                     </div>
 
                     <aside class="host-bk-detail__rail">
-                        <section class="host-panel host-bk-detail__rail-card">
-                            <h2 class="host-bk-detail__card-title">Actions</h2>
-                            <div class="host-bk-detail__actions">
-                                <a
-                                    v-if="editForm.email"
-                                    :href="`mailto:${editForm.email}`"
-                                    class="host-btn host-btn--ghost host-bk-detail__action-btn"
-                                >
-                                    Message guest
-                                </a>
-                                <button
-                                    type="button"
-                                    class="host-btn host-btn--ghost host-bk-detail__action-btn"
-                                    @click="scrollToGuest"
-                                >
-                                    Edit guest details
-                                </button>
-                                <button
-                                    v-if="editForm.status !== 'cancelled'"
-                                    type="button"
-                                    class="host-btn host-btn--ghost host-bk-detail__action-btn host-bk-detail__action-btn--danger"
-                                    @click="cancelBooking"
-                                >
-                                    Cancel booking
-                                </button>
+                        <section class="host-bk-detail__rail-card">
+                            <h3 class="host-bk-detail__rail-title">{{ t('bookingDetail.overview') }}</h3>
+                            <div class="host-bk-detail__rail-block">
+                                <span class="host-bk-detail__rail-label">{{ t('bookingDetail.apartment') }}</span>
+                                <span class="host-bk-detail__rail-value">{{ apartmentName }}</span>
                             </div>
-                        </section>
-
-                        <section class="host-panel host-bk-detail__rail-card">
-                            <h2 class="host-bk-detail__card-title">Status</h2>
-                            <span class="host-pill" :class="statusPillClass">{{ formatStatus(editForm.status) }}</span>
-                        </section>
-
-                        <section v-if="booking.next_task" class="host-panel host-bk-detail__rail-card host-bk-detail__next-task">
-                            <h2 class="host-bk-detail__card-title">Next task</h2>
-                            <p class="host-bk-detail__next-task-text">{{ booking.next_task }}</p>
-                        </section>
-
-                        <section ref="guestSection" class="host-panel host-bk-detail__rail-card host-bk-detail__rail-card--sand">
-                            <h2 class="host-bk-detail__card-title">Guest information</h2>
-                            <div class="host-field">
-                                <label class="host-field__label" for="edit-guest">Guest name</label>
-                                <input id="edit-guest" v-model="editForm.guest_name" type="text" class="host-input" />
-                            </div>
-                            <div class="host-field">
-                                <label class="host-field__label" for="edit-email">Email</label>
-                                <input id="edit-email" v-model="editForm.email" type="email" class="host-input" />
-                            </div>
-                            <div class="host-field">
-                                <label class="host-field__label" for="edit-phone">Phone</label>
-                                <input id="edit-phone" v-model="editForm.phone" type="tel" class="host-input" />
-                            </div>
-                        </section>
-
-                        <section class="host-panel host-bk-detail__rail-card">
-                            <h2 class="host-bk-detail__card-title">Booking overview</h2>
-                            <dl class="host-detail-list">
-                                <div>
-                                    <dt>Channel</dt>
-                                    <dd>{{ booking.channel_label ?? booking.channel }}</dd>
+                            <div class="host-bk-detail__rail-row">
+                                <div class="host-bk-detail__rail-block">
+                                    <span class="host-bk-detail__rail-label">{{ t('bookingDetail.totalAmount') }}</span>
+                                    <span class="host-bk-detail__rail-value">{{ formatVnd(liveGuestTotal) }}</span>
                                 </div>
-                                <div>
-                                    <dt>Reference</dt>
-                                    <dd>{{ booking.reference ?? booking.booking_num ?? '—' }}</dd>
+                                <div class="host-bk-detail__rail-block">
+                                    <span class="host-bk-detail__rail-label">{{ t('bookingDetail.period') }}</span>
+                                    <span class="host-bk-detail__rail-value">{{ periodLabel }}</span>
                                 </div>
-                                <div>
-                                    <dt>Guests</dt>
-                                    <dd>{{ editForm.guests }}</dd>
-                                </div>
-                            </dl>
+                            </div>
                         </section>
 
-                        <section class="host-panel host-bk-detail__rail-card">
-                            <h2 class="host-bk-detail__card-title">Note</h2>
-                            <textarea
-                                v-model="editForm.note"
-                                class="host-textarea"
-                                rows="4"
-                                placeholder="Internal note for this booking…"
-                            />
+                        <section class="host-bk-detail__rail-card">
+                            <h3 class="host-bk-detail__rail-title">{{ t('bookingDetail.commissionDiscount') }}</h3>
+                            <template v-if="hasCommission">
+                                <div v-if="booking.promo_code" class="host-bk-detail__comm-name">{{ booking.promo_code }}</div>
+                                <div v-if="booking.campaign_discount" class="host-bk-detail__comm-sub">
+                                    {{ t('bookingDetail.discount') }} − {{ formatVnd(booking.campaign_discount) }}
+                                </div>
+                            </template>
+                            <p v-else class="host-bk-detail__comm-empty">{{ t('bookingDetail.noCommission') }}</p>
+                            <p class="host-bk-detail__comm-hint">{{ t('bookingDetail.editInOrderSummary') }}</p>
                         </section>
 
-                        <section class="host-panel host-bk-detail__rail-card">
-                            <h2 class="host-bk-detail__card-title">Access</h2>
-                            <dl class="host-detail-list host-bk-detail__access">
+                        <section class="host-bk-detail__rail-card">
+                            <h3 class="host-bk-detail__rail-title">{{ t('bookingDetail.note') }}</h3>
+                            <template v-if="editingNote">
+                                <textarea
+                                    v-model="noteDraft"
+                                    class="host-textarea host-bk-detail__note-input"
+                                    rows="3"
+                                />
+                                <div class="host-bk-detail__note-actions">
+                                    <button type="button" class="host-bk-detail__note-btn" @click="cancelNoteEdit">
+                                        {{ t('common.cancel') }}
+                                    </button>
+                                    <button type="button" class="host-bk-detail__note-btn host-bk-detail__note-btn--primary" @click="saveNoteEdit">
+                                        {{ t('common.save') }}
+                                    </button>
+                                </div>
+                            </template>
+                            <button
+                                v-else
+                                type="button"
+                                class="host-bk-detail__note-text"
+                                @click="startNoteEdit"
+                            >
+                                {{ editForm.note || t('bookingDetail.addNote') }}
+                            </button>
+                        </section>
+
+                        <section class="host-bk-detail__rail-card host-bk-detail__rail-card--sand">
+                            <h3 class="host-bk-detail__rail-title host-bk-detail__rail-title--upper">
+                                {{ t('bookingDetail.accessTitle') }}
+                            </h3>
+                            <dl class="host-bk-detail__access-list">
                                 <div>
-                                    <dt>Door code</dt>
+                                    <dt>{{ t('bookingDetail.doorCode') }}</dt>
                                     <dd>{{ booking.access?.door_code || '—' }}</dd>
                                 </div>
                                 <div>
-                                    <dt>WiFi network</dt>
+                                    <dt>{{ t('bookingDetail.wifi') }}</dt>
                                     <dd>{{ booking.access?.wifi_network || '—' }}</dd>
                                 </div>
                                 <div>
-                                    <dt>WiFi password</dt>
+                                    <dt>{{ t('bookingDetail.password') }}</dt>
                                     <dd>{{ booking.access?.wifi_password || '—' }}</dd>
                                 </div>
                             </dl>
@@ -276,21 +265,15 @@
             </div>
 
             <div
-                class="host-bk-sticky-bar"
-                :class="{
-                    'host-bk-sticky-bar--visible': stickyVisible || dirty,
-                    'host-bk-sticky-bar--dimmed': isScrolling,
-                }"
+                class="host-bk-sticky-bar host-bk-sticky-bar--always"
+                :class="{ 'host-bk-sticky-bar--dimmed': isScrolling }"
             >
                 <div class="host-bk-sticky-bar__left">
-                    <router-link :to="{ name: 'bookings' }" class="host-bk-sticky-bar__back">
-                        ← All bookings
-                    </router-link>
                     <span class="host-bk-sticky-bar__status">
                         {{
                             dirty
-                                ? `${pendingChangeCount} change${pendingChangeCount === 1 ? '' : 's'} pending`
-                                : 'All saved'
+                                ? t('bookingDetail.changesPending', pendingChangeCount, { count: pendingChangeCount })
+                                : t('bookingDetail.noChangesPending')
                         }}
                     </span>
                 </div>
@@ -301,16 +284,15 @@
                         class="host-btn host-btn--ghost host-bk-sticky-bar__reset"
                         @click="resetChanges"
                     >
-                        Reset my changes
+                        {{ t('bookingDetail.resetChanges') }}
                     </button>
                     <button
                         type="button"
-                        class="host-btn"
-                        :class="dirty ? 'host-btn--accent' : 'host-btn--sand'"
+                        class="host-btn host-btn--sand"
                         :disabled="!dirty || saving"
                         @click="save(false)"
                     >
-                        {{ saving ? 'Saving…' : 'Save' }}
+                        {{ saving ? t('bookingDetail.saving') : t('common.save') }}
                     </button>
                     <button
                         type="button"
@@ -318,7 +300,7 @@
                         :disabled="!dirty || saving"
                         @click="save(true)"
                     >
-                        Save and send to guest
+                        {{ t('bookingDetail.saveAndSend') }}
                     </button>
                 </div>
             </div>
@@ -328,28 +310,39 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { usePageTitle } from '@/composables/usePageTitle';
 import { useToast } from '@/composables/useToast';
+import { matchCodeFromApartmentName } from '@/utils/apartment-match-code';
 import { addDays, isoDate, parseIso, startOfDay } from '@/utils/apartment-availability';
 import { resolveApartmentImageUrl } from '@/utils/apartment-images';
-import { formatDate, formatStatus, formatVnd, nightsBetween } from '@/utils/format';
+import {
+    formatCountdown,
+    formatDateNumeric,
+    formatPeriodShort,
+    formatVnd,
+    nightsBetween,
+} from '@/utils/format';
 
 const route = useRoute();
 const toast = useToast();
+const { t, locale } = useI18n();
 const { setPageTitle, clearPageTitle } = usePageTitle();
 
 const loading = ref(true);
 const saving = ref(false);
 const scrollEl = ref(null);
-const guestSection = ref(null);
 const editingField = ref(null);
+const editingNote = ref(false);
+const noteDraft = ref('');
 const nightsDraft = ref(1);
-const stickyVisible = ref(false);
 const isScrolling = ref(false);
+const rejectNow = ref(Date.now());
 
 let scrollStopTimer = null;
+let rejectTimer = null;
 
 const bookingId = computed(() => route.params.id);
 
@@ -389,11 +382,21 @@ const snapshot = reactive({
     note: '',
 });
 
-const liveNights = computed(() =>
-    nightsBetween(editForm.check_in_date, editForm.check_out_date) || booking.value.nights || 0,
+const apartmentName = computed(
+    () => booking.value.apartment_detail?.name ?? booking.value.apartment ?? '—',
 );
 
-const liveRoomTotal = computed(() => (booking.value.daily_rate ?? 0) * liveNights.value);
+const displayId = computed(
+    () => booking.value.display_id ?? (booking.value.booking_num ? `BK-${booking.value.booking_num}` : `BK-${bookingId.value}`),
+);
+
+const matchCode = computed(() => matchCodeFromApartmentName(apartmentName.value));
+
+const liveNights = computed(
+    () => nightsBetween(editForm.check_in_date, editForm.check_out_date) || booking.value.nights || 0,
+);
+
+const liveRoomTotal = computed(() => (booking.value.daily_rate ?? booking.value.price ?? 0) * liveNights.value);
 
 const liveGuestTotal = computed(() => {
     const cleaning = booking.value.cleaning_fee ?? 0;
@@ -413,11 +416,58 @@ const heroImage = computed(() => {
     return src ? resolveApartmentImageUrl(src) : '';
 });
 
-const locationLabel = computed(() => {
-    const d = booking.value.apartment_detail;
-    if (!d) return '';
-    return [d.district, d.building].filter(Boolean).join(' · ');
+const periodLabel = computed(() =>
+    formatPeriodShort(editForm.check_in_date, editForm.check_out_date, locale.value),
+);
+
+const guestsBreakdown = computed(() => {
+    const adults = booking.value.adults ?? editForm.guests;
+    const children = booking.value.children ?? 0;
+
+    if (children > 0) {
+        return locale.value === 'no'
+            ? `${adults} voksne, ${children} barn`
+            : `${adults} adults, ${children} children`;
+    }
+
+    return locale.value === 'no' ? `${editForm.guests} voksne` : `${editForm.guests} adults`;
 });
+
+const roomType = computed(() => booking.value.apartment_detail?.type ?? '—');
+
+const receivedLabel = computed(() => {
+    if (!booking.value.created_at) return '';
+    const time = booking.value.created_at_time;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const created = new Date(`${booking.value.created_at}T12:00:00`);
+    created.setHours(0, 0, 0, 0);
+
+    if (created.getTime() === today.getTime()) {
+        return locale.value === 'no'
+            ? `Mottatt i dag${time ? `, ${time}` : ''}`
+            : `Received today${time ? `, ${time}` : ''}`;
+    }
+
+    return locale.value === 'no'
+        ? `Mottatt ${formatDateNumeric(booking.value.created_at)}${time ? `, ${time}` : ''}`
+        : `Received ${formatDateNumeric(booking.value.created_at)}${time ? `, ${time}` : ''}`;
+});
+
+const wcCount = computed(() => booking.value.apartment_detail?.num_bathrooms ?? '—');
+
+const showRejectAlert = computed(
+    () => editForm.status === 'pending' && Boolean(booking.value.reject_deadline),
+);
+
+const rejectCountdown = computed(() => {
+    rejectNow.value;
+    return formatCountdown(booking.value.reject_deadline);
+});
+
+const hasCommission = computed(
+    () => Boolean(booking.value.promo_code || booking.value.campaign_discount),
+);
 
 const dirty = computed(
     () =>
@@ -444,82 +494,57 @@ const pendingChangeCount = computed(() => {
     return count;
 });
 
-const statusPillClass = computed(() => {
-    const status = editForm.status;
-    return {
-        confirmed: 'host-pill--confirmed',
-        pending: 'host-pill--pending',
-        cancelled: 'host-pill--cancelled',
-    }[status] ?? 'host-pill--draft';
-});
-
-const keyFields = computed(() => [
+const detailFields = computed(() => [
     {
         id: 'check_in',
-        label: 'Check-in',
+        label: t('bookingDetail.checkIn'),
         model: 'check_in_date',
         type: 'date',
-        display: formatDate(editForm.check_in_date),
+        editable: true,
+        display: formatDateNumeric(editForm.check_in_date),
     },
     {
         id: 'check_out',
-        label: 'Check-out',
+        label: t('bookingDetail.checkOut'),
         model: 'check_out_date',
         type: 'date',
-        display: formatDate(editForm.check_out_date),
+        editable: true,
+        display: formatDateNumeric(editForm.check_out_date),
     },
     {
         id: 'nights',
-        label: 'Nights',
+        label: t('bookingDetail.nights'),
         model: null,
         type: 'nights',
+        editable: true,
         display: String(liveNights.value),
     },
     {
         id: 'guests',
-        label: 'Guests',
+        label: t('bookingDetail.guests'),
         model: 'guests',
         type: 'number',
+        editable: true,
         display: String(editForm.guests),
+        sub: guestsBreakdown.value,
+    },
+    {
+        id: 'wc',
+        label: t('bookingDetail.wc'),
+        model: null,
+        type: 'static',
+        editable: false,
+        display: String(wcCount.value),
+    },
+    {
+        id: 'room',
+        label: t('bookingDetail.room'),
+        model: null,
+        type: 'static',
+        editable: false,
+        display: roomType.value,
     },
 ]);
-
-const timelineStayStyle = computed(() => {
-    const start = parseIso(editForm.check_in_date);
-    const end = parseIso(editForm.check_out_date);
-    if (!start || !end || end <= start) {
-        return { left: '0%', width: '100%' };
-    }
-
-    const padStart = new Date(start);
-    padStart.setDate(padStart.getDate() - 2);
-    const padEnd = new Date(end);
-    padEnd.setDate(padEnd.getDate() + 2);
-    const span = padEnd - padStart;
-    const left = ((start - padStart) / span) * 100;
-    const width = ((end - start) / span) * 100;
-
-    return {
-        left: `${Math.max(0, left)}%`,
-        width: `${Math.min(100 - left, width)}%`,
-    };
-});
-
-const timelineTodayPct = computed(() => {
-    const start = parseIso(editForm.check_in_date);
-    const end = parseIso(editForm.check_out_date);
-    if (!start || !end || end <= start) return null;
-
-    const padStart = new Date(start);
-    padStart.setDate(padStart.getDate() - 2);
-    const padEnd = new Date(end);
-    padEnd.setDate(padEnd.getDate() + 2);
-    const today = startOfDay(new Date());
-
-    if (today < padStart || today > padEnd) return null;
-
-    return ((today - padStart) / (padEnd - padStart)) * 100;
-});
 
 function applySnapshotFromBooking(data) {
     editForm.guest_name = data.guest ?? '';
@@ -546,6 +571,21 @@ function startEditField(fieldId) {
     if (fieldId === 'nights') {
         nightsDraft.value = liveNights.value || 1;
     }
+}
+
+function startNoteEdit() {
+    noteDraft.value = editForm.note;
+    editingNote.value = true;
+}
+
+function cancelNoteEdit() {
+    noteDraft.value = editForm.note;
+    editingNote.value = false;
+}
+
+function saveNoteEdit() {
+    editForm.note = noteDraft.value;
+    editingNote.value = false;
 }
 
 function applyNightsDraft() {
@@ -583,22 +623,10 @@ function resetChanges() {
     editForm.guests = snapshot.guests;
     editForm.note = snapshot.note;
     editingField.value = null;
-}
-
-function scrollToGuest() {
-    guestSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function cancelBooking() {
-    if (window.confirm('Cancel this booking?')) {
-        editForm.status = 'cancelled';
-    }
+    editingNote.value = false;
 }
 
 function onScroll() {
-    const scrollTop = scrollEl.value?.scrollTop ?? 0;
-    stickyVisible.value = scrollTop > 20;
-
     isScrolling.value = true;
     clearTimeout(scrollStopTimer);
     scrollStopTimer = setTimeout(() => {
@@ -613,14 +641,10 @@ async function loadBooking() {
         const res = await apiClient.get(`/bookings/${bookingId.value}`);
         booking.value = res?.data ?? {};
         applySnapshotFromBooking(booking.value);
-        setPageTitle(
-            booking.value.booking_num
-                ? `Booking #${booking.value.booking_num}`
-                : `Booking #${bookingId.value}`,
-        );
+        setPageTitle(`${displayId.value} | ${editForm.guest_name || booking.value.guest || 'Booking'}`);
     } catch {
         booking.value = {};
-        toast.show('Could not load booking.');
+        toast.show(t('bookingDetail.loadFailed'));
     } finally {
         loading.value = false;
     }
@@ -646,9 +670,10 @@ async function save(notifyGuest) {
         booking.value = res?.data ?? booking.value;
         applySnapshotFromBooking(booking.value);
         editingField.value = null;
-        toast.show(res?.message ?? 'Booking saved.');
+        editingNote.value = false;
+        toast.show(res?.message ?? t('bookingDetail.saved'));
     } catch (err) {
-        toast.show(err.message ?? 'Could not save booking.');
+        toast.show(err.message ?? t('bookingDetail.saveFailed'));
     } finally {
         saving.value = false;
     }
@@ -657,12 +682,15 @@ async function save(notifyGuest) {
 onMounted(() => {
     loadBooking();
     scrollEl.value?.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    rejectTimer = setInterval(() => {
+        rejectNow.value = Date.now();
+    }, 60000);
 });
 
 onUnmounted(() => {
     scrollEl.value?.removeEventListener('scroll', onScroll);
     clearTimeout(scrollStopTimer);
+    clearInterval(rejectTimer);
     clearPageTitle();
 });
 

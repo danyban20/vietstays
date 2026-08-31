@@ -4,6 +4,8 @@
             <h1 class="host-page-title">Email settings</h1>
         </div>
 
+        <SettingsSubnav />
+
         <div v-if="loading" class="host-loading">Loading email settings…</div>
 
         <div v-else-if="accessDenied" class="host-form-error">
@@ -109,6 +111,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import apiClient from '@/api/client';
+import SettingsSubnav from '@/components/SettingsSubnav.vue';
 
 const loading = ref(true);
 const saving = ref(false);

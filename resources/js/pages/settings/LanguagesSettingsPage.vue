@@ -7,6 +7,7 @@
             </div>
         </header>
 
+        <SettingsSubnav />
         <div v-if="error" class="host-alert host-alert--error">{{ error }}</div>
         <div v-if="success" class="host-alert host-alert--success">{{ success }}</div>
 
@@ -111,6 +112,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import apiClient from '@/api/client';
+import SettingsSubnav from '@/components/SettingsSubnav.vue';
 import { useLocaleStore } from '@/stores/locale';
 
 const { t } = useI18n();

@@ -4,6 +4,8 @@
             <h1 class="host-page-title">Email templates</h1>
         </div>
 
+        <SettingsSubnav />
+
         <div v-if="loading" class="host-loading">Loading email templates…</div>
 
         <div v-else-if="accessDenied" class="host-form-error">
@@ -85,6 +87,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api/client';
+import SettingsSubnav from '@/components/SettingsSubnav.vue';
 import TrumbowygEditor from '@/components/TrumbowygEditor.vue';
 
 const route = useRoute();

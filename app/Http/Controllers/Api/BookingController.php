@@ -398,8 +398,13 @@ class BookingController extends Controller
                     ? 'Host agent commission'
                     : ($discountType === 'ambassador' ? 'Ambassador code' : 'Cash points (3%)'),
                 'created_at' => $booking->dateadded?->format('Y-m-d'),
+                'created_at_time' => $booking->dateadded?->format('H:i'),
+                'display_id' => 'BK-'.$booking->ID,
                 'note' => $extra['note'] ?? $extra['internal_note'] ?? '',
                 'reference' => $booking->booking_num,
+                'reject_deadline' => $booking->status === 'pending'
+                    ? ($extra['reject_deadline'] ?? $booking->dateadded?->copy()->addHours(24)?->toIso8601String())
+                    : null,
                 'apartment_detail' => [
                     'name' => $apartment?->display_name ?: $apartment?->name,
                     'district' => $district?->name,
@@ -407,6 +412,8 @@ class BookingController extends Controller
                     'image' => $this->firstApartmentImage($apartment),
                     'check_in_time' => $apartment?->check_in_time1,
                     'check_out_time' => $apartment?->check_out_time,
+                    'type' => $apartment?->apartment_type,
+                    'num_bathrooms' => (int) ($apartment?->num_bathrooms ?: 1),
                 ],
                 'access' => [
                     'door_code' => $extra['door_code'] ?? '',
