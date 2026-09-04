@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ApartmentAvailabilityController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ApartmentController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\BookingPriceCalculatorController;
 use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\HostApplicationController;
@@ -57,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/calendar', [CalendarController::class, 'index']);
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
+    Route::post('/bookings/calculate-price', [BookingPriceCalculatorController::class, 'calculatePrice']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
     Route::put('/bookings/{booking}', [BookingController::class, 'update']);
     Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);
