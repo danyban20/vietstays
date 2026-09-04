@@ -23,6 +23,7 @@ const localFiles = [
     'app/Http/Controllers/Api/BookingController.php',
     'app/Http/Controllers/Api/DashboardController.php',
     'app/Http/Controllers/PublicStorageController.php',
+    'app/Services/ApartmentCreationService.php',
     'config/filesystems.php',
     'routes/web.php',
     'public/uploads/.gitkeep',
