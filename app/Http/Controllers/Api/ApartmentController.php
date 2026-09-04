@@ -113,6 +113,11 @@ class ApartmentController extends Controller
             'status' => ['sometimes', Rule::in(['draft', 'pending', 'active'])],
         ]);
 
+        if (array_key_exists('images', $validated)) {
+            $this->deleteRemovedApartmentImages($model, $validated['images']);
+            $validated['images'] = $this->normalizeApartmentImages($validated['images']);
+        }
+
         $apartment = $this->apartmentService->update($model, $validated);
 
         return response()->json([
@@ -135,8 +140,13 @@ class ApartmentController extends Controller
         $order = count(array_filter($images, fn ($img) => ! empty($img['image_id'] ?? $img['thumb'] ?? '')));
 
         foreach ($request->file('photos', []) as $file) {
-            $path = $file->store('apartments/'.$model->ID, 'public');
-            $url = Storage::disk('public')->url($path);
+            $path = $file->store('apartments/'.$model->ID, 'uploads');
+
+            if (! $path || ! Storage::disk('uploads')->exists($path)) {
+                abort(500, 'Photo could not be saved on the server. Check uploads directory permissions.');
+            }
+
+            $url = Storage::disk('uploads')->url($path);
             $order++;
             $images[] = [
                 'order' => $order,
@@ -323,5 +333,79 @@ class ApartmentController extends Controller
         }
 
         return false;
+    }
+
+    protected function normalizeApartmentImages(array $images): array
+    {
+        $order = 1;
+        $normalized = [];
+
+        foreach ($images as $image) {
+            if (! is_array($image)) {
+                continue;
+            }
+
+            $src = $image['thumb'] ?? $image['url'] ?? '';
+
+            if (! filled($src)) {
+                continue;
+            }
+
+            $image['order'] = $order++;
+            $normalized[] = $image;
+        }
+
+        return $normalized;
+    }
+
+    protected function deleteRemovedApartmentImages(Apartment $apartment, array $newImages): void
+    {
+        $oldPaths = $this->collectApartmentImagePaths(is_array($apartment->images) ? $apartment->images : []);
+        $newPaths = $this->collectApartmentImagePaths($newImages);
+
+        foreach (array_diff($oldPaths, $newPaths) as $path) {
+            Storage::disk('uploads')->delete($path);
+            Storage::disk('public')->delete($path);
+        }
+    }
+
+    protected function collectApartmentImagePaths(array $images): array
+    {
+        $paths = [];
+
+        foreach ($images as $image) {
+            if (! is_array($image)) {
+                continue;
+            }
+
+            $path = $this->resolveApartmentImagePath($image);
+
+            if ($path !== null) {
+                $paths[] = $path;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    protected function resolveApartmentImagePath(array $image): ?string
+    {
+        $imageId = $image['image_id'] ?? null;
+
+        if (is_string($imageId) && $imageId !== '') {
+            return ltrim($imageId, '/');
+        }
+
+        $src = $image['thumb'] ?? $image['url'] ?? '';
+
+        if (! is_string($src) || $src === '') {
+            return null;
+        }
+
+        if (preg_match('#/(?:uploads|storage)/(.+)$#', $src, $matches)) {
+            return ltrim($matches[1], '/');
+        }
+
+        return null;
     }
 }

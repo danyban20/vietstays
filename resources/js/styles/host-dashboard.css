@@ -1977,16 +1977,24 @@ body {
     background: var(--vs-primary);
     color: #fff;
     box-shadow: var(--vs-shadow-sticky);
-    opacity: 0;
-    transform: translateY(12px);
-    pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .host-apt-sticky-bar--visible {
     opacity: 1;
-    transform: translateY(0);
+}
+
+.host-apt-sticky-bar--always {
+    opacity: 1;
     pointer-events: auto;
+}
+
+.host-apt-sticky-bar--dimmed {
+    opacity: 0.4;
+}
+
+.host-apt-sticky-bar__reset {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
 .host-apt-sticky-bar__left {
@@ -2086,6 +2094,17 @@ body {
     pointer-events: none;
 }
 
+.host-apt-photo-hint {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    border: 1px solid #f0dfa9;
+    border-radius: 8px;
+    background: #fbf3e0;
+    color: #8a6a3d;
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
 .host-apt-photo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -2093,7 +2112,6 @@ body {
 }
 
 .host-apt-photo-card {
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -2101,6 +2119,11 @@ body {
     border: 1px solid var(--vs-border);
     border-radius: var(--vs-radius-md);
     background: #fff;
+    cursor: grab;
+}
+
+.host-apt-photo-card:active {
+    cursor: grabbing;
 }
 
 .host-apt-photo-card--cover {
@@ -2108,24 +2131,71 @@ body {
     box-shadow: 0 0 0 1px rgba(224, 121, 58, 0.15);
 }
 
+.host-apt-photo-card__thumb {
+    position: relative;
+    border-radius: var(--vs-radius-sm);
+    overflow: hidden;
+}
+
 .host-apt-photo-card__img {
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1;
     object-fit: cover;
-    border-radius: var(--vs-radius-sm);
+    display: block;
     background: var(--vs-panel-sand);
+}
+
+.host-apt-photo-card__remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.host-apt-photo-card__remove:hover {
+    background: rgba(0, 0, 0, 0.75);
 }
 
 .host-apt-photo-card__badge {
     position: absolute;
-    top: 14px;
-    left: 14px;
-    padding: 3px 8px;
-    border-radius: 999px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+    padding: 3px 4px;
+    border-radius: 5px;
+    background: #e0793a;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.host-apt-photo-card__cover-btn {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+    padding: 4px 6px;
+    border: none;
+    border-radius: 5px;
     background: rgba(18, 53, 43, 0.82);
     color: #fff;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
+    cursor: pointer;
+}
+
+.host-apt-photo-card__cover-btn:hover {
+    background: rgba(18, 53, 43, 0.95);
 }
 
 .host-apt-photo-card__caption {

@@ -87,7 +87,7 @@
                                 @click="fileInput?.click()"
                                 @dragover.prevent="dragOver = true"
                                 @dragleave.prevent="dragOver = false"
-                                @drop.prevent="onPhotoDrop"
+                                @drop.prevent="onDropzonePhotoDrop"
                             >
                                 <p class="host-apt-photo-dropzone__icon">📷</p>
                                 <p class="host-apt-photo-dropzone__title">
@@ -110,19 +110,46 @@
 
                             <div v-if="photoUploading" class="host-field-hint">Uploading photos…</div>
 
+                            <p v-if="validImages.length" class="host-apt-photo-hint">
+                                Drag a photo to reorder. The first photo is the cover guests see first.
+                            </p>
+
                             <div v-if="validImages.length" class="host-apt-photo-grid">
                                 <article
                                     v-for="(img, idx) in validImages"
                                     :key="`${img.image_id || img.thumb}-${idx}`"
                                     class="host-apt-photo-card"
                                     :class="{ 'host-apt-photo-card--cover': idx === 0 }"
+                                    draggable="true"
+                                    @dragstart="onPhotoDragStart(idx, $event)"
+                                    @dragover.prevent="onPhotoDragOver"
+                                    @drop.prevent="onPhotoCardDrop(idx)"
                                 >
-                                    <img
-                                        :src="resolveApartmentImageUrl(img.thumb || img.url)"
-                                        alt=""
-                                        class="host-apt-photo-card__img"
-                                    />
-                                    <span v-if="idx === 0" class="host-apt-photo-card__badge">Cover photo</span>
+                                    <div class="host-apt-photo-card__thumb">
+                                        <img
+                                            :src="resolveApartmentImageUrl(img.thumb || img.url)"
+                                            alt=""
+                                            class="host-apt-photo-card__img"
+                                            draggable="false"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="host-apt-photo-card__remove"
+                                            aria-label="Remove photo"
+                                            @click.stop="removePhoto(idx)"
+                                        >
+                                            ×
+                                        </button>
+                                        <span v-if="idx === 0" class="host-apt-photo-card__badge">★ Cover photo</span>
+                                        <button
+                                            v-else
+                                            type="button"
+                                            class="host-apt-photo-card__cover-btn"
+                                            @click.stop="setCoverPhoto(idx)"
+                                        >
+                                            Set as cover
+                                        </button>
+                                    </div>
                                     <input
                                         v-model="img.caption"
                                         type="text"
@@ -175,8 +202,8 @@
                 </div>
 
                 <div
-                    class="host-apt-sticky-bar"
-                    :class="{ 'host-apt-sticky-bar--visible': stickyBarVisible || dirty }"
+                    class="host-apt-sticky-bar host-apt-sticky-bar--always"
+                    :class="{ 'host-apt-sticky-bar--dimmed': !dirty }"
                 >
                     <div class="host-apt-sticky-bar__left">
                         <router-link :to="{ name: 'apartments' }" class="host-apt-sticky-bar__back">
@@ -185,16 +212,23 @@
                         <span class="host-apt-sticky-bar__status">
                             {{
                                 dirty
-                                    ? `${pendingChangeCount} change${pendingChangeCount === 1 ? '' : 's'} pending`
+                                    ? `${pendingChangeCount} change${pendingChangeCount === 1 ? '' : 's'} pending — click Save to apply`
                                     : 'All saved'
                             }}
                         </span>
                     </div>
                     <div class="host-apt-sticky-bar__actions">
                         <button
+                            v-if="dirty"
                             type="button"
-                            class="host-btn"
-                            :class="dirty ? 'host-btn--accent' : 'host-btn--sand'"
+                            class="host-btn host-btn--ghost host-apt-sticky-bar__reset"
+                            @click="resetChanges"
+                        >
+                            Reset
+                        </button>
+                        <button
+                            type="button"
+                            class="host-btn host-btn--sand"
                             :disabled="!dirty || saving"
                             @click="save"
                         >
@@ -272,8 +306,8 @@ const saving = ref(false);
 const photoUploading = ref(false);
 const dragOver = ref(false);
 const activeTab = ref('presentation');
-const stickyBarVisible = ref(false);
 const fileInput = ref(null);
+const dragFromIndex = ref(null);
 const scrollEl = ref(null);
 const imagesDirty = ref(false);
 const liveStatus = ref({ state: 'vacant', label: 'Vacant — no active booking' });
@@ -467,9 +501,67 @@ function jumpToChecklistItem(item) {
     }
 }
 
-function onScroll() {
-    const scrollTop = scrollEl.value?.scrollTop ?? 0;
-    stickyBarVisible.value = scrollTop > 40;
+function replaceValidImages(nextImages) {
+    apartment.value.images = nextImages;
+    markImagesDirty();
+}
+
+function removePhoto(idx) {
+    const next = [...validImages.value];
+    next.splice(idx, 1);
+    replaceValidImages(next);
+}
+
+function setCoverPhoto(idx) {
+    if (idx <= 0) {
+        return;
+    }
+
+    const next = [...validImages.value];
+    const [moved] = next.splice(idx, 1);
+    next.unshift(moved);
+    replaceValidImages(next);
+}
+
+function reorderPhotos(fromIdx, toIdx) {
+    if (fromIdx === toIdx) {
+        return;
+    }
+
+    const next = [...validImages.value];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    replaceValidImages(next);
+}
+
+function onPhotoDragStart(idx, event) {
+    dragFromIndex.value = idx;
+    event.dataTransfer.effectAllowed = 'move';
+}
+
+function onPhotoDragOver(event) {
+    event.dataTransfer.dropEffect = 'move';
+}
+
+function onPhotoCardDrop(targetIdx) {
+    const fromIdx = dragFromIndex.value;
+
+    if (fromIdx === null) {
+        return;
+    }
+
+    reorderPhotos(fromIdx, targetIdx);
+    dragFromIndex.value = null;
+}
+
+function resetChanges() {
+    editForm.price_daily = originalForm.price_daily;
+    editForm.cleaning_fee = originalForm.cleaning_fee;
+    editForm.about_this_short = originalForm.about_this_short;
+    editForm.description = originalForm.description;
+    editForm.distinguishing_feature = originalForm.distinguishing_feature;
+    apartment.value.images = JSON.parse(originalImagesJson.value || '[]');
+    imagesDirty.value = false;
 }
 
 async function uploadPhotoFiles(files) {
@@ -503,7 +595,7 @@ function onPhotoSelect(event) {
     event.target.value = '';
 }
 
-function onPhotoDrop(event) {
+function onDropzonePhotoDrop(event) {
     dragOver.value = false;
     uploadPhotoFiles(event.dataTransfer?.files);
 }
@@ -549,12 +641,9 @@ async function save() {
 
 onMounted(() => {
     loadApartment();
-    scrollEl.value?.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
 });
 
 onUnmounted(() => {
-    scrollEl.value?.removeEventListener('scroll', onScroll);
     clearPageTitle();
 });
 
