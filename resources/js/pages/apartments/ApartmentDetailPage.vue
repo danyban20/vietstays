@@ -641,7 +641,7 @@ async function save() {
         applyApartmentData({ ...apartment.value, ...(res?.data ?? {}) });
         toast.show('Apartment saved.');
     } catch (err) {
-        toast.show(err.message ?? 'Could not save apartment.');
+        toast.show(err.payload?.detail ?? err.message ?? 'Could not save apartment.');
     } finally {
         saving.value = false;
     }

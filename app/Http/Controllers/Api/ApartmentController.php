@@ -136,15 +136,31 @@ class ApartmentController extends Controller
             Log::error('Apartment update failed', [
                 'apartment_id' => $model->ID,
                 'error' => $e->getMessage(),
+                'payload_keys' => array_keys($validated),
             ]);
 
             return response()->json([
                 'message' => 'Could not save apartment changes.',
+                'detail' => $e->getMessage(),
+            ], 500);
+        }
+
+        try {
+            $data = $this->transform($apartment, true);
+        } catch (\Throwable $e) {
+            Log::error('Apartment transform after update failed', [
+                'apartment_id' => $model->ID,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Changes saved, but the response could not be built.',
+                'detail' => $e->getMessage(),
             ], 500);
         }
 
         return response()->json([
-            'data' => $this->transform($apartment, true),
+            'data' => $data,
             'message' => 'Apartment updated.',
         ]);
     }
