@@ -26,9 +26,9 @@
         <env name="DB_CONNECTION" value="mysql"/>
         <env name="DB_HOST" value="127.0.0.1"/>
         <env name="DB_PORT" value="3306"/>
-        <env name="DB_DATABASE" value="vietstays_v2_test"/>
-        <env name="DB_USERNAME" value="vietstays"/>
-        <env name="DB_PASSWORD" value="vietstays_password"/>
+        <env name="DB_DATABASE" value="vietstays_test"/>
+        <env name="DB_USERNAME" value="lavarel"/>
+        <env name="DB_PASSWORD" value="secret"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
