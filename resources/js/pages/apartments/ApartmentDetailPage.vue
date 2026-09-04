@@ -618,15 +618,23 @@ async function save() {
 
     try {
         const payload = {
-            price_daily: editForm.price_daily,
-            cleaning_fee: editForm.cleaning_fee,
-            about_this_short: editForm.about_this_short,
-            description: editForm.description,
-            distinguishing_feature: editForm.distinguishing_feature,
+            price_daily: Number(editForm.price_daily) || 0,
+            cleaning_fee: Number(editForm.cleaning_fee) || 0,
+            about_this_short: editForm.about_this_short ?? '',
+            description: editForm.description ?? '',
+            distinguishing_feature: editForm.distinguishing_feature ?? '',
         };
 
         if (imagesDirty.value) {
-            payload.images = (apartment.value.images ?? []).filter(isValidApartmentImage);
+            payload.images = (apartment.value.images ?? [])
+                .filter(isValidApartmentImage)
+                .map((img) => ({
+                    order: img.order ?? 0,
+                    thumb: img.thumb || img.url || '',
+                    image_id: img.image_id ?? '',
+                    caption: img.caption ?? '',
+                    ...(img.url ? { url: img.url } : {}),
+                }));
         }
 
         const res = await apiClient.put(`/apartments/${apartmentId.value}`, payload);

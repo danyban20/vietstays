@@ -73,6 +73,20 @@ if (!phpOnly) {
 
 console.log(`Deploy upload complete. Files uploaded: ${count}`);
 
+// Drop cached config so new filesystem disks (e.g. uploads) are picked up.
+for (const cacheFile of ['bootstrap/cache/config.php', 'bootstrap/cache/routes-v7.php']) {
+    try {
+        execFileSync(
+            'curl.exe',
+            ['--user', `${user}:${password}`, '--ftp-pasv', '--silent', '--show-error', `ftp://${host}/${remoteBase}/${cacheFile}`, '-Q', `DELE ${cacheFile}`],
+            { stdio: 'ignore' },
+        );
+        console.log(`Cleared remote cache file: ${cacheFile}`);
+    } catch {
+        // Cache file may not exist.
+    }
+}
+
 // Ensure uploads directory exists on server
 try {
     const uploadsUrl = `ftp://${host}/${remoteBase}/public/uploads`;

@@ -114,11 +114,34 @@ class ApartmentController extends Controller
         ]);
 
         if (array_key_exists('images', $validated)) {
-            $this->deleteRemovedApartmentImages($model, $validated['images']);
-            $validated['images'] = $this->normalizeApartmentImages($validated['images']);
+            try {
+                $normalizedImages = $this->normalizeApartmentImages($validated['images']);
+                $this->deleteRemovedApartmentImages($model, $normalizedImages);
+                $validated['images'] = $normalizedImages;
+            } catch (\Throwable $e) {
+                Log::error('Apartment image update failed', [
+                    'apartment_id' => $model->ID,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'message' => 'Could not update apartment photos. Check uploads folder permissions.',
+                ], 500);
+            }
         }
 
-        $apartment = $this->apartmentService->update($model, $validated);
+        try {
+            $apartment = $this->apartmentService->update($model, $validated);
+        } catch (\Throwable $e) {
+            Log::error('Apartment update failed', [
+                'apartment_id' => $model->ID,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Could not save apartment changes.',
+            ], 500);
+        }
 
         return response()->json([
             'data' => $this->transform($apartment, true),
@@ -139,14 +162,16 @@ class ApartmentController extends Controller
         $images = is_array($model->images) ? $model->images : [];
         $order = count(array_filter($images, fn ($img) => ! empty($img['image_id'] ?? $img['thumb'] ?? '')));
 
-        foreach ($request->file('photos', []) as $file) {
-            $path = $file->store('apartments/'.$model->ID, 'uploads');
+        $this->ensureUploadsDirectory('apartments/'.$model->ID);
 
-            if (! $path || ! Storage::disk('uploads')->exists($path)) {
+        foreach ($request->file('photos', []) as $file) {
+            $path = $this->storeUploadedPhoto($file, (int) $model->ID);
+
+            if (! $path || ! $this->uploadsFileExists($path)) {
                 abort(500, 'Photo could not be saved on the server. Check uploads directory permissions.');
             }
 
-            $url = Storage::disk('uploads')->url($path);
+            $url = $this->uploadsFileUrl($path);
             $order++;
             $images[] = [
                 'order' => $order,
@@ -351,8 +376,18 @@ class ApartmentController extends Controller
                 continue;
             }
 
-            $image['order'] = $order++;
-            $normalized[] = $image;
+            $item = [
+                'order' => $order++,
+                'thumb' => $src,
+                'image_id' => is_string($image['image_id'] ?? null) ? $image['image_id'] : '',
+                'caption' => is_string($image['caption'] ?? null) ? $image['caption'] : '',
+            ];
+
+            if (! empty($image['url']) && is_string($image['url'])) {
+                $item['url'] = $image['url'];
+            }
+
+            $normalized[] = $item;
         }
 
         return $normalized;
@@ -364,8 +399,84 @@ class ApartmentController extends Controller
         $newPaths = $this->collectApartmentImagePaths($newImages);
 
         foreach (array_diff($oldPaths, $newPaths) as $path) {
-            Storage::disk('uploads')->delete($path);
-            Storage::disk('public')->delete($path);
+            $this->deleteApartmentImageFile($path);
+        }
+    }
+
+    protected function storeUploadedPhoto(\Illuminate\Http\UploadedFile $file, int $apartmentId): string
+    {
+        $relativeDir = 'apartments/'.$apartmentId;
+
+        if ($this->uploadsDiskAvailable()) {
+            return $file->store($relativeDir, 'uploads') ?: '';
+        }
+
+        $this->ensureUploadsDirectory($relativeDir);
+        $filename = $file->hashName();
+        $file->move(public_path('uploads'.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $relativeDir)), $filename);
+
+        return $relativeDir.'/'.$filename;
+    }
+
+    protected function ensureUploadsDirectory(string $relativePath = ''): void
+    {
+        $root = public_path('uploads');
+        $target = $relativePath !== '' ? $root.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $relativePath) : $root;
+
+        if (! is_dir($target)) {
+            mkdir($target, 0755, true);
+        }
+    }
+
+    protected function uploadsFileExists(string $path): bool
+    {
+        $fullPath = public_path('uploads'.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, ltrim($path, '/')));
+
+        return is_file($fullPath);
+    }
+
+    protected function uploadsFileUrl(string $path): string
+    {
+        if ($this->uploadsDiskAvailable()) {
+            return Storage::disk('uploads')->url($path);
+        }
+
+        return rtrim(config('app.url', ''), '/').'/uploads/'.ltrim($path, '/');
+    }
+
+    protected function uploadsDiskAvailable(): bool
+    {
+        return is_array(config('filesystems.disks.uploads'))
+            && is_dir(public_path('uploads'));
+    }
+
+    protected function deleteApartmentImageFile(string $path): void
+    {
+        $relative = ltrim(str_replace('\\', '/', $path), '/');
+
+        if ($relative === '' || str_contains($relative, '..')) {
+            return;
+        }
+
+        $candidates = [
+            public_path('uploads'.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $relative)),
+            storage_path('app/public'.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $relative)),
+        ];
+
+        foreach ($candidates as $fullPath) {
+            if (is_file($fullPath)) {
+                @unlink($fullPath);
+            }
+        }
+
+        try {
+            if ($this->uploadsDiskAvailable()) {
+                Storage::disk('uploads')->delete($relative);
+            }
+
+            Storage::disk('public')->delete($relative);
+        } catch (\Throwable) {
+            // File deletion via Storage is best-effort; local unlink above is the primary path.
         }
     }
 
