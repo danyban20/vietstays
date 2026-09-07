@@ -1,8 +1,8 @@
 <template>
     <svg
         class="host-sidebar__icon"
-        width="16"
-        height="16"
+        width="15"
+        height="15"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

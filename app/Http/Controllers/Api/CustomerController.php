@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Services\CustomerAggregationService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class CustomerController extends Controller
+{
+    public function __construct(
+        protected CustomerAggregationService $customers,
+    ) {}
+
+    public function index(Request $request): JsonResponse
+    {
+        if ($request->boolean('count_only')) {
+            return response()->json([
+                'total' => $this->customers->countCustomers($request->user()),
+            ]);
+        }
+
+        $customers = $this->customers->listCustomers($request->user());
+
+        return response()->json([
+            'data' => $customers,
+            'meta' => [
+                'total' => count($customers),
+            ],
+        ]);
+    }
+
+    public function show(Request $request, string $customer): JsonResponse
+    {
+        $record = $this->customers->findCustomer($request->user(), $customer);
+
+        if (! $record) {
+            return response()->json(['message' => 'Customer not found.'], 404);
+        }
+
+        return response()->json(['data' => $record]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'country' => ['nullable', 'string', 'max:100'],
+            'reserved_by' => ['nullable', 'string', 'max:255'],
+            'note' => ['nullable', 'string', 'max:2000'],
+            'reserve_after_create' => ['sometimes', 'boolean'],
+        ]);
+
+        $customer = $this->customers->createManualCustomer($request->user(), $validated);
+
+        return response()->json([
+            'data' => $customer,
+            'reserve_after_create' => (bool) ($validated['reserve_after_create'] ?? false),
+            'message' => filled($validated['email'] ?? null)
+                ? 'Customer created successfully.'
+                : 'Temporary customer #'.$customer['tempRef'].' created.',
+        ], 201);
+    }
+}

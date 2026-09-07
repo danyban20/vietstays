@@ -234,6 +234,7 @@ import { bookingSummary } from '@/utils/pricing';
 const props = defineProps({
     open: { type: Boolean, default: false },
     variant: { type: String, default: 'manual' },
+    prefill: { type: Object, default: () => ({}) },
 });
 
 const emit = defineEmits(['close', 'saved']);
@@ -393,6 +394,18 @@ function resetForm() {
         discount_value: 0,
         discount_code: '',
     });
+
+    if (props.prefill?.guest_name) {
+        form.guest_name = props.prefill.guest_name;
+    }
+
+    if (props.prefill?.email) {
+        form.email = props.prefill.email;
+    }
+
+    if (props.prefill?.phone) {
+        form.phone = props.prefill.phone;
+    }
 }
 
 async function submit() {

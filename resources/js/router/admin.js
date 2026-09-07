@@ -91,6 +91,36 @@ const routes = [
                 component: () => import('@/pages/admin-users/AdminUsersPage.vue'),
                 meta: { breadcrumbKey: 'nav.adminUsers', adminSection: true },
             },
+            {
+                path: 'team/sales',
+                name: 'team-sales',
+                component: () => import('@/pages/team/TeamPage.vue'),
+                meta: { breadcrumbKey: 'nav.salesTeam', teamMode: 'sales' },
+            },
+            {
+                path: 'team/operations',
+                name: 'team-operations',
+                component: () => import('@/pages/team/TeamPage.vue'),
+                meta: { breadcrumbKey: 'nav.operationsTeam', teamMode: 'operations' },
+            },
+            {
+                path: 'team/management-company',
+                name: 'team-management-company',
+                component: () => import('@/pages/team/ManagementCompanyPage.vue'),
+                meta: { breadcrumbKey: 'nav.managementCompany' },
+            },
+            {
+                path: 'customers',
+                name: 'customers',
+                component: () => import('@/pages/customers/CustomersPage.vue'),
+                meta: { breadcrumbKey: 'nav.customers' },
+            },
+            {
+                path: 'customers/:id',
+                name: 'customer-detail',
+                component: () => import('@/pages/customers/CustomerDetailPage.vue'),
+                meta: { breadcrumbKey: 'nav.customers', detailShell: true },
+            },
         ],
     },
 ];

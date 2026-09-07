@@ -180,6 +180,7 @@
         <AddBookingModal
             :open="addModalOpen"
             :variant="addModalVariant"
+            :prefill="addModalPrefill"
             @close="addModalOpen = false"
             @saved="loadBookings"
         />
@@ -203,6 +204,7 @@ const addMenuOpen = ref(false);
 const addMenuRef = ref(null);
 const addModalOpen = ref(false);
 const addModalVariant = ref('manual');
+const addModalPrefill = ref({});
 
 const filterOptions = reactive({
     districts: [],
@@ -308,8 +310,9 @@ function resetFilters() {
     filters.search = '';
 }
 
-function openAddModal(variant) {
+function openAddModal(variant, prefill = null) {
     addModalVariant.value = variant;
+    addModalPrefill.value = prefill ?? {};
     addModalOpen.value = true;
     addMenuOpen.value = false;
 }
@@ -339,7 +342,15 @@ onMounted(() => {
 
     const addQuery = route.query.add;
     if (addQuery && ['manual', 'block', 'external'].includes(addQuery)) {
-        openAddModal(addQuery);
+        const prefill = addQuery === 'manual'
+            ? {
+                guest_name: String(route.query.guest_name ?? ''),
+                email: String(route.query.email ?? ''),
+                phone: String(route.query.phone ?? ''),
+            }
+            : {};
+
+        openAddModal(addQuery, prefill);
         router.replace({ query: {} });
     }
 });

@@ -1,7 +1,7 @@
 <template>
     <Teleport to="body">
         <div v-if="open" class="host-modal-overlay" @click.self="onBackdrop">
-            <div class="host-modal" role="dialog" :aria-label="title">
+            <div class="host-modal" :class="{ 'host-modal--narrow': narrow }" role="dialog" :aria-label="title">
                 <header class="host-modal__header">
                     <h2 class="host-modal__title">{{ title }}</h2>
                     <button type="button" class="host-modal__close" aria-label="Close" @click="emit('close')">
@@ -26,6 +26,7 @@ const props = defineProps({
     open: { type: Boolean, default: false },
     title: { type: String, default: '' },
     closeOnBackdrop: { type: Boolean, default: true },
+    narrow: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['close']);

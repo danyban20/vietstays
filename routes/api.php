@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ApartmentController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\BookingPriceCalculatorController;
 use App\Http\Controllers\Api\CalendarController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\HostApplicationController;
 use App\Http\Controllers\Api\LanguageSettingsController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Api\PublicApartmentController;
 use App\Http\Controllers\Api\PublicBookingController;
 use App\Http\Controllers\Api\PublicHostApplicationController;
 use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\UserAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +64,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
     Route::put('/bookings/{booking}', [BookingController::class, 'update']);
     Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);
+
+    Route::get('/customers', [CustomerController::class, 'index']);
+    Route::post('/customers', [CustomerController::class, 'store']);
+    Route::get('/customers/{customer}', [CustomerController::class, 'show']);
+
+    Route::get('/team', [TeamController::class, 'index']);
+    Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);
+    Route::patch('/team/members/{member}/guest-info', [TeamController::class, 'updateGuestInfo']);
+    Route::delete('/team/invitations/{invitation}', [TeamController::class, 'destroyInvitation']);
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/users', [UserAdminController::class, 'index']);

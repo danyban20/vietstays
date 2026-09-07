@@ -113,6 +113,12 @@ const breadcrumbs = computed(() => {
         }
     }
 
+    if (route.name === 'customers' || route.name === 'customer-detail') {
+        crumbs.push({ label: t('nav.apartmentsBookings'), to: { name: 'apartments' } });
+        crumbs.push({ label: t('nav.customers'), to: route.name === 'customer-detail' ? { name: 'customers' } : undefined });
+        return crumbs;
+    }
+
     if (route.name === 'apartments' || route.name === 'apartment-detail' || route.name === 'apartment-add') {
         crumbs.push({ label: t('nav.apartmentsBookings'), to: { name: 'apartments' } });
     }
@@ -129,6 +135,14 @@ const breadcrumbs = computed(() => {
 
     if (route.name === 'admin-users') {
         crumbs.push({ label: t('nav.users') });
+        return crumbs;
+    }
+
+    if (route.name === 'team-sales' || route.name === 'team-operations' || route.name === 'team-management-company') {
+        crumbs.push({ label: t('nav.myTeam') });
+        if (route.meta?.breadcrumbKey) {
+            crumbs.push({ label: t(route.meta.breadcrumbKey) });
+        }
         return crumbs;
     }
 

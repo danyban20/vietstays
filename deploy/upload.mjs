@@ -21,10 +21,18 @@ if (!host || !user || !password) {
 const localFiles = [
     'app/Http/Controllers/Api/ApartmentController.php',
     'app/Http/Controllers/Api/BookingController.php',
+    'app/Http/Controllers/Api/CustomerController.php',
+    'app/Http/Controllers/Api/TeamController.php',
     'app/Http/Controllers/Api/DashboardController.php',
     'app/Http/Controllers/PublicStorageController.php',
+    'app/Models/HostCustomer.php',
+    'app/Models/HostTeamMember.php',
+    'app/Models/HostTeamInvitation.php',
     'app/Services/ApartmentCreationService.php',
+    'app/Services/CustomerAggregationService.php',
+    'app/Services/TeamService.php',
     'config/filesystems.php',
+    'routes/api.php',
     'routes/web.php',
     'public/uploads/.gitkeep',
 ];

@@ -1,0 +1,352 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\HostTeamInvitation;
+use App\Models\HostTeamMember;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+
+class TeamService
+{
+    private const AVATAR_COLORS = [
+        '#12352b',
+        '#1f7a44',
+        '#b5651d',
+        '#2f6d7a',
+        '#7a4b8a',
+        '#8a6d3b',
+        '#43503f',
+        '#6b5aa8',
+        '#a35a4e',
+    ];
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function teamPayload(User $user, string $teamType): array
+    {
+        $this->ensureSeedData($user, $teamType);
+
+        $members = $this->scopedMembersQuery($user, $teamType)
+            ->orderBy('name')
+            ->get()
+            ->map(fn (HostTeamMember $member) => $this->presentMember($member))
+            ->values()
+            ->all();
+
+        $invitations = $this->scopedInvitationsQuery($user, $teamType)
+            ->orderByDesc('sent_at')
+            ->get()
+            ->map(fn (HostTeamInvitation $invite) => $this->presentInvitation($invite))
+            ->values()
+            ->all();
+
+        return [
+            'members' => $members,
+            'invitations' => $invitations,
+            'stats' => $this->buildStats($members, $teamType),
+            'areas' => $this->areaOptions($members),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public function createInvitation(User $user, string $teamType, array $data): array
+    {
+        $email = filled($data['email'] ?? null) ? strtolower(trim((string) $data['email'])) : null;
+        $phone = filled($data['phone'] ?? null) ? trim((string) $data['phone']) : null;
+        $name = filled($data['name'] ?? null)
+            ? trim((string) $data['name'])
+            : $this->nameFromContact($email, $phone);
+
+        $record = HostTeamInvitation::query()->create([
+            'user_id' => $user->id,
+            'legacy_host_id' => $user->legacy_wp_id,
+            'team_type' => $teamType,
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'role' => (string) $data['role'],
+            'area' => filled($data['area'] ?? null) ? trim((string) $data['area']) : null,
+            'permissions' => $data['permissions'] ?? [],
+            'pay_rate' => isset($data['pay_rate']) ? (int) $data['pay_rate'] : null,
+            'pay_setup' => $data['pay_setup'] ?? null,
+            'org' => filled($data['org'] ?? null) ? trim((string) $data['org']) : null,
+            'sent_at' => now(),
+        ]);
+
+        return $this->presentInvitation($record);
+    }
+
+    public function toggleGuestInfo(User $user, int $memberId, bool $enabled): ?array
+    {
+        $member = $this->scopedMembersQuery($user, 'operations')
+            ->whereKey($memberId)
+            ->first();
+
+        if (! $member) {
+            return null;
+        }
+
+        $member->update(['guest_info' => $enabled]);
+
+        return $this->presentMember($member->fresh());
+    }
+
+    public function withdrawInvitation(User $user, int $invitationId): bool
+    {
+        return (bool) $this->scopedInvitationsQuery($user)
+            ->whereKey($invitationId)
+            ->delete();
+    }
+
+    protected function scopedMembersQuery(User $user, ?string $teamType = null): Builder
+    {
+        $query = HostTeamMember::query()->where('user_id', $user->id);
+
+        if ($user->isPartner() && ! $user->isAdmin()) {
+            $query->where('legacy_host_id', $user->legacy_wp_id);
+        }
+
+        if ($teamType) {
+            $query->where('team_type', $teamType);
+        }
+
+        return $query;
+    }
+
+    protected function scopedInvitationsQuery(User $user, ?string $teamType = null): Builder
+    {
+        $query = HostTeamInvitation::query()->where('user_id', $user->id);
+
+        if ($user->isPartner() && ! $user->isAdmin()) {
+            $query->where('legacy_host_id', $user->legacy_wp_id);
+        }
+
+        if ($teamType) {
+            $query->where('team_type', $teamType);
+        }
+
+        return $query;
+    }
+
+    protected function ensureSeedData(User $user, string $teamType): void
+    {
+        if ($this->scopedMembersQuery($user, $teamType)->exists()) {
+            return;
+        }
+
+        foreach ($this->defaultMembers($teamType) as $row) {
+            HostTeamMember::query()->create([
+                'user_id' => $user->id,
+                'legacy_host_id' => $user->legacy_wp_id,
+                ...$row,
+            ]);
+        }
+
+        if (! $this->scopedInvitationsQuery($user, $teamType)->exists()) {
+            foreach ($this->defaultInvitations($teamType) as $row) {
+                $sentDaysAgo = (int) ($row['sent_days_ago'] ?? 0);
+                unset($row['sent_days_ago'], $row['avatar_color']);
+
+                HostTeamInvitation::query()->create([
+                    'user_id' => $user->id,
+                    'legacy_host_id' => $user->legacy_wp_id,
+                    'sent_at' => now()->subDays($sentDaysAgo),
+                    ...$row,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function defaultMembers(string $teamType): array
+    {
+        if ($teamType === 'sales') {
+            return [
+                ['team_type' => 'sales', 'name' => 'Mai Nguyen', 'email' => 'mai@vietstay.vn', 'org' => 'VietStay Saigon', 'area' => 'Thảo Điền', 'func' => 'Host', 'link' => 'internal', 'member_type' => 'host', 'apartments' => 5, 'bookings90' => 42, 'gross90' => 486_000_000, 'out_pct' => 0, 'pooled' => true, 'rating' => 4.9, 'status' => 'active', 'avatar_color' => '#12352b'],
+                ['team_type' => 'sales', 'name' => 'Trang Le', 'email' => 'trang@vietstay.vn', 'org' => 'VietStay Saigon', 'area' => 'Bình Thạnh', 'func' => 'Host', 'link' => 'internal', 'member_type' => 'host', 'apartments' => 4, 'bookings90' => 33, 'gross90' => 371_000_000, 'out_pct' => 0, 'pooled' => true, 'rating' => 4.7, 'status' => 'active', 'avatar_color' => '#b5651d'],
+                ['team_type' => 'sales', 'name' => 'Linh Dao', 'email' => 'linh@vietstay.vn', 'org' => 'VietStay Saigon', 'area' => 'Thủ Thiêm', 'func' => 'Host', 'link' => 'internal', 'member_type' => 'host', 'apartments' => 2, 'bookings90' => 19, 'gross90' => 224_000_000, 'out_pct' => 0, 'pooled' => true, 'rating' => 5.0, 'status' => 'active', 'avatar_color' => '#43503f'],
+                ['team_type' => 'sales', 'name' => 'Peter Nguyen', 'email' => 'peter@indochine.vn', 'org' => 'Indochine Living', 'area' => 'Thảo Điền', 'func' => 'Co-host', 'link' => 'external', 'member_type' => 'host', 'apartments' => 6, 'bookings90' => 51, 'gross90' => 210_000_000, 'out_pct' => 12, 'pooled' => false, 'rating' => 4.6, 'status' => 'active', 'avatar_color' => '#2f6d7a'],
+                ['team_type' => 'sales', 'name' => 'Ha Vu', 'email' => 'ha@saigonstay.co', 'org' => 'Saigon Stay Co.', 'area' => 'District 1', 'func' => 'Co-host', 'link' => 'external', 'member_type' => 'host', 'apartments' => 3, 'bookings90' => 26, 'gross90' => 288_000_000, 'out_pct' => 15, 'pooled' => false, 'rating' => 4.3, 'status' => 'active', 'avatar_color' => '#8a6d3b'],
+                ['team_type' => 'sales', 'name' => 'Anh Vo', 'email' => 'anh@vietstay.vn', 'org' => 'VietStay Saigon', 'area' => 'District 1', 'func' => 'Host Agent', 'link' => 'internal', 'member_type' => 'agent', 'apartments' => 3, 'bookings90' => 14, 'gross90' => 162_000_000, 'out_pct' => 8, 'pooled' => false, 'rating' => 4.4, 'status' => 'active', 'avatar_color' => '#6b5aa8'],
+                ['team_type' => 'sales', 'name' => 'Kim Bui', 'email' => 'kim@saigonstay.co', 'org' => 'Saigon Stay Co.', 'area' => 'Thảo Điền', 'func' => 'Host Agent', 'link' => 'external', 'member_type' => 'agent', 'apartments' => 0, 'bookings90' => 4, 'gross90' => 47_000_000, 'out_pct' => 8, 'pooled' => false, 'rating' => 3.9, 'status' => 'paused', 'avatar_color' => '#a35a4e'],
+            ];
+        }
+
+        return [
+            ['team_type' => 'operations', 'name' => 'Duc Tran', 'phone' => '+84 91 220 7734', 'roles' => ['cleaning', 'keys'], 'area' => 'All buildings', 'tasks_week' => 18, 'avg_time' => '32 min', 'avg_time_warn' => false, 'guest_info' => true, 'status' => 'active', 'avatar_color' => '#1f7a44'],
+            ['team_type' => 'operations', 'name' => 'Hien Vo', 'phone' => '+84 90 887 2214', 'roles' => ['cleaning'], 'area' => 'Thảo Điền', 'tasks_week' => 22, 'avg_time' => '28 min', 'avg_time_warn' => false, 'guest_info' => false, 'status' => 'active', 'avatar_color' => '#43503f'],
+            ['team_type' => 'operations', 'name' => 'Tuan Le', 'phone' => '+84 93 442 1180', 'roles' => ['cash', 'courier'], 'area' => 'All buildings', 'tasks_week' => 12, 'avg_time' => '46 min', 'avg_time_warn' => true, 'guest_info' => true, 'status' => 'active', 'avatar_color' => '#8a6d3b'],
+            ['team_type' => 'operations', 'name' => 'Nga Pham', 'phone' => '+84 90 221 6654', 'roles' => ['cleaning', 'courier'], 'area' => 'Bình Thạnh', 'tasks_week' => 15, 'avg_time' => '35 min', 'avg_time_warn' => false, 'guest_info' => false, 'status' => 'paused', 'avatar_color' => '#a35a4e'],
+            ['team_type' => 'operations', 'name' => 'Bao Pham', 'phone' => '+84 90 441 9963', 'roles' => ['keys', 'courier'], 'area' => 'Bình Thạnh, Thủ Thiêm', 'tasks_week' => 9, 'avg_time' => '1 h 05 min', 'avg_time_warn' => false, 'guest_info' => false, 'status' => 'away', 'avatar_color' => '#2f6d7a'],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function defaultInvitations(string $teamType): array
+    {
+        if ($teamType === 'sales') {
+            return [
+                ['team_type' => 'sales', 'name' => 'Hoang Vu', 'email' => 'hoang.vu@gmail.com', 'role' => 'Host Agent', 'area' => 'District 1', 'sent_days_ago' => 3, 'avatar_color' => '#7a8b6d'],
+                ['team_type' => 'sales', 'name' => 'Sara Lindqvist', 'email' => 'sara.l@outlook.com', 'role' => 'Co-host · Indochine Living', 'area' => 'Thảo Điền', 'sent_days_ago' => 6, 'avatar_color' => '#5a7a8b'],
+            ];
+        }
+
+        return [
+            ['team_type' => 'operations', 'name' => 'Thuy Ngo', 'phone' => '+84 90 553 1187', 'email' => null, 'role' => 'Cleaning', 'area' => 'Thảo Điền', 'sent_days_ago' => 2, 'avatar_color' => '#1f7a44'],
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $members
+     * @return array<string, mixed>
+     */
+    protected function buildStats(array $members, string $teamType): array
+    {
+        if ($teamType === 'sales') {
+            $bookings = array_sum(array_column($members, 'bookings90'));
+            $gross = array_sum(array_map(
+                fn (array $member) => $member['type'] === 'agent' ? 0 : ($member['gross90'] ?? 0),
+                $members,
+            ));
+            $owed = array_sum(array_map(
+                fn (array $member) => $this->salesCommission($member),
+                $members,
+            ));
+
+            return [
+                'bookings90' => $bookings,
+                'gross90' => $gross,
+                'commissionOwed' => $owed,
+            ];
+        }
+
+        $tasks = array_sum(array_column($members, 'tasksWeek'));
+        $seeing = count(array_filter($members, fn (array $member) => $member['guestInfo']));
+
+        return [
+            'tasksWeek' => $tasks,
+            'avgTime' => '41 min',
+            'guestInfoSeeing' => $seeing,
+            'guestInfoTotal' => count($members),
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $members
+     * @return array<int, string>
+     */
+    protected function areaOptions(array $members): array
+    {
+        $areas = array_values(array_unique(array_filter(array_map(
+            fn (array $member) => $member['area'] ?? null,
+            $members,
+        ))));
+
+        sort($areas);
+
+        return array_values(array_filter($areas, fn (string $area) => $area !== 'All buildings'));
+    }
+
+    protected function presentMember(HostTeamMember $member): array
+    {
+        $color = $member->avatar_color ?: self::AVATAR_COLORS[abs(crc32($member->name)) % count(self::AVATAR_COLORS)];
+
+        $payload = [
+            'id' => (string) $member->id,
+            'name' => $member->name,
+            'email' => $member->email,
+            'phone' => $member->phone,
+            'org' => $member->org,
+            'area' => $member->area,
+            'func' => $member->func,
+            'link' => $member->link,
+            'type' => $member->member_type,
+            'roles' => $member->roles ?? [],
+            'apartments' => (int) $member->apartments,
+            'bookings90' => (int) $member->bookings90,
+            'gross90' => (int) $member->gross90,
+            'outPct' => (int) $member->out_pct,
+            'pooled' => (bool) $member->pooled,
+            'rating' => $member->rating !== null ? number_format((float) $member->rating, 1) : null,
+            'tasksWeek' => (int) $member->tasks_week,
+            'avgTime' => $member->avg_time,
+            'avgTimeWarn' => (bool) $member->avg_time_warn,
+            'guestInfo' => (bool) $member->guest_info,
+            'status' => $member->status,
+            'bg' => $color,
+        ];
+
+        return $payload;
+    }
+
+    protected function presentInvitation(HostTeamInvitation $invite): array
+    {
+        $color = self::AVATAR_COLORS[abs(crc32($invite->email ?: $invite->phone ?: $invite->name)) % count(self::AVATAR_COLORS)];
+
+        return [
+            'id' => (string) $invite->id,
+            'name' => $invite->name,
+            'email' => $invite->email ?: $invite->phone,
+            'role' => $invite->role,
+            'area' => $invite->area,
+            'sent' => $this->relativeSentLabel($invite->sent_at ?? $invite->created_at),
+            'bg' => $color,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $member
+     */
+    protected function salesCommission(array $member): int
+    {
+        if (($member['pooled'] ?? false) || ($member['type'] ?? null) === 'agent') {
+            return 0;
+        }
+
+        return (int) round((($member['gross90'] ?? 0) * ($member['outPct'] ?? 0)) / 100);
+    }
+
+    protected function relativeSentLabel(?Carbon $sentAt): string
+    {
+        if (! $sentAt) {
+            return 'Just now';
+        }
+
+        $days = (int) $sentAt->diffInDays(now());
+
+        if ($days <= 0) {
+            return 'Just now';
+        }
+
+        if ($days === 1) {
+            return '1 day ago';
+        }
+
+        return "{$days} days ago";
+    }
+
+    protected function nameFromContact(?string $email, ?string $phone): string
+    {
+        if ($email) {
+            $local = explode('@', $email)[0];
+            $parts = preg_split('/[._-]+/', $local) ?: [];
+
+            return collect($parts)
+                ->filter()
+                ->map(fn (string $part) => ucfirst(strtolower($part)))
+                ->join(' ');
+        }
+
+        return $phone ?: 'New member';
+    }
+}
