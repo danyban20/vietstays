@@ -34,6 +34,9 @@ const localFiles = [
     'config/filesystems.php',
     'routes/api.php',
     'routes/web.php',
+    'database/migrations/2026_09_04_000001_create_vv_host_customers_table.php',
+    'database/migrations/2026_09_04_000002_create_vv_host_team_members_table.php',
+    'database/migrations/2026_09_04_000003_create_vv_host_team_invitations_table.php',
     'public/uploads/.gitkeep',
 ];
 
