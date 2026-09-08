@@ -17,8 +17,6 @@ class UserAdminController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $query = User::query()->orderByDesc('updated_at');
 
         if ($request->filled('search')) {
@@ -42,8 +40,6 @@ class UserAdminController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
@@ -68,8 +64,6 @@ class UserAdminController extends Controller
 
     public function update(Request $request, User $user): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $data = $request->validate([
             'role' => ['sometimes', Rule::in($this->assignableRoles)],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'max:255'],
@@ -141,12 +135,5 @@ class UserAdminController extends Controller
             'ambassador' => 'Ambassador',
             default => ucfirst((string) $role),
         };
-    }
-
-    protected function ensureAdmin(Request $request): void
-    {
-        if (! $request->user()?->isAdmin()) {
-            abort(403, 'Only administrators can manage users.');
-        }
     }
 }

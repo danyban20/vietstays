@@ -17,8 +17,6 @@ class HostApplicationController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $query = HostApplication::query()->orderByDesc('dateadded');
 
         if ($request->filled('status') && $request->string('status') !== 'all') {
@@ -45,8 +43,6 @@ class HostApplicationController extends Controller
 
     public function show(Request $request, int $application): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $model = HostApplication::query()->findOrFail($application);
 
         return response()->json([
@@ -65,8 +61,6 @@ class HostApplicationController extends Controller
 
     public function updateStatus(Request $request, int $application): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $model = HostApplication::query()->findOrFail($application);
 
         $validated = $request->validate([
@@ -92,12 +86,5 @@ class HostApplicationController extends Controller
             'data' => $this->service->transform($updated, detailed: true),
             'message' => 'Application status updated.',
         ]);
-    }
-
-    protected function ensureAdmin(Request $request): void
-    {
-        if (! $request->user()?->isAdmin()) {
-            abort(403, 'Only administrators can manage host applications.');
-        }
     }
 }

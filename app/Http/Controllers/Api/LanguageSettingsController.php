@@ -15,8 +15,6 @@ class LanguageSettingsController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $registry = $this->locales->supportedLocales();
         $locales = [];
 
@@ -46,8 +44,6 @@ class LanguageSettingsController extends Controller
 
     public function show(Request $request, string $locale): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         if (! $this->locales->isSupported($locale)) {
             abort(404, 'Language not found.');
         }
@@ -67,8 +63,6 @@ class LanguageSettingsController extends Controller
 
     public function update(Request $request, string $locale): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         if (! $this->locales->isSupported($locale)) {
             abort(404, 'Language not found.');
         }
@@ -98,8 +92,6 @@ class LanguageSettingsController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $validated = $request->validate([
             'slug' => ['required', 'string', 'min:2', 'max:10', 'regex:/^[a-z0-9_]+$/'],
             'label' => ['required', 'string', 'max:80'],
@@ -141,8 +133,6 @@ class LanguageSettingsController extends Controller
 
     public function destroy(Request $request, string $locale): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $slug = $this->locales->normalizeLocale($locale);
         if ($this->locales->isProtectedLocale($slug)) {
             return response()->json(['message' => 'The default English language cannot be deleted.'], 422);
@@ -172,12 +162,5 @@ class LanguageSettingsController extends Controller
         return response()->json([
             'message' => 'Language deleted.',
         ]);
-    }
-
-    protected function ensureAdmin(Request $request): void
-    {
-        if (! $request->user()?->isAdmin()) {
-            abort(403, 'Only administrators can manage languages.');
-        }
     }
 }
