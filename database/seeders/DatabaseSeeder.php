@@ -17,8 +17,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LegacyDataSeeder::class,
             LocationSeeder::class,
+            DistrictCodeSeeder::class,
             UserSeeder::class,
             BuildingSeeder::class,
+            PriceMatrixSeeder::class,
             EmailSettingsSeeder::class,
         ]);
     }

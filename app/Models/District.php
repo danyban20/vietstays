@@ -10,6 +10,8 @@ class District extends Model
 {
     public $timestamps = false;
 
+    public $incrementing = false;
+
     protected $table = 'vv_districts';
 
     protected $primaryKey = 'district_id';
