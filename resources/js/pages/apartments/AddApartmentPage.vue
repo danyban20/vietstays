@@ -155,9 +155,9 @@
                                 maxlength="120"
                                 placeholder="e.g. 'City View &amp; Pool'…"
                             />
-                            <p class="vv-apt2026-hint">Apartment name is generated automatically as you fill in the fields.</p>
+                            <p class="vv-apt2026-hint">Apartment name is auto-generated from building, feature, district and type.</p>
                             <p class="vv-apt2026-name-preview">
-                                {{ namePreview ? `Apartment name: ${namePreview}` : '' }}
+                                {{ namePreview ? `Preview: ${namePreview}` : 'Preview will appear after selecting building, feature and type' }}
                             </p>
                         </div>
 
@@ -642,29 +642,33 @@ const unnamedPhotoCount = computed(
     () => uploadPhotos.value.filter((p) => !p.caption.trim()).length,
 );
 
-const suggestedPrice = computed(() =>
-    suggestDailyPrice(form.apartment_type, form.quality_standard),
-);
+const suggestedPrice = computed(() => {
+    // Try to use price matrix API first, fallback to hardcoded values
+    const basePrice = suggestDailyPrice(form.apartment_type, form.quality_standard);
+    // TODO: integrate with price matrix API when available
+    // For now, use hardcoded suggestion
+    return basePrice;
+});
 
 const namePreview = computed(() => {
-    const building = buildings.value.find((b) => b.id === Number(form.building_id))?.name;
+    // Auto-generate name: buildingShortName - feature - district - type
+    const building = buildings.value.find((b) => b.id === Number(form.building_id));
+    const buildingShortName = building?.short_name || building?.name || '';
     const district = districts.value.find((d) => d.district_id === Number(form.district_id));
-    const parts = [building, form.distinguishing_feature].filter(Boolean);
-    let name = parts.join('–');
-    if (district?.name) {
-        name += (name ? ' · ' : '') + district.name;
-    }
-    if (form.apartment_type) {
-        name += (name ? ' · ' : '') + form.apartment_type;
-    }
-    return name.length > 80 ? name.slice(0, 80) : name;
+    const districtLabel = district?.name || '';
+    const feature = form.distinguishing_feature.trim();
+    const type = form.apartment_type;
+
+    const parts = [buildingShortName, feature, districtLabel, type].filter(Boolean);
+    return parts.join(' - ');
 });
 
 const buildingLocationHint = computed(() => {
     if (!selectedBuilding.value) return '';
     const district = districts.value.find((d) => d.district_id === Number(form.district_id));
     const city = cities.value.find((c) => c.city_id === Number(form.city_id));
-    return [selectedBuilding.value.name, district?.name, city?.name].filter(Boolean).join(', ');
+    const buildingName = selectedBuilding.value.short_name || selectedBuilding.value.name;
+    return [buildingName, district?.name, city?.name].filter(Boolean).join(', ');
 });
 
 const coverPreview = computed(() => uploadPhotos.value[0]?.preview ?? null);
