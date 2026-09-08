@@ -155,6 +155,8 @@ class BookingCreationService
             throw new \InvalidArgumentException('Check-out must be after check-in.');
         }
 
+        $this->availabilityService->assertAvailable($apartment->ID, $checkIn, $checkOut);
+
         $dates = [];
         $cursor = $checkIn->copy();
         while ($cursor->lt($checkOut)) {
@@ -254,6 +256,8 @@ class BookingCreationService
             throw new \InvalidArgumentException('End date must be on or after start date.');
         }
 
+        $this->availabilityService->assertAvailable($apartment->ID, $start, $end->copy()->addDay());
+
         $now = now();
 
         return ApartmentAvailabilityPeriod::query()->create([
@@ -279,6 +283,8 @@ class BookingCreationService
         if ($end->lte($start)) {
             throw new \InvalidArgumentException('Check-out must be after check-in.');
         }
+
+        $this->availabilityService->assertAvailable($apartment->ID, $start, $end);
 
         $now = now();
         $guestName = trim($payload['guest_name'] ?? '');
@@ -328,6 +334,17 @@ class BookingCreationService
             if ($checkOut->lte($checkIn)) {
                 throw new \InvalidArgumentException('Check-out must be after check-in.');
             }
+
+            $targetApartmentId = isset($payload['apartment_id'])
+                ? (int) $payload['apartment_id']
+                : $booking->apartment_id;
+
+            $this->availabilityService->assertAvailable(
+                $targetApartmentId,
+                $checkIn,
+                $checkOut,
+                excludeBookingId: $booking->ID,
+            );
 
             $dates = [];
             $cursor = $checkIn->copy();

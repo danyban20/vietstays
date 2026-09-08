@@ -29,6 +29,7 @@ class ApartmentAvailabilityController extends Controller
 
         $bookings = Booking::query()
             ->where('apartment_id', $model->ID)
+            ->where('status', '!=', 'cancelled')
             ->whereDate('check_out_date', '>', $rangeStart)
             ->whereDate('check_in_date', '<', $rangeEnd)
             ->orderBy('check_in_date')
@@ -157,7 +158,7 @@ class ApartmentAvailabilityController extends Controller
                 'cleaning' => $cleaningFee,
                 'extra_cleaning' => null,
                 'discount_code' => $booking->promo_code ?: null,
-                'commission' => $extra['discount_type'] === 'host_agent' ? 'Host agent' : null,
+                'commission' => ($extra['discount_type'] ?? null) === 'host_agent' ? 'Host agent' : null,
             ],
             'channel' => [
                 'name' => $this->channelLabel($periodType, $booking->promo_code),

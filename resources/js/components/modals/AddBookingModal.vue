@@ -31,14 +31,11 @@
                     💡 Suggestion from matrix: <strong>{{ suggestedDailyPriceFormatted }} ₫</strong>
                 </small>
             </div>
-            <div class="host-field">
-                <label class="host-field__label" for="bk-in">Check-in *</label>
-                <input id="bk-in" v-model="form.check_in_date" type="date" class="host-input" />
-            </div>
-            <div class="host-field">
-                <label class="host-field__label" for="bk-out">Check-out *</label>
-                <input id="bk-out" v-model="form.check_out_date" type="date" class="host-input" />
-            </div>
+            <DateRangeCalendar
+                :apartment-id="form.apartment_id"
+                v-model:check-in="form.check_in_date"
+                v-model:check-out="form.check_out_date"
+            />
 
             <!-- Price Suggestion from Matrix -->
             <div v-if="priceData && !priceLoading && variant === 'manual'" class="host-field host-field--full" style="margin-top: 20px;">
@@ -161,14 +158,11 @@
                 <label class="host-field__label" for="blk-note">Reason</label>
                 <input id="blk-note" v-model="form.note" type="text" class="host-input" placeholder="Maintenance, personal use…" />
             </div>
-            <div class="host-field">
-                <label class="host-field__label" for="blk-from">From *</label>
-                <input id="blk-from" v-model="form.start_date" type="date" class="host-input" />
-            </div>
-            <div class="host-field">
-                <label class="host-field__label" for="blk-to">To *</label>
-                <input id="blk-to" v-model="form.end_date" type="date" class="host-input" />
-            </div>
+            <DateRangeCalendar
+                :apartment-id="form.apartment_id"
+                v-model:check-in="form.start_date"
+                v-model:check-out="form.end_date"
+            />
         </div>
 
         <div v-else class="host-form-grid">
@@ -200,14 +194,11 @@
                 <label class="host-field__label host-field__label--important" for="ext-email">Email</label>
                 <input id="ext-email" v-model="form.email" type="email" class="host-input" />
             </div>
-            <div class="host-field">
-                <label class="host-field__label" for="ext-in">Check-in *</label>
-                <input id="ext-in" v-model="form.check_in_date" type="date" class="host-input" />
-            </div>
-            <div class="host-field">
-                <label class="host-field__label" for="ext-out">Check-out *</label>
-                <input id="ext-out" v-model="form.check_out_date" type="date" class="host-input" />
-            </div>
+            <DateRangeCalendar
+                :apartment-id="form.apartment_id"
+                v-model:check-in="form.check_in_date"
+                v-model:check-out="form.check_out_date"
+            />
             <div class="host-info-box host-field--full">
                 Register external guests with email so you can invite them to book directly on Vietstays later.
             </div>
@@ -233,6 +224,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import apiClient from '@/api/client';
+import DateRangeCalendar from '@/components/bookings/DateRangeCalendar.vue';
 import HostModalShell from '@/components/modals/HostModalShell.vue';
 import { useToast } from '@/composables/useToast';
 import { usePriceCalculator } from '@/composables/usePriceCalculator';
