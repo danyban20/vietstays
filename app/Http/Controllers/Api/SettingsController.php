@@ -13,8 +13,6 @@ class SettingsController extends Controller
 {
     public function indexEmailTemplates(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $codes = config('vietstays.email_template_codes', []);
         $locales = config('vietstays.email_locales', []);
         $rows = EmailTemplate::query()
@@ -62,8 +60,6 @@ class SettingsController extends Controller
 
     public function updateEmailTemplate(Request $request, string $code): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $allowedCodes = config('vietstays.email_template_codes', []);
         if (! in_array($code, $allowedCodes, true)) {
             abort(404, 'Unknown email template code.');
@@ -111,8 +107,6 @@ class SettingsController extends Controller
 
     public function showEmail(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $settings = VvOption::getJson('vv-sending_receiving_settings', $this->defaultEmailSettings());
 
         return response()->json([
@@ -122,8 +116,6 @@ class SettingsController extends Controller
 
     public function updateEmail(Request $request): JsonResponse
     {
-        $this->ensureAdmin($request);
-
         $validated = $request->validate([
             'host' => ['nullable', 'string', 'max:255'],
             'port' => ['nullable', 'string', 'max:20'],
@@ -192,12 +184,5 @@ class SettingsController extends Controller
         $merged['new_service_admin_email'] = (string) VvOption::getValue('vv-new_service_admin_email', '');
 
         return $merged;
-    }
-
-    protected function ensureAdmin(Request $request): void
-    {
-        if (! $request->user()?->isAdmin()) {
-            abort(403, 'Only administrators can manage settings.');
-        }
     }
 }

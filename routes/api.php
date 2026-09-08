@@ -63,22 +63,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/bookings/{booking}', [BookingController::class, 'update']);
     Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);
 
-    Route::get('/admin/users', [UserAdminController::class, 'index']);
-    Route::post('/admin/users', [UserAdminController::class, 'store']);
-    Route::patch('/admin/users/{user}', [UserAdminController::class, 'update']);
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/users', [UserAdminController::class, 'index']);
+        Route::post('/admin/users', [UserAdminController::class, 'store']);
+        Route::patch('/admin/users/{user}', [UserAdminController::class, 'update']);
 
-    Route::get('/settings/email', [SettingsController::class, 'showEmail']);
-    Route::put('/settings/email', [SettingsController::class, 'updateEmail']);
-    Route::get('/settings/email-templates', [SettingsController::class, 'indexEmailTemplates']);
-    Route::put('/settings/email-templates/{code}', [SettingsController::class, 'updateEmailTemplate']);
+        Route::get('/settings/email', [SettingsController::class, 'showEmail']);
+        Route::put('/settings/email', [SettingsController::class, 'updateEmail']);
+        Route::get('/settings/email-templates', [SettingsController::class, 'indexEmailTemplates']);
+        Route::put('/settings/email-templates/{code}', [SettingsController::class, 'updateEmailTemplate']);
 
-    Route::get('/host-applications', [HostApplicationController::class, 'index']);
-    Route::get('/host-applications/{application}', [HostApplicationController::class, 'show']);
-    Route::patch('/host-applications/{application}/status', [HostApplicationController::class, 'updateStatus']);
+        Route::get('/host-applications', [HostApplicationController::class, 'index']);
+        Route::get('/host-applications/{application}', [HostApplicationController::class, 'show']);
+        Route::patch('/host-applications/{application}/status', [HostApplicationController::class, 'updateStatus']);
 
-    Route::get('/settings/languages', [LanguageSettingsController::class, 'index']);
-    Route::post('/settings/languages', [LanguageSettingsController::class, 'store']);
-    Route::get('/settings/languages/{locale}', [LanguageSettingsController::class, 'show']);
-    Route::put('/settings/languages/{locale}', [LanguageSettingsController::class, 'update']);
-    Route::delete('/settings/languages/{locale}', [LanguageSettingsController::class, 'destroy']);
+        Route::get('/settings/languages', [LanguageSettingsController::class, 'index']);
+        Route::post('/settings/languages', [LanguageSettingsController::class, 'store']);
+        Route::get('/settings/languages/{locale}', [LanguageSettingsController::class, 'show']);
+        Route::put('/settings/languages/{locale}', [LanguageSettingsController::class, 'update']);
+        Route::delete('/settings/languages/{locale}', [LanguageSettingsController::class, 'destroy']);
+    });
 });
