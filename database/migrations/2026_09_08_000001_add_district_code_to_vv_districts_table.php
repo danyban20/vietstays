@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('admin_locale', 10)->nullable();
+        Schema::table('vv_districts', function (Blueprint $table) {
+            $table->string('district_code')->nullable()->after('name');
         });
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('admin_locale');
+        Schema::table('vv_districts', function (Blueprint $table) {
+            $table->dropColumn('district_code');
         });
     }
 };

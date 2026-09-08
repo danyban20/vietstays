@@ -6,6 +6,7 @@ use App\Models\Building;
 use App\Support\LegacySqlParser;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BuildingSeeder extends Seeder
 {
@@ -18,7 +19,11 @@ class BuildingSeeder extends Seeder
         $posts = $parser->parseGyhPosts('neighbourhood');
         $postMeta = $parser->parseGyhPostmeta();
 
+        // building_pricing_factors has a FK on buildings.id, which blocks a plain
+        // TRUNCATE even with cascadeOnDelete() (TRUNCATE ignores ON DELETE rules).
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Building::query()->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         foreach ($posts as $postId => $post) {
             if ($post['post_status'] !== 'publish') {
