@@ -16,7 +16,7 @@ class DashboardController extends Controller
         $apartmentQuery = Apartment::query();
         $bookingQuery = Booking::query();
 
-        if (($user->isPartner() || $user->isHost()) && ! $user->isAdmin()) {
+        if ($user->isOperator() && ! $user->isAdmin()) {
             $apartmentQuery->where('user_id', $user->legacy_wp_id);
             $bookingQuery->whereIn('apartment_id', function ($q) use ($user) {
                 $q->select('ID')

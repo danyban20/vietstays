@@ -20,7 +20,7 @@ class BookingController extends Controller
     {
         $query = Booking::query()->with('apartment')->orderByDesc('check_in_date');
 
-        if ($request->user()->isPartner() && ! $request->user()->isAdmin()) {
+        if ($request->user()->isOperator() && ! $request->user()->isAdmin()) {
             $query->whereIn('apartment_id', function ($q) use ($request) {
                 $q->select('ID')
                     ->from('vv_apartments')
@@ -210,7 +210,7 @@ class BookingController extends Controller
         ]);
 
         $targetApartment = Apartment::query()->findOrFail($validated['apartment_id']);
-        if ($request->user()->isPartner() && ! $request->user()->isAdmin()) {
+        if ($request->user()->isOperator() && ! $request->user()->isAdmin()) {
             if ((int) $targetApartment->user_id !== (int) $request->user()->legacy_wp_id) {
                 abort(403, 'You cannot move a booking to this apartment.');
             }
@@ -308,7 +308,7 @@ class BookingController extends Controller
             return;
         }
 
-        if (! $user->isPartner()) {
+        if (! $user->isOperator()) {
             abort(403);
         }
 

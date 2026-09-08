@@ -291,7 +291,7 @@ class ApartmentAvailabilityController extends Controller
             return;
         }
 
-        if ($user->isPartner() && (int) $apartment->user_id === (int) $user->legacy_wp_id) {
+        if ($user->isOperator() && (int) $apartment->user_id === (int) $user->legacy_wp_id) {
             return;
         }
 

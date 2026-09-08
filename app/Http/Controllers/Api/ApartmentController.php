@@ -24,7 +24,7 @@ class ApartmentController extends Controller
     {
         $query = Apartment::query()->orderByDesc('datemodified');
 
-        if ($request->user()->isPartner() && ! $request->user()->isAdmin()) {
+        if ($request->user()->isOperator() && ! $request->user()->isAdmin()) {
             $query->where('user_id', $request->user()->legacy_wp_id);
         }
 
@@ -115,7 +115,7 @@ class ApartmentController extends Controller
 
         if (array_key_exists('images', $validated)) {
             try {
-                $normalizedImages = $this->normalizeApartmentImages($validated['images']);
+                $normalizedImages = $this->normalizeApartmentImages($validated['images'], (int) $model->ID);
                 $this->deleteRemovedApartmentImages($model, $normalizedImages);
                 $validated['images'] = $normalizedImages;
             } catch (\Throwable $e) {
@@ -139,10 +139,10 @@ class ApartmentController extends Controller
                 'payload_keys' => array_keys($validated),
             ]);
 
-            return response()->json([
+            return response()->json(array_filter([
                 'message' => 'Could not save apartment changes.',
-                'detail' => $e->getMessage(),
-            ], 500);
+                'detail' => config('app.debug') ? $e->getMessage() : null,
+            ]), 500);
         }
 
         try {
@@ -153,10 +153,10 @@ class ApartmentController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return response()->json([
+            return response()->json(array_filter([
                 'message' => 'Changes saved, but the response could not be built.',
-                'detail' => $e->getMessage(),
-            ], 500);
+                'detail' => config('app.debug') ? $e->getMessage() : null,
+            ]), 500);
         }
 
         return response()->json([
@@ -216,7 +216,7 @@ class ApartmentController extends Controller
             return;
         }
 
-        if ($user->isPartner() && (int) $apartment->user_id === (int) $user->legacy_wp_id) {
+        if ($user->isOperator() && (int) $apartment->user_id === (int) $user->legacy_wp_id) {
             return;
         }
 
@@ -376,7 +376,7 @@ class ApartmentController extends Controller
         return false;
     }
 
-    protected function normalizeApartmentImages(array $images): array
+    protected function normalizeApartmentImages(array $images, int $apartmentId): array
     {
         $order = 1;
         $normalized = [];
@@ -392,10 +392,18 @@ class ApartmentController extends Controller
                 continue;
             }
 
+            $imageId = is_string($image['image_id'] ?? null) ? $image['image_id'] : '';
+
+            // An image_id under apartments/{id}/ must belong to this apartment —
+            // otherwise a host could point their listing at another host's upload.
+            if (preg_match('#^apartments/(\d+)/#', $imageId, $matches) && (int) $matches[1] !== $apartmentId) {
+                continue;
+            }
+
             $item = [
                 'order' => $order++,
                 'thumb' => $src,
-                'image_id' => is_string($image['image_id'] ?? null) ? $image['image_id'] : '',
+                'image_id' => $imageId,
                 'caption' => is_string($image['caption'] ?? null) ? $image['caption'] : '',
             ];
 

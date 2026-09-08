@@ -45,4 +45,14 @@ class User extends Authenticatable
     {
         return $this->role === 'host';
     }
+
+    /**
+     * True for any non-admin owner of apartments/bookings (partner or host).
+     * Use this instead of isPartner() alone when scoping data to "my own
+     * resources" — isPartner() misses the equally-valid 'host' role.
+     */
+    public function isOperator(): bool
+    {
+        return $this->isPartner() || $this->isHost();
+    }
 }
