@@ -30,7 +30,7 @@ class CalendarController extends Controller
 
         $apartmentQuery = Apartment::query()->orderBy('name');
 
-        if ($request->user()->isPartner() && ! $request->user()->isAdmin()) {
+        if ($request->user()->isOperator() && ! $request->user()->isAdmin()) {
             $apartmentQuery->where('user_id', $request->user()->legacy_wp_id);
         }
 
