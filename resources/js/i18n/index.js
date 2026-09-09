@@ -14,6 +14,9 @@ const englishMessages = {
         hostApartments_other: 'Host {count} apartments',
         loading: 'Loading…',
         automatic: 'Automatic (based on location)',
+        myProfile: 'My profile',
+        accountSettings: 'Account settings',
+        billing: 'Billing',
     },
     locale: {
         label: 'Language',

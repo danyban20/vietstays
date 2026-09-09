@@ -81,7 +81,7 @@
                     class="host-topbar__profile"
                     :aria-expanded="profileMenuOpen ? 'true' : 'false'"
                     aria-haspopup="menu"
-                    @click="profileMenuOpen = !profileMenuOpen"
+                    @click="profileMenuOpen = !profileMenuOpen; profileLangOpen = false"
                 >
                     <span class="host-topbar__avatar">{{ initials }}</span>
                     <div class="host-topbar__profile-text">
@@ -91,14 +91,58 @@
                     <span class="host-topbar__chevron">▾</span>
                 </button>
 
-                <div v-if="profileMenuOpen" class="host-topbar__locale-menu" role="menu">
+                <div v-if="profileMenuOpen" class="host-topbar__profile-menu" role="menu">
+                    <div class="host-topbar__profile-menu-lang">
+                        <button
+                            type="button"
+                            class="host-topbar__profile-menu-item"
+                            :aria-expanded="profileLangOpen ? 'true' : 'false'"
+                            @click.stop="profileLangOpen = !profileLangOpen"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+                                <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" stroke="currentColor" stroke-width="1.8" />
+                            </svg>
+                            <span class="host-topbar__profile-menu-item-label">{{ t('locale.label') }}</span>
+                            <span class="host-topbar__profile-menu-item-value">{{ localeStore.short }} ▾</span>
+                        </button>
+
+                        <div v-if="profileLangOpen" class="host-topbar__profile-menu-lang-options">
+                            <button
+                                v-for="item in localeStore.available"
+                                :key="item.slug"
+                                type="button"
+                                class="host-topbar__profile-menu-lang-option"
+                                :class="{ 'host-topbar__profile-menu-lang-option--active': item.slug === localeStore.current }"
+                                @click="selectProfileLocale(item.slug)"
+                            >
+                                <span>{{ item.label }}</span>
+                                <span class="host-topbar__locale-short">{{ item.short }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="host-topbar__profile-menu-divider" />
+
+                    <button type="button" class="host-topbar__profile-menu-item" role="menuitem">
+                        {{ t('common.myProfile') }}
+                    </button>
+                    <button type="button" class="host-topbar__profile-menu-item" role="menuitem">
+                        {{ t('common.accountSettings') }}
+                    </button>
+                    <button type="button" class="host-topbar__profile-menu-item" role="menuitem">
+                        {{ t('common.billing') }}
+                    </button>
+
+                    <div class="host-topbar__profile-menu-divider" />
+
                     <button
                         type="button"
-                        class="host-topbar__locale-option"
+                        class="host-topbar__profile-menu-item host-topbar__profile-menu-item--logout"
                         role="menuitem"
                         @click="onLogout"
                     >
-                        <span>Log out</span>
+                        {{ t('auth.logout') }}
                     </button>
                 </div>
             </div>
@@ -122,6 +166,7 @@ const auth = useAuthStore();
 const searchQuery = ref('');
 const apartmentCount = ref(null);
 const profileMenuOpen = ref(false);
+const profileLangOpen = ref(false);
 
 const displayName = computed(() => auth.user?.name ?? 'Host');
 const initials = computed(() => {
@@ -146,7 +191,13 @@ function closeLocaleMenu(event) {
     }
     if (!event.target.closest('.host-topbar__profile-wrap')) {
         profileMenuOpen.value = false;
+        profileLangOpen.value = false;
     }
+}
+
+async function selectProfileLocale(slug) {
+    profileLangOpen.value = false;
+    await localeStore.selectLocale(slug);
 }
 
 async function onLogout() {

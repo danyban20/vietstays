@@ -55,7 +55,7 @@ class CustomerAggregationService
                 });
             });
 
-        if ($user->isPartner() && ! $user->isAdmin()) {
+        if ($user->isOperator() && ! $user->isAdmin()) {
             $query->whereIn('apartment_id', function ($subquery) use ($user) {
                 $subquery->select('ID')
                     ->from('vv_apartments')
@@ -189,7 +189,7 @@ class CustomerAggregationService
     {
         $query = HostCustomer::query()->where('user_id', $user->id);
 
-        if ($user->isPartner() && ! $user->isAdmin()) {
+        if ($user->isOperator() && ! $user->isAdmin()) {
             $query->where('legacy_host_id', $user->legacy_wp_id);
         }
 
