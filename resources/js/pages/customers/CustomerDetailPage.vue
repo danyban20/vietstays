@@ -21,6 +21,7 @@
             </button>
         </div>
 
+        <div class="host-customer-detail__scroll">
         <div class="host-customer-detail__layout">
             <div class="host-customer-detail__main">
                 <section class="host-customer-detail__profile">
@@ -158,6 +159,7 @@
                     <button type="button" class="host-customer-detail__block">{{ t('customers.blockCustomer') }}</button>
                 </div>
             </aside>
+        </div>
         </div>
     </div>
 </template>
