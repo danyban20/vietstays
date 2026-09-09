@@ -8,7 +8,7 @@
                 <div>
                     <h1 class="host-customer-detail__name">{{ customer.name }}</h1>
                     <div class="host-customer-detail__meta">
-                        <span class="host-customer-detail__badge">{{ t('customers.customerBadge') }} · {{ customer.id }}</span>
+                        <span class="host-customer-detail__badge" :title="customer.id">{{ t('customers.customerBadge') }} · {{ shortId }}</span>
                         <span>{{ customer.country }}</span>
                         <span>·</span>
                         <span>{{ customer.email }}</span>
@@ -21,6 +21,7 @@
             </button>
         </div>
 
+        <div class="host-customer-detail__scroll">
         <div class="host-customer-detail__layout">
             <div class="host-customer-detail__main">
                 <section class="host-customer-detail__profile">
@@ -153,11 +154,12 @@
                     <h3>{{ t('customers.actionsTitle') }}</h3>
                     <button type="button" class="host-btn host-btn--primary">{{ t('customers.sendMessage') }}</button>
                     <button type="button" class="host-btn host-btn--ghost">{{ t('customers.shareListings') }}</button>
-                    <button type="button" class="host-btn host-btn--ghost">{{ t('customers.createBooking') }}</button>
+                    <button type="button" class="host-btn host-btn--ghost" @click="createBooking">{{ t('customers.createBooking') }}</button>
                     <button type="button" class="host-btn host-btn--ghost">{{ t('customers.personalDiscount') }}</button>
                     <button type="button" class="host-customer-detail__block">{{ t('customers.blockCustomer') }}</button>
                 </div>
             </aside>
+        </div>
         </div>
     </div>
 </template>
@@ -213,6 +215,11 @@ const statusStyles = computed(() => {
     return statusStyle(customer.value.status);
 });
 
+const shortId = computed(() => {
+    const id = customer.value?.id ?? '';
+    return id.length > 10 ? `${id.slice(0, 8)}…` : id;
+});
+
 const kpis = computed(() => {
     if (!customer.value) {
         return [];
@@ -256,6 +263,22 @@ function bookingStatus(status) {
 
 function goBack() {
     router.push({ name: 'customers' });
+}
+
+function createBooking() {
+    if (!customer.value) {
+        return;
+    }
+
+    router.push({
+        name: 'bookings',
+        query: {
+            add: 'manual',
+            guest_name: customer.value.name,
+            email: customer.value.rawEmail || '',
+            phone: customer.value.phone && customer.value.phone !== '—' ? customer.value.phone : '',
+        },
+    });
 }
 
 async function loadCustomer() {

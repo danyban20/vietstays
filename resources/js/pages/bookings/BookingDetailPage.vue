@@ -20,8 +20,20 @@
                     <div class="host-bk-detail__page-meta">
                         <span class="host-bk-detail__page-pill">{{ t('bookingDetail.bookingPill') }}</span>
                         <span class="host-bk-detail__page-apt">{{ apartmentName }}</span>
+                        <span v-if="editForm.status === 'cancelled'" class="host-bk-detail__cancelled-pill">
+                            {{ t('bookingDetail.cancelledPill') }}
+                        </span>
                     </div>
                 </div>
+                <button
+                    v-if="editForm.status !== 'cancelled'"
+                    type="button"
+                    class="host-bk-detail__cancel-btn"
+                    :disabled="cancelling"
+                    @click="cancelBooking"
+                >
+                    {{ cancelling ? t('bookingDetail.cancelling') : t('bookingDetail.cancelBooking') }}
+                </button>
                 <router-link :to="{ name: 'bookings' }" class="host-bk-detail__back-btn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M15 5l-7 7 7 7" />
@@ -333,6 +345,7 @@ const { setPageTitle, clearPageTitle } = usePageTitle();
 
 const loading = ref(true);
 const saving = ref(false);
+const cancelling = ref(false);
 const scrollEl = ref(null);
 const editingField = ref(null);
 const editingNote = ref(false);
@@ -676,6 +689,30 @@ async function save(notifyGuest) {
         toast.show(err.message ?? t('bookingDetail.saveFailed'));
     } finally {
         saving.value = false;
+    }
+}
+
+async function cancelBooking() {
+    if (! window.confirm(t('bookingDetail.cancelConfirm'))) {
+        return;
+    }
+
+    cancelling.value = true;
+
+    try {
+        const res = await apiClient.put(`/bookings/${bookingId.value}`, {
+            status: 'cancelled',
+            notify_guest: 'none',
+        });
+        booking.value = res?.data ?? booking.value;
+        applySnapshotFromBooking(booking.value);
+        editingField.value = null;
+        editingNote.value = false;
+        toast.show(t('bookingDetail.cancelSuccess'));
+    } catch (err) {
+        toast.show(err.message ?? t('bookingDetail.cancelFailed'));
+    } finally {
+        cancelling.value = false;
     }
 }
 

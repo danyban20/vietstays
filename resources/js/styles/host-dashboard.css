@@ -4178,6 +4178,40 @@ body {
     color: #c4602a;
 }
 
+.host-bk-detail__cancel-btn {
+    flex: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid #e3c9c2;
+    background: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #c4502a;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.host-bk-detail__cancel-btn:hover {
+    background: #fdf1ee;
+}
+
+.host-bk-detail__cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.host-bk-detail__cancelled-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: #f6e2dc;
+    color: #c4502a;
+}
+
 .host-bk-detail__scroll {
     flex: 1;
     min-height: 0;
@@ -6765,7 +6799,7 @@ body {
 .host-customers-table__head,
 .host-customers-table__row {
     display: grid;
-    grid-template-columns: 26px 1.9fr 0.8fr 0.6fr 1.2fr 0.5fr 0.7fr 0.8fr;
+    grid-template-columns: 26px 2.2fr 0.8fr 0.6fr 1.4fr 0.8fr;
     column-gap: 12px;
     align-items: center;
     padding: 13px 18px;
@@ -7052,13 +7086,30 @@ body {
     font-size: 13.5px;
 }
 
+.host-customer-detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
 .host-customer-detail__top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
+    flex: none;
+    padding: 20px 26px 0;
     margin-bottom: 16px;
     flex-wrap: wrap;
+}
+
+.host-customer-detail__scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 26px 24px;
+    scrollbar-gutter: stable;
 }
 
 .host-customer-detail__identity {
