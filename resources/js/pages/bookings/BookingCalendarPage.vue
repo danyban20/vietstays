@@ -11,15 +11,15 @@
                     + Add new <span class="host-cal__add-chevron">▾</span>
                 </button>
                 <div v-if="addMenuOpen" class="host-cal__add-menu">
-                    <router-link :to="{ name: 'bookings', query: { add: 'manual' } }" class="host-cal__add-item">
+                    <button type="button" class="host-cal__add-item" @click="openAddModal('manual')">
                         Add booking
-                    </router-link>
-                    <router-link :to="{ name: 'bookings', query: { add: 'block' } }" class="host-cal__add-item">
+                    </button>
+                    <button type="button" class="host-cal__add-item" @click="openAddModal('block')">
                         Block dates
-                    </router-link>
-                    <router-link :to="{ name: 'bookings', query: { add: 'external' } }" class="host-cal__add-item">
+                    </button>
+                    <button type="button" class="host-cal__add-item" @click="openAddModal('external')">
                         External booking
-                    </router-link>
+                    </button>
                 </div>
             </div>
         </div>
@@ -210,6 +210,14 @@
             @close="closeMoveModal"
             @moved="onBookingMoved"
         />
+
+        <AddBookingModal
+            :open="addModalOpen"
+            :variant="addModalVariant"
+            :navigate-after-create="false"
+            @close="addModalOpen = false"
+            @saved="onAddSaved"
+        />
     </div>
 </template>
 
@@ -217,6 +225,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import apiClient from '@/api/client';
+import AddBookingModal from '@/components/modals/AddBookingModal.vue';
 import CalendarMoveModal from '@/components/bookings/CalendarMoveModal.vue';
 import { useToast } from '@/composables/useToast';
 import { addDays, isoDate } from '@/utils/apartment-availability';
@@ -238,6 +247,8 @@ const toast = useToast();
 const loading = ref(true);
 const addMenuOpen = ref(false);
 const addMenuRef = ref(null);
+const addModalOpen = ref(false);
+const addModalVariant = ref('manual');
 const typeFilter = ref('all');
 const filterOpen = ref(false);
 const sortOpen = ref(false);
@@ -458,6 +469,16 @@ function closeMoveModal() {
 
 function onBookingMoved() {
     toast.show('Booking moved.');
+    loadCalendar();
+}
+
+function openAddModal(variant) {
+    addModalVariant.value = variant;
+    addModalOpen.value = true;
+    addMenuOpen.value = false;
+}
+
+function onAddSaved() {
     loadCalendar();
 }
 

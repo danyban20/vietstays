@@ -235,6 +235,7 @@ const props = defineProps({
     open: { type: Boolean, default: false },
     variant: { type: String, default: 'manual' },
     prefill: { type: Object, default: () => ({}) },
+    navigateAfterCreate: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(['close', 'saved']);
@@ -456,7 +457,9 @@ async function submit() {
             toast.show('Booking created.');
             emit('saved', res.data);
             emit('close');
-            router.push({ name: 'booking-detail', params: { id: res.data.id } });
+            if (props.navigateAfterCreate) {
+                router.push({ name: 'booking-detail', params: { id: res.data.id } });
+            }
         } else {
             toast.show(res?.message ?? 'Saved.');
             emit('saved', res?.data);

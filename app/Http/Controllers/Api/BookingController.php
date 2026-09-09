@@ -118,7 +118,7 @@ class BookingController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $type = $request->string('type', 'manual');
+        $type = (string) $request->input('type', 'manual');
 
         if ($type === 'block') {
             return $this->storeBlock($request);

@@ -3177,11 +3177,17 @@ body {
 
 .host-cal__add-item {
     display: block;
+    width: 100%;
     padding: 10px 12px;
+    border: none;
     border-radius: 7px;
+    background: transparent;
+    font: inherit;
     font-size: 14px;
     color: var(--vs-text);
+    text-align: left;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .host-cal__add-item:hover {
