@@ -56,6 +56,12 @@ class UserAdminController extends Controller
             'role' => $data['role'] ?? 'admin',
         ]);
 
+        // Apartment/booking/customer ownership is keyed off legacy_wp_id (it
+        // matches the legacy WordPress post-author id). Accounts created here
+        // have no WordPress counterpart, so give them a synthetic one in a
+        // range that can never collide with a real imported id.
+        $user->update(['legacy_wp_id' => 900_000 + $user->id]);
+
         return response()->json([
             'data' => $this->transform($user),
             'message' => 'User created.',

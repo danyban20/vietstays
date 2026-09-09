@@ -62,8 +62,14 @@ class AuthController extends Controller
 
     protected function verifyPassword(string $plain, string $stored): bool
     {
-        if (Hash::check($plain, $stored)) {
-            return true;
+        try {
+            if (Hash::check($plain, $stored)) {
+                return true;
+            }
+        } catch (\RuntimeException) {
+            // Stored hash isn't Bcrypt (legacy WordPress $wp$/$P$/$H$ format) —
+            // Hash::check() throws instead of returning false when hashing.bcrypt.verify
+            // is enabled. Fall through to the legacy verifier below.
         }
 
         return WordPressPasswordVerifier::check($plain, $stored);

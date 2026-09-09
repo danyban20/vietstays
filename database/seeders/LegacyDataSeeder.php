@@ -25,15 +25,17 @@ class LegacyDataSeeder extends Seeder
                 continue;
             }
 
-            DB::table($table)->truncate();
-
+            // INSERT IGNORE (not truncate + INSERT): re-running this seeder must not
+            // wipe rows created later through the app (apartments, bookings, …) —
+            // it should only backfill rows from the original dump that are missing.
             foreach ($statements as $statement) {
+                $statement = preg_replace('/^INSERT INTO/i', 'INSERT IGNORE INTO', $statement, 1);
                 $statement = str_replace("'0000-00-00 00:00:00'", "'1970-01-01 00:00:00'", $statement);
                 $statement = str_replace("'0000-00-00'", "'1970-01-01'", $statement);
                 DB::unprepared($statement);
             }
 
-            $this->command?->info("Imported data into [{$table}].");
+            $this->command?->info("Imported data into [{$table}] (existing rows left untouched).");
         }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1');

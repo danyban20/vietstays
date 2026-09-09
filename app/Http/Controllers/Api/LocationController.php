@@ -65,7 +65,7 @@ class LocationController extends Controller
             $apartmentQuery->where('user_id', $request->user()->legacy_wp_id);
         }
 
-        $apartments = $apartmentQuery->get(['ID', 'display_name', 'name', 'district', 'building_id']);
+        $apartments = $apartmentQuery->get(['ID', 'display_name', 'name', 'district', 'building_id', 'price_daily']);
 
         $districtIds = $apartments->pluck('district')->filter()->unique()->values();
         $buildingIds = $apartments->pluck('building_id')->filter()->unique()->values();
@@ -89,6 +89,7 @@ class LocationController extends Controller
                     'name' => $a->display_name ?: $a->name,
                     'district_id' => $a->district,
                     'building_id' => $a->building_id,
+                    'price_daily' => (float) $a->price_daily,
                 ]),
             ],
         ]);

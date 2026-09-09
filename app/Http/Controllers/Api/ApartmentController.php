@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Building;
 use App\Models\District;
 use App\Services\ApartmentCreationService;
+use App\Services\PriceMatrixService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,7 @@ class ApartmentController extends Controller
 {
     public function __construct(
         protected ApartmentCreationService $apartmentService,
+        protected PriceMatrixService $priceMatrixService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -51,6 +53,20 @@ class ApartmentController extends Controller
         $this->authorizeApartment($request, $model);
 
         return response()->json(['data' => $this->transform($model, true)]);
+    }
+
+    public function suggestedPrice(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+        $this->authorizeApartment($request, $model);
+
+        $building = $model->building_id ? Building::query()->find($model->building_id) : null;
+
+        $suggested = $building
+            ? $this->priceMatrixService->suggestApartmentPrice($building, $model->apartment_type, $model->quality_standard)
+            : null;
+
+        return response()->json(['data' => ['suggested_price' => $suggested]]);
     }
 
     public function store(Request $request): JsonResponse

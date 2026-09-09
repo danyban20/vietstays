@@ -21,6 +21,17 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function logout() {
+        try {
+            await apiClient.post('/logout');
+        } catch {
+            // Even if the request fails, drop local state so the UI reflects "logged out".
+        } finally {
+            user.value = null;
+            loaded.value = false;
+        }
+    }
+
     return {
         user,
         loaded,
@@ -28,5 +39,6 @@ export const useAuthStore = defineStore('auth', () => {
         isPlatformRole,
         isHostRole,
         fetchUser,
+        logout,
     };
 });
