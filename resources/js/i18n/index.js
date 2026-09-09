@@ -126,6 +126,12 @@ const englishMessages = {
         loadFailed: 'Could not load booking.',
         saved: 'Booking saved.',
         saveFailed: 'Could not save booking.',
+        cancelBooking: 'Cancel booking',
+        cancelling: 'Cancelling…',
+        cancelConfirm: 'Cancel this booking? This will free up the dates for other guests.',
+        cancelledPill: 'Cancelled',
+        cancelSuccess: 'Booking cancelled.',
+        cancelFailed: 'Could not cancel the booking.',
     },
     auth: {
         login: 'Sign in',
