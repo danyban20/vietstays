@@ -4,14 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\CustomerAggregationService;
+use App\Services\CustomerExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CustomerController extends Controller
 {
     public function __construct(
         protected CustomerAggregationService $customers,
     ) {}
+
+    public function export(Request $request, CustomerExportService $exportService): StreamedResponse
+    {
+        return $exportService->streamXlsx($this->customers->listCustomers($request->user()));
+    }
 
     public function index(Request $request): JsonResponse
     {

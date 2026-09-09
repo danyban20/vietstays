@@ -138,8 +138,6 @@
                 <span>{{ t('customers.colStays') }}</span>
                 <span>{{ t('customers.colNights') }}</span>
                 <span>{{ t('customers.colNextStay') }}</span>
-                <span>{{ t('customers.colRating') }}</span>
-                <span>{{ t('customers.colReviews') }}</span>
                 <span>{{ t('customers.colStatus') }}</span>
             </div>
 
@@ -213,10 +211,6 @@
                     <span v-if="row.nextAptCode" class="host-customers-table__code">{{ row.nextAptCode }}</span>
                     <span class="host-customers-table__apt">{{ row.nextApt }}</span>
                 </div>
-                <div class="host-customers-table__rating">{{ row.ratingLabel }}</div>
-                <div class="host-customers-table__reviews" :class="{ 'host-customers-table__reviews--empty': !row.reviewCount }">
-                    {{ row.reviewCount || '—' }}
-                </div>
                 <div class="host-customers-table__status">
                     <span
                         v-if="row.statusStyle.bg"
@@ -248,6 +242,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import apiClient from '@/api/client';
 import AddCustomerModal from '@/components/modals/AddCustomerModal.vue';
+import { withAppBase } from '@/utils/app-base';
 import {
     CUSTOMER_TABS,
     MIN_STAY_OPTIONS,
@@ -513,7 +508,7 @@ function openCustomer(id) {
 }
 
 function exportList() {
-    window.alert(t('customers.exportToast'));
+    window.location.href = withAppBase('/api/customers/export');
 }
 
 async function loadCustomers() {
