@@ -27,79 +27,12 @@
             <div class="host-field">
                 <label class="host-field__label" for="bk-rate">Nightly rate</label>
                 <input id="bk-rate" v-model.number="form.daily_price" type="number" min="0" class="host-input" />
-                <small v-if="priceData?.suggested_daily_price" style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
-                    💡 Suggestion from matrix: <strong>{{ suggestedDailyPriceFormatted }} ₫</strong>
-                </small>
             </div>
             <DateRangeCalendar
                 :apartment-id="form.apartment_id"
                 v-model:check-in="form.check_in_date"
                 v-model:check-out="form.check_out_date"
             />
-
-            <!-- Price Suggestion from Matrix -->
-            <div v-if="priceData && !priceLoading && variant === 'manual'" class="host-field host-field--full" style="margin-top: 20px;">
-                <div style="background: #f0f8ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h6 style="margin: 0; color: #333; font-size: 14px; font-weight: 600;">💰 Price Suggestion (from Matrix)</h6>
-                        <span style="font-size: 12px; color: #666; background: #e6f2ff; padding: 4px 8px; border-radius: 3px;">
-                            {{ priceData.nights }} nights
-                        </span>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                        <div style="font-size: 13px;">
-                            <small style="color: #666; display: block; margin-bottom: 4px;">Building</small>
-                            <strong style="color: #333;">{{ priceData.building_name }}</strong>
-                        </div>
-                        <div style="font-size: 13px;">
-                            <small style="color: #666; display: block; margin-bottom: 4px;">District</small>
-                            <strong style="color: #333;">{{ priceData.district }}</strong>
-                        </div>
-                    </div>
-
-                    <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #e6e6e6;">
-                            <span style="color: #666; font-size: 13px;">Suggested Daily</span>
-                            <span style="color: #28a745; font-weight: 600; font-size: 14px;">{{ suggestedDailyPriceFormatted }} ₫</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #e6e6e6;">
-                            <span style="color: #666; font-size: 13px;">Current Daily</span>
-                            <span style="font-weight: 600; font-size: 14px;">{{ currentDailyPriceFormatted }} ₫</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #666; font-size: 13px;">Difference</span>
-                            <span style="font-weight: 600; font-size: 14px;" :style="{ color: priceDifferenceColor }">
-                                {{ priceDifferenceFormatted }} ₫
-                                <small v-if="priceData.price_difference_percent" style="margin-left: 6px;">
-                                    ({{ priceData.price_difference_percent > 0 ? '+' : '' }}{{ priceData.price_difference_percent }}%)
-                                </small>
-                            </span>
-                        </div>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="host-btn host-btn--ghost"
-                        @click="useSuggestedPrice"
-                        style="width: 100%; font-size: 13px; padding: 8px 12px;"
-                    >
-                        ✓ Use This Price
-                    </button>
-                </div>
-            </div>
-
-            <div v-if="priceError && variant === 'manual'" class="host-field host-field--full" style="margin-top: 12px;">
-                <p style="color: #dc3545; font-size: 12px; margin: 0; padding: 8px; background: #ffe6e6; border-radius: 4px;">
-                    ⚠️ {{ priceError }}
-                </p>
-            </div>
-
-            <div v-if="priceLoading && form.apartment_id && form.check_in_date && form.check_out_date && variant === 'manual'" class="host-field host-field--full" style="margin-top: 12px;">
-                <p style="color: #666; font-size: 12px; margin: 0; padding: 8px; text-align: center;">
-                    ⏳ Calculating suggested price...
-                </p>
-            </div>
 
             <div class="host-field host-field--full">
                 <label class="host-check-inline">
@@ -227,7 +160,6 @@ import apiClient from '@/api/client';
 import DateRangeCalendar from '@/components/bookings/DateRangeCalendar.vue';
 import HostModalShell from '@/components/modals/HostModalShell.vue';
 import { useToast } from '@/composables/useToast';
-import { usePriceCalculator } from '@/composables/usePriceCalculator';
 import { formatVnd, nightsBetween } from '@/utils/format';
 import { bookingSummary } from '@/utils/pricing';
 
@@ -242,18 +174,6 @@ const emit = defineEmits(['close', 'saved']);
 
 const router = useRouter();
 const toast = useToast();
-
-// Price calculator composable
-const {
-    loading: priceLoading,
-    error: priceError,
-    priceData,
-    calculateBookingPrice,
-    suggestedDailyPriceFormatted,
-    currentDailyPriceFormatted,
-    priceDifferenceFormatted,
-    priceDifferenceClass,
-} = usePriceCalculator();
 
 const apartments = ref([]);
 const saving = ref(false);
@@ -321,14 +241,6 @@ const canSubmit = computed(() => {
     return form.guest_name.trim() && form.check_in_date && form.check_out_date;
 });
 
-// Computed for price difference color
-const priceDifferenceColor = computed(() => {
-    if (!priceData.value) return '#666';
-    if (priceData.value.price_difference > 0) return '#28a745';
-    if (priceData.value.price_difference < 0) return '#dc3545';
-    return '#666';
-});
-
 watch(
     () => props.open,
     (isOpen) => {
@@ -339,24 +251,13 @@ watch(
     },
 );
 
-// Watch for price calculation when apartment or dates change
-watch(
-    () => [form.apartment_id, form.check_in_date, form.check_out_date],
-    async ([appartmentId, checkIn, checkOut]) => {
-        if (appartmentId && checkIn && checkOut && props.variant === 'manual') {
-            await calculateBookingPrice(Number(appartmentId), checkIn, checkOut);
-        }
-    },
-    { deep: true }
-);
-
 async function loadApartments() {
     try {
         const res = await apiClient.get('/locations/filters');
         apartments.value = res?.data?.apartments ?? [];
     } catch {
         const fallback = await apiClient.get('/apartments');
-        apartments.value = (fallback?.data ?? []).map((a) => ({ id: a.id, name: a.name }));
+        apartments.value = (fallback?.data ?? []).map((a) => ({ id: a.id, name: a.name, price_daily: a.price_daily }));
     }
 }
 
@@ -364,12 +265,6 @@ function onApartmentChange() {
     const apt = apartments.value.find((a) => a.id === Number(form.apartment_id));
     if (apt?.price_daily && !form.daily_price) {
         form.daily_price = apt.price_daily;
-    }
-}
-
-function useSuggestedPrice() {
-    if (priceData.value?.suggested_daily_price) {
-        form.daily_price = priceData.value.suggested_daily_price;
     }
 }
 

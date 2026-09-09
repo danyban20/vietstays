@@ -537,11 +537,7 @@ import { useRouter } from 'vue-router';
 import apiClient, { uploadFiles } from '@/api/client';
 import { useToast } from '@/composables/useToast';
 import { facilityIcon } from '@/utils/facilityIcons';
-import {
-    APARTMENT_TYPES,
-    QUALITY_STANDARDS,
-    suggestDailyPrice,
-} from '@/utils/pricing';
+import { APARTMENT_TYPES, QUALITY_STANDARDS } from '@/utils/pricing';
 
 const router = useRouter();
 const toast = useToast();
@@ -641,14 +637,6 @@ const listingPhotoCount = computed(
 const unnamedPhotoCount = computed(
     () => uploadPhotos.value.filter((p) => !p.caption.trim()).length,
 );
-
-const suggestedPrice = computed(() => {
-    // Try to use price matrix API first, fallback to hardcoded values
-    const basePrice = suggestDailyPrice(form.apartment_type, form.quality_standard);
-    // TODO: integrate with price matrix API when available
-    // For now, use hardcoded suggestion
-    return basePrice;
-});
 
 const namePreview = computed(() => {
     // Auto-generate name: buildingShortName - feature - district - type
@@ -895,7 +883,6 @@ async function save() {
             room_number: form.room_number || null,
             about_this_short: form.about_this_short,
             facilities: form.facilities,
-            price_daily: suggestedPrice.value,
             status: 'draft',
             building_gallery_json: buildingGallerySelected.value.length
                 ? buildingGallerySelected.value

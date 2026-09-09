@@ -75,11 +75,31 @@
                 </div>
             </div>
 
-            <div class="host-topbar__profile">
-                <span class="host-topbar__avatar">{{ initials }}</span>
-                <div class="host-topbar__profile-text">
-                    <span class="host-topbar__profile-name">{{ displayName }}</span>
-                    <span class="host-topbar__profile-meta">{{ apartmentCountLabel }}</span>
+            <div class="host-topbar__profile-wrap">
+                <button
+                    type="button"
+                    class="host-topbar__profile"
+                    :aria-expanded="profileMenuOpen ? 'true' : 'false'"
+                    aria-haspopup="menu"
+                    @click="profileMenuOpen = !profileMenuOpen"
+                >
+                    <span class="host-topbar__avatar">{{ initials }}</span>
+                    <div class="host-topbar__profile-text">
+                        <span class="host-topbar__profile-name">{{ displayName }}</span>
+                        <span class="host-topbar__profile-meta">{{ apartmentCountLabel }}</span>
+                    </div>
+                    <span class="host-topbar__chevron">▾</span>
+                </button>
+
+                <div v-if="profileMenuOpen" class="host-topbar__locale-menu" role="menu">
+                    <button
+                        type="button"
+                        class="host-topbar__locale-option"
+                        role="menuitem"
+                        @click="onLogout"
+                    >
+                        <span>Log out</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -89,16 +109,19 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import apiClient from '@/api/client';
 import { useLocaleStore } from '@/stores/locale';
 import { useAuthStore } from '@/stores/auth';
 
 const { t } = useI18n();
+const router = useRouter();
 const localeStore = useLocaleStore();
 const auth = useAuthStore();
 
 const searchQuery = ref('');
 const apartmentCount = ref(null);
+const profileMenuOpen = ref(false);
 
 const displayName = computed(() => auth.user?.name ?? 'Host');
 const initials = computed(() => {
@@ -121,6 +144,15 @@ function closeLocaleMenu(event) {
     if (!event.target.closest('.host-topbar__locale-wrap')) {
         localeStore.menuOpen = false;
     }
+    if (!event.target.closest('.host-topbar__profile-wrap')) {
+        profileMenuOpen.value = false;
+    }
+}
+
+async function onLogout() {
+    profileMenuOpen.value = false;
+    await auth.logout();
+    router.push({ name: 'login' });
 }
 
 onMounted(async () => {

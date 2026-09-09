@@ -4,7 +4,6 @@ use App\Http\Controllers\Api\ApartmentAvailabilityController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ApartmentController;
 use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\BookingPriceCalculatorController;
 use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DashboardController;
@@ -53,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/apartments/{apartment}', [ApartmentController::class, 'show']);
     Route::put('/apartments/{apartment}', [ApartmentController::class, 'update']);
     Route::post('/apartments/{apartment}/photos', [ApartmentController::class, 'uploadPhotos']);
+    Route::get('/apartments/{apartment}/suggested-price', [ApartmentController::class, 'suggestedPrice']);
     Route::get('/apartments/{apartment}/periods', [ApartmentAvailabilityController::class, 'index']);
     Route::patch('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'update']);
     Route::delete('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'destroy']);
@@ -60,7 +60,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/calendar', [CalendarController::class, 'index']);
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
-    Route::post('/bookings/calculate-price', [BookingPriceCalculatorController::class, 'calculatePrice']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
     Route::put('/bookings/{booking}', [BookingController::class, 'update']);
     Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);

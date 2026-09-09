@@ -11,6 +11,10 @@ use Illuminate\Support\Str;
 
 class ApartmentCreationService
 {
+    public function __construct(
+        protected PriceMatrixService $priceMatrixService,
+    ) {}
+
     public function create(array $payload, User $user): Apartment
     {
         return DB::transaction(function () use ($payload, $user) {
@@ -37,7 +41,7 @@ class ApartmentCreationService
                 $userId = (int) $payload['user_id'];
             }
 
-            $suggestedPrice = ApartmentPricingService::suggestDailyPrice($apartmentType, $qualityStandard);
+            $suggestedPrice = $this->priceMatrixService->suggestApartmentPrice($building, $apartmentType, $qualityStandard) ?? 0;
             $priceDaily = isset($payload['price_daily']) && (float) $payload['price_daily'] > 0
                 ? (float) $payload['price_daily']
                 : $suggestedPrice;
