@@ -660,8 +660,8 @@ class CustomerAggregationService
         }
 
         $parts = preg_split('/\s+/', $apartmentName) ?: [];
-        $prefix = strtoupper(substr($parts[0] ?? 'APT', 0, 3));
-        $suffix = strtoupper(substr($parts[count($parts) - 1] ?? '01', 0, 2));
+        $prefix = mb_strtoupper(mb_substr($parts[0] ?? 'APT', 0, 3));
+        $suffix = mb_strtoupper(mb_substr($parts[count($parts) - 1] ?? '01', 0, 2));
 
         return $prefix.'-'.$suffix;
     }
@@ -670,7 +670,7 @@ class CustomerAggregationService
     {
         $parts = preg_split('/\s+/', trim($name)) ?: [];
 
-        return strtoupper(collect($parts)->take(2)->map(fn (string $part) => substr($part, 0, 1))->implode(''));
+        return mb_strtoupper(collect($parts)->take(2)->map(fn (string $part) => mb_substr($part, 0, 1))->implode(''));
     }
 
     protected function formatVnd(float $amount): string
