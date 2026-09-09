@@ -14,6 +14,7 @@ class BookingCreationService
     public function __construct(
         protected BookingPricingService $pricingService,
         protected BookingAvailabilityService $availabilityService,
+        protected CustomerService $customerService,
     ) {}
 
     public function createGuest(array $payload): Booking
@@ -57,13 +58,20 @@ class BookingCreationService
         [$firstname, $lastname] = $this->splitName($guestName);
         $now = now();
 
+        $customerId = $this->customerService->findOrCreateForBooking(
+            (int) $apartment->user_id,
+            $guestName,
+            $payload['email'] ?? null,
+            $payload['phone'] ?? null,
+        )->id;
+
         $discountTotal = (float) $quote['campaign_discount']
             + (float) $quote['basic_discount_amount']
             + (float) $quote['promo_discount_amount'];
 
         return DB::transaction(function () use (
             $payload, $apartment, $checkIn, $checkOut, $dates, $nights,
-            $firstname, $lastname, $now, $quote, $discountTotal, $adults, $children
+            $firstname, $lastname, $now, $quote, $discountTotal, $adults, $children, $customerId
         ) {
             $extraData = array_filter([
                 'phone' => $payload['phone'] ?? null,
@@ -80,6 +88,7 @@ class BookingCreationService
                 'ID' => $this->nextBookingId(),
                 'booking_num' => '',
                 'user_id' => 0,
+                'customer_id' => $customerId,
                 'apartment_id' => $apartment->ID,
                 'district_id' => (int) $apartment->district,
                 'email' => $payload['email'] ?? '',
@@ -180,9 +189,16 @@ class BookingCreationService
 
         $now = now();
 
+        $customerId = $this->customerService->findOrCreateForBooking(
+            (int) $apartment->user_id,
+            $guestName,
+            $payload['email'] ?? null,
+            $payload['phone'] ?? null,
+        )->id;
+
         return DB::transaction(function () use (
             $payload, $apartment, $checkIn, $checkOut, $dates, $nights,
-            $dailyPrice, $total, $firstname, $lastname, $now, $discount
+            $dailyPrice, $total, $firstname, $lastname, $now, $discount, $customerId
         ) {
             $extraData = array_filter([
                 'phone' => $payload['phone'] ?? null,
@@ -197,6 +213,7 @@ class BookingCreationService
                 'ID' => $this->nextBookingId(),
                 'booking_num' => '',
                 'user_id' => 0,
+                'customer_id' => $customerId,
                 'apartment_id' => $apartment->ID,
                 'district_id' => (int) $apartment->district,
                 'email' => $payload['email'] ?? '',

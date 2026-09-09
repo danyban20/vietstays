@@ -294,7 +294,7 @@ import {
     stripHtml,
 } from '@/utils/apartment-images';
 import { formatVnd } from '@/utils/format';
-import { QUALITY_STANDARDS, suggestDailyPrice } from '@/utils/pricing';
+import { QUALITY_STANDARDS } from '@/utils/pricing';
 
 const route = useRoute();
 const router = useRouter();
@@ -355,9 +355,7 @@ const standardLabel = computed(() => {
     return match?.label ?? apartment.value.standard ?? 'Standard';
 });
 
-const suggestedPrice = computed(() =>
-    suggestDailyPrice(apartment.value.type, apartment.value.standard),
-);
+const suggestedPrice = ref(0);
 
 const validImages = computed(() =>
     (apartment.value.images ?? []).filter(isValidApartmentImage),
@@ -606,10 +604,20 @@ async function loadApartment() {
     try {
         const res = await apiClient.get(`/apartments/${apartmentId.value}`);
         applyApartmentData(res?.data ?? {});
+        loadSuggestedPrice();
     } catch {
         toast.show('Could not load apartment.');
     } finally {
         loading.value = false;
+    }
+}
+
+async function loadSuggestedPrice() {
+    try {
+        const res = await apiClient.get(`/apartments/${apartmentId.value}/suggested-price`);
+        suggestedPrice.value = res?.data?.suggested_price ?? 0;
+    } catch {
+        suggestedPrice.value = 0;
     }
 }
 

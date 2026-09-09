@@ -240,10 +240,14 @@
                     </router-link>
                 </template>
 
-                <span class="host-sidebar__link host-sidebar__link--disabled">
+                <router-link
+                    :to="{ name: 'customers' }"
+                    class="host-sidebar__link"
+                    :class="{ 'host-sidebar__link--active': route.name === 'customers' || route.name === 'customer-detail' }"
+                >
                     <SidebarIcon name="customers" />
                     <span class="host-sidebar__label">{{ t('nav.customers') }}</span>
-                </span>
+                </router-link>
             </nav>
 
             <nav class="host-sidebar__group">

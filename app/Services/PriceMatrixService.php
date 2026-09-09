@@ -19,6 +19,14 @@ class PriceMatrixService
         '5BR' => 3,
     ];
 
+    // LOGIC-SPEC.md §2.3 STANDARD_FACTOR, mapped onto this app's
+    // quality_standard values (standard/above_average/premium).
+    private const STANDARD_FACTOR = [
+        'standard' => 0.90,
+        'above_average' => 1.00,
+        'premium' => 1.10,
+    ];
+
     /**
      * Generate type key from bedroom and bathroom count
      * Examples: Studio → "Studio", 1BR → "1BR", 2BR with 1 WC → "2BR+1WC"
@@ -142,6 +150,36 @@ class PriceMatrixService
     private function round50k(int $price): int
     {
         return round($price / 50000) * 50000;
+    }
+
+    /**
+     * Round to nearest 10,000 VND
+     */
+    private function round10k(int $price): int
+    {
+        return (int) round($price / 10000) * 10000;
+    }
+
+    /**
+     * Suggested price for a new apartment (LOGIC-SPEC.md §2.3):
+     * round10k( matrixCell(district, building, pmKey(type, wc)) × STANDARD_FACTOR[standard] )
+     */
+    public function suggestApartmentPrice(
+        Building $building,
+        string $apartmentType,
+        string $qualityStandard,
+        ?int $wcCount = null,
+    ): ?int {
+        $typeKey = $this->pmKey($apartmentType, $wcCount);
+        $matrixPrice = $this->calculateDefaultMatrixPrice($building, $typeKey);
+
+        if ($matrixPrice === null) {
+            return null;
+        }
+
+        $factor = self::STANDARD_FACTOR[$qualityStandard] ?? 1.0;
+
+        return $this->round10k((int) round($matrixPrice * $factor));
     }
 
     /**

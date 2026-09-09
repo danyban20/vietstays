@@ -32,7 +32,13 @@ export default defineConfig({
     },
     server: {
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            ignored: [
+                '**/storage/framework/views/**',
+                '**/old/**',
+                '**/static/**',
+                '**/design_handoff_host_dashboard/**',
+                '**/vendor/**',
+            ],
         },
     },
 });

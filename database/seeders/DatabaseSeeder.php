@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             BuildingSeeder::class,
             PriceMatrixSeeder::class,
+            CustomerBackfillSeeder::class,
             EmailSettingsSeeder::class,
         ]);
     }

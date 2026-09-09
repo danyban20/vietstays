@@ -180,6 +180,7 @@
         <AddBookingModal
             :open="addModalOpen"
             :variant="addModalVariant"
+            :initial-guest-name="addModalGuestName"
             @close="addModalOpen = false"
             @saved="loadBookings"
         />
@@ -203,6 +204,7 @@ const addMenuOpen = ref(false);
 const addMenuRef = ref(null);
 const addModalOpen = ref(false);
 const addModalVariant = ref('manual');
+const addModalGuestName = ref('');
 
 const filterOptions = reactive({
     districts: [],
@@ -339,6 +341,7 @@ onMounted(() => {
 
     const addQuery = route.query.add;
     if (addQuery && ['manual', 'block', 'external'].includes(addQuery)) {
+        addModalGuestName.value = typeof route.query.guest_name === 'string' ? route.query.guest_name : '';
         openAddModal(addQuery);
         router.replace({ query: {} });
     }

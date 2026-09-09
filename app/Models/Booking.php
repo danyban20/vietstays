@@ -40,6 +40,11 @@ class Booking extends Model
         return $this->belongsTo(Apartment::class, 'apartment_id', 'ID');
     }
 
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class, 'district_id', 'district_id');

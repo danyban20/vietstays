@@ -56,6 +56,18 @@ const routes = [
                 meta: { breadcrumbKey: 'nav.allApartments', detailShell: true },
             },
             {
+                path: 'customers',
+                name: 'customers',
+                component: () => import('@/pages/customers/CustomersListPage.vue'),
+                meta: { breadcrumbKey: 'nav.customers' },
+            },
+            {
+                path: 'customers/:id',
+                name: 'customer-detail',
+                component: () => import('@/pages/customers/CustomerDetailPage.vue'),
+                meta: { breadcrumbKey: 'nav.customers', detailShell: true },
+            },
+            {
                 path: 'settings/email',
                 name: 'settings-email',
                 component: () => import('@/pages/settings/EmailSettingsPage.vue'),
