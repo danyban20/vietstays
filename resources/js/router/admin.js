@@ -104,6 +104,12 @@ const routes = [
                 meta: { breadcrumbKey: 'nav.operationsTeam', teamMode: 'operations' },
             },
             {
+                path: 'team/sales/:id',
+                name: 'team-sales-member',
+                component: () => import('@/pages/team/TeamMemberDetailPage.vue'),
+                meta: { breadcrumbKey: 'nav.salesTeam', detailShell: true },
+            },
+            {
                 path: 'team/management-company',
                 name: 'team-management-company',
                 component: () => import('@/pages/team/ManagementCompanyPage.vue'),

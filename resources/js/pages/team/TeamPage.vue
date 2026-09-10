@@ -118,6 +118,10 @@
                 v-for="member in visibleSalesRows"
                 :key="member.id"
                 class="host-team-sales-row"
+                role="button"
+                tabindex="0"
+                @click="goToMember(member.id)"
+                @keydown.enter="goToMember(member.id)"
             >
                 <div class="host-team-person">
                     <span
@@ -258,7 +262,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api/client';
 import InviteTeamMemberModal from '@/components/modals/InviteTeamMemberModal.vue';
 import {
@@ -273,6 +277,7 @@ import {
 } from '@/data/team-content';
 
 const route = useRoute();
+const router = useRouter();
 const { t } = useI18n();
 
 const search = ref('');
@@ -436,6 +441,10 @@ async function loadTeam() {
     } finally {
         loading.value = false;
     }
+}
+
+function goToMember(id) {
+    router.push({ name: 'team-sales-member', params: { id } });
 }
 
 function onInvited() {

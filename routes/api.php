@@ -73,6 +73,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/team', [TeamController::class, 'index']);
     Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);
+    Route::get('/team/members/{member}', [TeamController::class, 'showMember']);
+    Route::patch('/team/members/{member}/apartments', [TeamController::class, 'assignApartments']);
     Route::patch('/team/members/{member}/guest-info', [TeamController::class, 'updateGuestInfo']);
     Route::delete('/team/invitations/{invitation}', [TeamController::class, 'destroyInvitation']);
 

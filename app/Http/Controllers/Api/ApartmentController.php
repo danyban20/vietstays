@@ -257,6 +257,7 @@ class ApartmentController extends Controller
             'building' => $building?->name,
             'building_id' => (int) $apartment->building_id,
             'type' => $apartment->apartment_type,
+            'rooms' => (int) $apartment->rooms,
             'standard' => $apartment->quality_standard,
             'price_daily' => $priceDaily,
             'price' => $priceDaily,
