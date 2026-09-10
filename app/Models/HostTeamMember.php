@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class HostTeamMember extends Model
 {
@@ -52,5 +53,17 @@ class HostTeamMember extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function apartments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Apartment::class,
+            'vv_host_team_apartment_assignments',
+            'team_member_id',
+            'apartment_id',
+            'id',
+            'ID',
+        )->withTimestamps();
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Apartment;
+use App\Models\Booking;
 use App\Models\HostTeamInvitation;
 use App\Models\HostTeamMember;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class TeamService
 {
@@ -115,6 +118,214 @@ class TeamService
         $invite->update(['sent_at' => now()]);
 
         return $this->presentInvitation($invite->fresh());
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function memberDetail(User $user, int $memberId): ?array
+    {
+        $member = $this->scopedMembersQuery($user)->whereKey($memberId)->first();
+
+        if (! $member) {
+            return null;
+        }
+
+        $apartmentIds = $this->memberApartmentIds($member);
+        $bookings = $this->memberBookings($apartmentIds);
+        $nonCancelled = $bookings->where('status', '!=', 'cancelled');
+
+        $assignedApartments = $apartmentIds === []
+            ? collect()
+            : Apartment::query()->whereIn('ID', $apartmentIds)->get(['ID', 'name', 'display_name', 'rooms']);
+
+        return [
+            'member' => $this->presentMemberSummary($member, $apartmentIds, $bookings, $nonCancelled),
+            'roomFilters' => $this->buildRoomFilters($assignedApartments, $bookings),
+            'discountFilters' => $this->buildDiscountFilters($bookings),
+            'assignedApartmentIds' => $apartmentIds,
+            'bookings' => $bookings->map(fn (Booking $booking) => $this->presentMemberBooking($booking, $member))->values()->all(),
+        ];
+    }
+
+    /**
+     * @param  array<int, int>  $apartmentIds
+     */
+    public function assignApartments(User $user, int $memberId, array $apartmentIds): ?array
+    {
+        $member = $this->scopedMembersQuery($user)->whereKey($memberId)->first();
+
+        if (! $member) {
+            return null;
+        }
+
+        $ownedIds = Apartment::query()
+            ->where('user_id', $user->legacy_wp_id)
+            ->whereIn('ID', $apartmentIds)
+            ->pluck('ID')
+            ->all();
+
+        $member->apartments()->sync($ownedIds);
+
+        return $this->memberDetail($user, $memberId);
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    protected function memberApartmentIds(HostTeamMember $member): array
+    {
+        return $member->apartments()->pluck('vv_apartments.ID')->map(fn ($id) => (int) $id)->all();
+    }
+
+    /**
+     * @param  array<int, int>  $apartmentIds
+     */
+    protected function memberBookings(array $apartmentIds): Collection
+    {
+        if ($apartmentIds === []) {
+            return collect();
+        }
+
+        return Booking::query()
+            ->with('apartment')
+            ->whereIn('apartment_id', $apartmentIds)
+            ->where('dateadded', '>=', now()->subDays(90))
+            ->orderByDesc('check_in_date')
+            ->get();
+    }
+
+    /**
+     * @param  array<int, int>  $apartmentIds
+     */
+    protected function presentMemberSummary(HostTeamMember $member, array $apartmentIds, Collection $bookings, Collection $nonCancelled): array
+    {
+        $commissionPct = $this->effectiveCommissionPct($member);
+        $gross = (float) $nonCancelled->sum('total');
+
+        return [
+            'id' => (string) $member->id,
+            'name' => $member->name,
+            'email' => $member->email,
+            'phone' => $member->phone,
+            'org' => $member->org,
+            'area' => $member->area,
+            'func' => $member->func,
+            'link' => $member->link,
+            'type' => $member->member_type,
+            'outPct' => $commissionPct,
+            'pooled' => (bool) $member->pooled,
+            'status' => $member->status,
+            'bg' => $member->avatar_color ?: self::AVATAR_COLORS[abs(crc32($member->name)) % count(self::AVATAR_COLORS)],
+            'apartments' => count($apartmentIds),
+            'bookings90' => $bookings->count(),
+            'gross90' => $gross,
+            'commissionOwed90' => $commissionPct > 0 ? round($gross * $commissionPct / 100) : 0,
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function buildRoomFilters(Collection $assignedApartments, Collection $bookings): array
+    {
+        $filters = [
+            ['key' => 'all', 'label' => 'All', 'count' => $bookings->count()],
+        ];
+
+        $roomCounts = $assignedApartments->pluck('rooms')->filter()->unique()->sort()->values();
+
+        foreach ($roomCounts as $rooms) {
+            $apartmentIdsForRoom = $assignedApartments->where('rooms', $rooms)->pluck('ID')->all();
+
+            $filters[] = [
+                'key' => (string) $rooms,
+                'label' => $rooms == 1 ? 'Studio' : "{$rooms}BR",
+                'count' => $bookings->whereIn('apartment_id', $apartmentIdsForRoom)->count(),
+            ];
+        }
+
+        return $filters;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function buildDiscountFilters(Collection $bookings): array
+    {
+        $withDiscount = $bookings->filter(fn (Booking $booking) => $this->hasDiscount($booking))->count();
+
+        return [
+            ['key' => 'all', 'label' => 'All', 'count' => $bookings->count()],
+            ['key' => 'with', 'label' => 'With discount', 'count' => $withDiscount],
+            ['key' => 'without', 'label' => 'Without discount', 'count' => $bookings->count() - $withDiscount],
+        ];
+    }
+
+    protected function presentMemberBooking(Booking $booking, HostTeamMember $member): array
+    {
+        $apartment = $booking->apartment;
+        $nights = max(1, (int) $booking->check_in_date->diffInDays($booking->check_out_date));
+        $extra = is_array($booking->extra_data) ? $booking->extra_data : [];
+        $commissionPct = $this->effectiveCommissionPct($member);
+        $commission = $booking->status === 'cancelled'
+            ? 0
+            : round(((float) $booking->total) * $commissionPct / 100);
+
+        return [
+            'id' => $booking->ID,
+            'bookingNum' => $booking->booking_num ?: ('BK-'.$booking->ID),
+            'apartment' => $apartment?->display_name ?: $apartment?->name,
+            'apartmentRooms' => (int) ($apartment?->rooms ?? 0),
+            'guest' => trim($booking->firstname.' '.$booking->lastname) ?: (string) $booking->email,
+            'checkIn' => $booking->check_in_date->format('Y-m-d'),
+            'checkOut' => $booking->check_out_date->format('Y-m-d'),
+            'nights' => $nights,
+            'channel' => $this->bookingChannelLabel($booking, $extra),
+            'amount' => (float) $booking->total,
+            'commission' => $commission,
+            'commissionPct' => $commissionPct,
+            'hasDiscount' => $this->hasDiscount($booking),
+            'status' => $booking->status,
+        ];
+    }
+
+    protected function hasDiscount(Booking $booking): bool
+    {
+        return ((float) $booking->campaign_discount) > 0
+            || ((float) $booking->basic_discount) > 0
+            || filled($booking->promo_code);
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     */
+    protected function bookingChannelLabel(Booking $booking, array $extra): string
+    {
+        $source = strtolower((string) ($extra['source'] ?? 'vietstays'));
+
+        if (str_contains($source, 'airbnb')) {
+            return 'Airbnb';
+        }
+
+        if (in_array($source, ['booking.com', 'trip.com', 'external'], true)) {
+            return 'External booking';
+        }
+
+        if (filled($booking->promo_code)) {
+            return 'Vietstays · '.$booking->promo_code;
+        }
+
+        return $source === 'manual' ? 'Manual entry' : 'Vietstays';
+    }
+
+    protected function effectiveCommissionPct(HostTeamMember $member): int
+    {
+        if ($member->pooled || $member->member_type === 'agent') {
+            return 0;
+        }
+
+        return (int) $member->out_pct;
     }
 
     protected function scopedMembersQuery(User $user, ?string $teamType = null): Builder
@@ -274,6 +485,17 @@ class TeamService
     {
         $color = $member->avatar_color ?: self::AVATAR_COLORS[abs(crc32($member->name)) % count(self::AVATAR_COLORS)];
 
+        $apartmentIds = [];
+        $bookings90 = 0;
+        $gross90 = 0.0;
+
+        if ($member->team_type === 'sales') {
+            $apartmentIds = $this->memberApartmentIds($member);
+            $bookings = $this->memberBookings($apartmentIds);
+            $bookings90 = $bookings->count();
+            $gross90 = (float) $bookings->where('status', '!=', 'cancelled')->sum('total');
+        }
+
         $payload = [
             'id' => (string) $member->id,
             'name' => $member->name,
@@ -285,9 +507,9 @@ class TeamService
             'link' => $member->link,
             'type' => $member->member_type,
             'roles' => $member->roles ?? [],
-            'apartments' => (int) $member->apartments,
-            'bookings90' => (int) $member->bookings90,
-            'gross90' => (int) $member->gross90,
+            'apartments' => count($apartmentIds),
+            'bookings90' => $bookings90,
+            'gross90' => $gross90,
             'outPct' => (int) $member->out_pct,
             'pooled' => (bool) $member->pooled,
             'rating' => $member->rating !== null ? number_format((float) $member->rating, 1) : null,

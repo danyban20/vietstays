@@ -57,6 +57,36 @@ class TeamController extends Controller
         ], 201);
     }
 
+    public function showMember(Request $request, int $member): JsonResponse
+    {
+        $record = $this->teams->memberDetail($request->user(), $member);
+
+        if (! $record) {
+            return response()->json(['message' => 'Team member not found.'], 404);
+        }
+
+        return response()->json(['data' => $record]);
+    }
+
+    public function assignApartments(Request $request, int $member): JsonResponse
+    {
+        $validated = $request->validate([
+            'apartment_ids' => ['present', 'array'],
+            'apartment_ids.*' => ['integer'],
+        ]);
+
+        $record = $this->teams->assignApartments($request->user(), $member, $validated['apartment_ids']);
+
+        if (! $record) {
+            return response()->json(['message' => 'Team member not found.'], 404);
+        }
+
+        return response()->json([
+            'data' => $record,
+            'message' => 'Apartments updated.',
+        ]);
+    }
+
     public function updateGuestInfo(Request $request, int $member): JsonResponse
     {
         $validated = $request->validate([
