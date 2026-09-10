@@ -67,6 +67,24 @@ class CustomerController extends Controller
         ], 201);
     }
 
+    public function merge(Request $request, string $customer): JsonResponse
+    {
+        $validated = $request->validate([
+            'duplicate_id' => ['required', 'string'],
+        ]);
+
+        try {
+            $record = $this->customers->mergeCustomers($request->user(), $customer, $validated['duplicate_id']);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'data' => $record,
+            'message' => 'Customers merged.',
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([

@@ -158,6 +158,25 @@
                     <button type="button" class="host-btn host-btn--ghost">{{ t('customers.personalDiscount') }}</button>
                     <button type="button" class="host-customer-detail__block">{{ t('customers.blockCustomer') }}</button>
                 </div>
+
+                <div class="host-customer-detail__actions host-customer-detail__merge">
+                    <h3>{{ t('customers.mergeTitle') }}</h3>
+                    <p class="host-customer-detail__merge-hint">{{ t('customers.mergeHint') }}</p>
+                    <select v-model="mergeTargetId" class="host-customer-detail__merge-select">
+                        <option value="">{{ t('customers.mergeSelectPlaceholder') }}</option>
+                        <option v-for="candidate in mergeCandidates" :key="candidate.id" :value="candidate.id">
+                            {{ candidate.name }} · {{ candidate.email }}
+                        </option>
+                    </select>
+                    <button
+                        type="button"
+                        class="host-btn host-btn--ghost"
+                        :disabled="!mergeTargetId || merging"
+                        @click="mergeDuplicate"
+                    >
+                        {{ merging ? t('customers.merging') : t('customers.mergeAction') }}
+                    </button>
+                </div>
             </aside>
         </div>
         </div>
@@ -188,6 +207,13 @@ const customer = ref(null);
 const loading = ref(true);
 const error = ref('');
 const activeTab = ref('bookings');
+const otherCustomers = ref([]);
+const mergeTargetId = ref('');
+const merging = ref(false);
+
+const mergeCandidates = computed(() =>
+    otherCustomers.value.filter((c) => c.id !== route.params.id),
+);
 const noteDraft = ref('');
 const savingNote = ref(false);
 
@@ -296,7 +322,46 @@ async function loadCustomer() {
     }
 }
 
+async function loadOtherCustomers() {
+    try {
+        const response = await apiClient.get('/customers');
+        otherCustomers.value = Array.isArray(response.data) ? response.data : [];
+    } catch {
+        otherCustomers.value = [];
+    }
+}
+
+async function mergeDuplicate() {
+    if (!mergeTargetId.value || merging.value) {
+        return;
+    }
+
+    const duplicate = mergeCandidates.value.find((c) => c.id === mergeTargetId.value);
+    const label = duplicate?.name ?? '';
+
+    if (!window.confirm(t('customers.mergeConfirm', { name: label }))) {
+        return;
+    }
+
+    merging.value = true;
+
+    try {
+        const res = await apiClient.post(`/customers/${route.params.id}/merge`, {
+            duplicate_id: mergeTargetId.value,
+        });
+        customer.value = res?.data ?? customer.value;
+        mergeTargetId.value = '';
+        toast.show(t('customers.mergeSuccess'));
+        await loadOtherCustomers();
+    } catch (err) {
+        toast.show(err.message ?? t('customers.mergeFailed'));
+    } finally {
+        merging.value = false;
+    }
+}
+
 watch(() => route.params.id, loadCustomer, { immediate: true });
+watch(() => route.params.id, loadOtherCustomers, { immediate: true });
 
 watch(customer, (value) => {
     if (value) {

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Booking;
 use App\Models\HostCustomer;
+use App\Models\HostCustomerMerge;
 use App\Models\HostCustomerNote;
 use App\Models\User;
 use Carbon\Carbon;
@@ -86,6 +87,8 @@ class CustomerAggregationService
 
     public function findCustomer(User $user, string $id): ?array
     {
+        $id = $this->resolveMergeMap($user)[$id] ?? $id;
+
         foreach ($this->buildCustomerList($user) as $customer) {
             if ($customer['id'] === $id) {
                 $customer['notes'] = array_merge(
@@ -98,6 +101,56 @@ class CustomerAggregationService
         }
 
         return null;
+    }
+
+    /**
+     * @return array<string, string> merged_key => keep_key, already flattened.
+     */
+    public function resolveMergeMap(User $user): array
+    {
+        return HostCustomerMerge::query()
+            ->where('user_id', $user->id)
+            ->pluck('keep_key', 'merged_key')
+            ->all();
+    }
+
+    /**
+     * Merge $duplicateId into $keepId so they present as a single customer.
+     *
+     * @return array<string, mixed>
+     */
+    public function mergeCustomers(User $user, string $keepId, string $duplicateId): array
+    {
+        $map = $this->resolveMergeMap($user);
+        $keepRoot = $map[$keepId] ?? $keepId;
+        $duplicateRoot = $map[$duplicateId] ?? $duplicateId;
+
+        if ($keepRoot === $duplicateRoot) {
+            throw new \InvalidArgumentException('These customers are already merged.');
+        }
+
+        if (! $this->findCustomer($user, $keepRoot) || ! $this->findCustomer($user, $duplicateRoot)) {
+            throw new \InvalidArgumentException('Customer not found.');
+        }
+
+        // Flatten: anything previously merged into the duplicate now points
+        // straight at the new root, so lookups never need more than one hop.
+        HostCustomerMerge::query()
+            ->where('user_id', $user->id)
+            ->where('keep_key', $duplicateRoot)
+            ->update(['keep_key' => $keepRoot]);
+
+        HostCustomerMerge::query()->updateOrCreate(
+            ['user_id' => $user->id, 'merged_key' => $duplicateRoot],
+            ['keep_key' => $keepRoot],
+        );
+
+        HostCustomerNote::query()
+            ->where('user_id', $user->id)
+            ->where('customer_key', $duplicateRoot)
+            ->update(['customer_key' => $keepRoot]);
+
+        return $this->findCustomer($user, $keepRoot) ?? [];
     }
 
     /**
@@ -165,18 +218,22 @@ class CustomerAggregationService
      */
     protected function buildCustomerList(User $user): array
     {
+        $mergeMap = $this->resolveMergeMap($user);
+
         $customers = $this->aggregateCustomers(
-            $this->scopedBookingsQuery($user)->orderByDesc('check_in_date')->get()
+            $this->scopedBookingsQuery($user)->orderByDesc('check_in_date')->get(),
+            $mergeMap,
         );
 
-        return $this->mergeManualCustomers($user, $customers);
+        return $this->mergeManualCustomers($user, $customers, $mergeMap);
     }
 
     /**
      * @param  array<int, array<string, mixed>>  $customers
+     * @param  array<string, string>  $mergeMap
      * @return array<int, array<string, mixed>>
      */
-    protected function mergeManualCustomers(User $user, array $customers): array
+    protected function mergeManualCustomers(User $user, array $customers, array $mergeMap = []): array
     {
         $indexed = [];
 
@@ -215,7 +272,30 @@ class CustomerAggregationService
                 $record,
                 validEmail: $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL),
             );
-            $indexed[$presented['id']] = $presented;
+
+            $targetId = $mergeMap[$presented['id']] ?? $presented['id'];
+            $presented['id'] = $targetId;
+
+            if (! isset($indexed[$targetId])) {
+                $indexed[$targetId] = $presented;
+
+                continue;
+            }
+
+            // Target already has an identity (a booking-derived group, or a
+            // previously processed record merged into the same customer) —
+            // fold this record's note/tags in rather than clobbering it.
+            if ($record->note) {
+                $indexed[$targetId]['notes'][] = [
+                    'who' => $record->reserved_by ?: 'You',
+                    'when' => $record->created_at->format('j M Y'),
+                    'text' => $record->note,
+                ];
+            }
+
+            $indexed[$targetId]['tags'] = array_values(array_unique(
+                array_merge($indexed[$targetId]['tags'], $presented['tags'])
+            ));
         }
 
         $merged = array_values($indexed);
@@ -332,7 +412,10 @@ class CustomerAggregationService
      * @param  Collection<int, Booking>  $bookings
      * @return array<int, array<string, mixed>>
      */
-    protected function aggregateCustomers(Collection $bookings): array
+    /**
+     * @param  array<string, string>  $mergeMap
+     */
+    protected function aggregateCustomers(Collection $bookings, array $mergeMap = []): array
     {
         $today = now()->startOfDay();
         $groups = [];
@@ -349,6 +432,7 @@ class CustomerAggregationService
             }
 
             $key = $this->customerKey($booking, $guestName);
+            $key = $mergeMap[$key] ?? $key;
             $extra = is_array($booking->extra_data) ? $booking->extra_data : [];
             $nights = max(1, (int) $booking->check_in_date->diffInDays($booking->check_out_date));
             $cancelled = $booking->status === 'cancelled';

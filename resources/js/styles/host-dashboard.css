@@ -7543,6 +7543,24 @@ body {
     color: #1c2b23;
 }
 
+.host-customer-detail__merge-hint {
+    margin: 0;
+    font-size: 12px;
+    color: #8a9187;
+    line-height: 1.4;
+}
+
+.host-customer-detail__merge-select {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--vs-border);
+    background: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1c2b23;
+}
+
 .host-customer-detail__block {
     padding: 10px 14px;
     border-radius: 8px;
