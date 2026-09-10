@@ -72,6 +72,20 @@ class TeamController extends Controller
         return response()->json(['data' => $record]);
     }
 
+    public function remindInvitation(Request $request, int $invitation): JsonResponse
+    {
+        $record = $this->teams->remindInvitation($request->user(), $invitation);
+
+        if (! $record) {
+            return response()->json(['message' => 'Invitation not found.'], 404);
+        }
+
+        return response()->json([
+            'data' => $record,
+            'message' => 'Reminder sent.',
+        ]);
+    }
+
     public function destroyInvitation(Request $request, int $invitation): JsonResponse
     {
         if (! $this->teams->withdrawInvitation($request->user(), $invitation)) {

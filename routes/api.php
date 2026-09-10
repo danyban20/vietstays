@@ -74,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/team', [TeamController::class, 'index']);
     Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);
     Route::patch('/team/members/{member}/guest-info', [TeamController::class, 'updateGuestInfo']);
+    Route::post('/team/invitations/{invitation}/remind', [TeamController::class, 'remindInvitation']);
     Route::delete('/team/invitations/{invitation}', [TeamController::class, 'destroyInvitation']);
 
     Route::middleware('role:admin')->group(function () {
