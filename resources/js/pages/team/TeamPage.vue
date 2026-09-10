@@ -41,12 +41,98 @@
                     :placeholder="t('team.searchPlaceholder')"
                 />
             </div>
-            <button type="button" class="host-team-toolbar__btn">
-                {{ t('team.filter') }} ▾
-            </button>
-            <button type="button" class="host-team-toolbar__btn">
-                {{ t('team.sorting') }} ▾
-            </button>
+            <div class="host-team-toolbar__dropdown">
+                <button
+                    type="button"
+                    class="host-team-toolbar__btn"
+                    @click="filterOpen = !filterOpen; sortOpen = false"
+                >
+                    {{ t('team.filter') }}{{ activeFilterCount ? ` (${activeFilterCount})` : '' }} ▾
+                </button>
+                <div v-if="filterOpen" class="host-team-toolbar__menu">
+                    <div class="host-team-toolbar__menu-label">{{ t('team.filterByArea') }}</div>
+                    <button
+                        type="button"
+                        class="host-team-toolbar__menu-item"
+                        :class="{ 'host-team-toolbar__menu-item--active': filterArea === 'all' }"
+                        @click="filterArea = 'all'"
+                    >
+                        {{ t('team.allAreas') }}
+                    </button>
+                    <button
+                        v-for="area in areaOptions"
+                        :key="area"
+                        type="button"
+                        class="host-team-toolbar__menu-item"
+                        :class="{ 'host-team-toolbar__menu-item--active': filterArea === area }"
+                        @click="filterArea = area"
+                    >
+                        {{ area }}
+                    </button>
+
+                    <template v-if="activeTab !== 'invitations'">
+                        <div class="host-team-toolbar__menu-divider" />
+                        <div class="host-team-toolbar__menu-label">{{ t('team.filterByStatus') }}</div>
+                        <button
+                            type="button"
+                            class="host-team-toolbar__menu-item"
+                            :class="{ 'host-team-toolbar__menu-item--active': filterStatus === 'all' }"
+                            @click="filterStatus = 'all'"
+                        >
+                            {{ t('team.allStatuses') }}
+                        </button>
+                        <button
+                            v-for="statusOption in availableStatuses"
+                            :key="statusOption"
+                            type="button"
+                            class="host-team-toolbar__menu-item"
+                            :class="{ 'host-team-toolbar__menu-item--active': filterStatus === statusOption }"
+                            @click="filterStatus = statusOption"
+                        >
+                            {{ statusLabel(statusOption) }}
+                        </button>
+                    </template>
+
+                    <button
+                        v-if="activeFilterCount"
+                        type="button"
+                        class="host-team-toolbar__menu-clear"
+                        @click="clearFilters"
+                    >
+                        {{ t('team.clearFilters') }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="host-team-toolbar__dropdown">
+                <button
+                    type="button"
+                    class="host-team-toolbar__btn"
+                    @click="sortOpen = !sortOpen; filterOpen = false"
+                >
+                    {{ t('team.sorting') }} ▾
+                </button>
+                <div v-if="sortOpen" class="host-team-toolbar__menu">
+                    <button
+                        type="button"
+                        class="host-team-toolbar__menu-item"
+                        :class="{ 'host-team-toolbar__menu-item--active': !sortOption }"
+                        @click="sortOption = ''; sortOpen = false"
+                    >
+                        {{ t('team.sortDefault') }}
+                    </button>
+                    <button
+                        v-for="option in sortOptions"
+                        :key="option.key"
+                        type="button"
+                        class="host-team-toolbar__menu-item"
+                        :class="{ 'host-team-toolbar__menu-item--active': sortOption === option.key }"
+                        @click="sortOption = option.key; sortOpen = false"
+                    >
+                        {{ option.label }}
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div
@@ -91,7 +177,14 @@
                 <div>{{ invite.area }}</div>
                 <div class="host-team-muted">{{ invite.sent }}</div>
                 <div class="host-team-invite-actions">
-                    <button type="button" class="host-team-invite-actions__btn">{{ t('team.remind') }}</button>
+                    <button
+                        type="button"
+                        class="host-team-invite-actions__btn"
+                        :disabled="reminding === invite.id"
+                        @click="remindInvite(invite.id)"
+                    >
+                        {{ reminding === invite.id ? t('team.reminding') : t('team.remind') }}
+                    </button>
                     <button type="button" class="host-team-invite-actions__btn host-team-invite-actions__btn--danger" @click="withdrawInvite(invite.id)">
                         {{ t('team.withdraw') }}
                     </button>
@@ -256,11 +349,12 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import InviteTeamMemberModal from '@/components/modals/InviteTeamMemberModal.vue';
+import { useToast } from '@/composables/useToast';
 import {
     OPS_ROLE_DEFS,
     formatMillionsVnd,
@@ -274,6 +368,7 @@ import {
 
 const route = useRoute();
 const { t } = useI18n();
+const toast = useToast();
 
 const search = ref('');
 const activeTab = ref('all');
@@ -282,6 +377,12 @@ const inviteModalOpen = ref(false);
 const loading = ref(true);
 const error = ref('');
 const members = ref([]);
+const filterOpen = ref(false);
+const sortOpen = ref(false);
+const filterArea = ref('all');
+const filterStatus = ref('all');
+const sortOption = ref('');
+const reminding = ref(null);
 const invitations = ref([]);
 const teamStats = ref({});
 const areaOptions = ref([]);
@@ -391,25 +492,119 @@ const stats = computed(() => {
     ];
 });
 
-const visibleSalesRows = computed(() => members.value.filter((member) => {
-    if (!salesMatchesTab(member, activeTab.value)) {
+function matchesFilters(item) {
+    if (filterArea.value !== 'all' && item.area !== filterArea.value) {
+        return false;
+    }
+
+    if (filterStatus.value !== 'all' && item.status !== undefined && item.status !== filterStatus.value) {
+        return false;
+    }
+
+    return true;
+}
+
+function compareBy(a, b, field, numeric) {
+    if (numeric) {
+        return (Number(a[field]) || 0) - (Number(b[field]) || 0);
+    }
+
+    const va = String(a[field] ?? '').toLowerCase();
+    const vb = String(b[field] ?? '').toLowerCase();
+
+    return va < vb ? -1 : va > vb ? 1 : 0;
+}
+
+function sortRows(rows, key) {
+    if (!key) {
+        return rows;
+    }
+
+    const sorted = [...rows];
+
+    switch (key) {
+        case 'name_asc': return sorted.sort((a, b) => compareBy(a, b, 'name', false));
+        case 'name_desc': return sorted.sort((a, b) => -compareBy(a, b, 'name', false));
+        case 'apartments_desc': return sorted.sort((a, b) => -compareBy(a, b, 'apartments', true));
+        case 'bookings_desc': return sorted.sort((a, b) => -compareBy(a, b, 'bookings90', true));
+        case 'revenue_desc': return sorted.sort((a, b) => -compareBy(a, b, 'gross90', true));
+        case 'rating_desc': return sorted.sort((a, b) => -compareBy(a, b, 'rating', true));
+        case 'tasks_desc': return sorted.sort((a, b) => -compareBy(a, b, 'tasksWeek', true));
+        case 'tasks_asc': return sorted.sort((a, b) => compareBy(a, b, 'tasksWeek', true));
+        case 'sent_desc': return sorted.sort((a, b) => -compareBy(a, b, 'sentAt', false));
+        case 'sent_asc': return sorted.sort((a, b) => compareBy(a, b, 'sentAt', false));
+        default: return rows;
+    }
+}
+
+const availableStatuses = computed(() =>
+    Array.from(new Set(members.value.map((member) => member.status).filter(Boolean))),
+);
+
+const activeFilterCount = computed(() =>
+    (filterArea.value !== 'all' ? 1 : 0) + (filterStatus.value !== 'all' ? 1 : 0),
+);
+
+const sortOptions = computed(() => {
+    if (activeTab.value === 'invitations') {
+        return [
+            { key: 'name_asc', label: t('team.sortNameAsc') },
+            { key: 'name_desc', label: t('team.sortNameDesc') },
+            { key: 'sent_desc', label: t('team.sortSentDesc') },
+            { key: 'sent_asc', label: t('team.sortSentAsc') },
+        ];
+    }
+
+    if (isSales.value) {
+        return [
+            { key: 'name_asc', label: t('team.sortNameAsc') },
+            { key: 'name_desc', label: t('team.sortNameDesc') },
+            { key: 'apartments_desc', label: t('team.sortApartmentsDesc') },
+            { key: 'bookings_desc', label: t('team.sortBookingsDesc') },
+            { key: 'revenue_desc', label: t('team.sortRevenueDesc') },
+            { key: 'rating_desc', label: t('team.sortRatingDesc') },
+        ];
+    }
+
+    return [
+        { key: 'name_asc', label: t('team.sortNameAsc') },
+        { key: 'name_desc', label: t('team.sortNameDesc') },
+        { key: 'tasks_desc', label: t('team.sortTasksDesc') },
+        { key: 'tasks_asc', label: t('team.sortTasksAsc') },
+    ];
+});
+
+function clearFilters() {
+    filterArea.value = 'all';
+    filterStatus.value = 'all';
+}
+
+function closeToolbarMenus(event) {
+    if (!event.target.closest('.host-team-toolbar__dropdown')) {
+        filterOpen.value = false;
+        sortOpen.value = false;
+    }
+}
+
+const visibleSalesRows = computed(() => sortRows(members.value.filter((member) => {
+    if (!salesMatchesTab(member, activeTab.value) || !matchesFilters(member)) {
         return false;
     }
 
     return matchesSearch(`${member.name} ${member.org} ${member.area} ${member.func}`);
-}));
+}), sortOption.value));
 
-const visibleOpsRows = computed(() => members.value.filter((member) => {
-    if (!opsMatchesTab(member, activeTab.value)) {
+const visibleOpsRows = computed(() => sortRows(members.value.filter((member) => {
+    if (!opsMatchesTab(member, activeTab.value) || !matchesFilters(member)) {
         return false;
     }
 
     return matchesSearch(`${member.name} ${member.phone} ${member.area}`);
-}));
+}), sortOption.value));
 
-const visibleInvites = computed(() =>
-    invitations.value.filter((invite) => matchesSearch(`${invite.name} ${invite.email} ${invite.role}`)),
-);
+const visibleInvites = computed(() => sortRows(invitations.value.filter((invite) =>
+    matchesFilters(invite) && matchesSearch(`${invite.name} ${invite.email} ${invite.role}`)
+), sortOption.value));
 
 async function loadTeam() {
     loading.value = true;
@@ -463,12 +658,39 @@ async function withdrawInvite(id) {
     }
 }
 
+async function remindInvite(id) {
+    if (reminding.value) {
+        return;
+    }
+
+    reminding.value = id;
+
+    try {
+        await apiClient.post(`/team/invitations/${id}/remind`);
+        await loadTeam();
+        toast.show(t('team.reminderSent'));
+    } catch (err) {
+        toast.show(err.message ?? t('team.reminderFailed'));
+    } finally {
+        reminding.value = null;
+    }
+}
+
 watch(() => route.meta.teamMode, () => {
     activeTab.value = 'all';
+    clearFilters();
+    sortOption.value = '';
     loadTeam();
 });
 
-onMounted(loadTeam);
+onMounted(() => {
+    loadTeam();
+    document.addEventListener('click', closeToolbarMenus);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', closeToolbarMenus);
+});
 
 function formatCommission(amount) {
     if (!amount) {

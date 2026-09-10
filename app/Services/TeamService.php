@@ -104,6 +104,19 @@ class TeamService
             ->delete();
     }
 
+    public function remindInvitation(User $user, int $invitationId): ?array
+    {
+        $invite = $this->scopedInvitationsQuery($user)->whereKey($invitationId)->first();
+
+        if (! $invite) {
+            return null;
+        }
+
+        $invite->update(['sent_at' => now()]);
+
+        return $this->presentInvitation($invite->fresh());
+    }
+
     protected function scopedMembersQuery(User $user, ?string $teamType = null): Builder
     {
         $query = HostTeamMember::query()->where('user_id', $user->id);
@@ -292,6 +305,7 @@ class TeamService
     protected function presentInvitation(HostTeamInvitation $invite): array
     {
         $color = self::AVATAR_COLORS[abs(crc32($invite->email ?: $invite->phone ?: $invite->name)) % count(self::AVATAR_COLORS)];
+        $sentAt = $invite->sent_at ?? $invite->created_at;
 
         return [
             'id' => (string) $invite->id,
@@ -299,7 +313,8 @@ class TeamService
             'email' => $invite->email ?: $invite->phone,
             'role' => $invite->role,
             'area' => $invite->area,
-            'sent' => $this->relativeSentLabel($invite->sent_at ?? $invite->created_at),
+            'sent' => $this->relativeSentLabel($sentAt),
+            'sentAt' => $sentAt?->toIso8601String(),
             'bg' => $color,
         ];
     }
