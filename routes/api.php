@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/customers', [CustomerController::class, 'store']);
     Route::get('/customers/export', [CustomerController::class, 'export']);
     Route::get('/customers/{customer}', [CustomerController::class, 'show']);
+    Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote']);
 
     Route::get('/team', [TeamController::class, 'index']);
     Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);

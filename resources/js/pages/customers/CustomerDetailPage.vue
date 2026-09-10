@@ -117,8 +117,8 @@
                     <p class="host-customer-detail__notice">{{ t('customers.notesNotice') }}</p>
                     <div class="host-customer-detail__note-form">
                         <input v-model="noteDraft" type="text" class="host-customer-detail__note-input" :placeholder="t('customers.notePlaceholder')" />
-                        <button type="button" class="host-btn host-btn--primary" :disabled="!noteDraft.trim()" @click="saveNote">
-                            {{ t('customers.saveNote') }}
+                        <button type="button" class="host-btn host-btn--primary" :disabled="!noteDraft.trim() || savingNote" @click="saveNote">
+                            {{ savingNote ? t('customers.savingNote') : t('customers.saveNote') }}
                         </button>
                     </div>
                     <article v-for="(note, index) in notes" :key="`${note.when}-${index}`" class="host-customer-detail__note">
@@ -176,9 +176,11 @@ import {
     statusStyle,
 } from '@/data/customers-content.js';
 import { usePageTitle } from '@/composables/usePageTitle';
+import { useToast } from '@/composables/useToast';
 
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
 const { t } = useI18n();
 const { setPageTitle, clearPageTitle } = usePageTitle();
 
@@ -187,15 +189,9 @@ const loading = ref(true);
 const error = ref('');
 const activeTab = ref('bookings');
 const noteDraft = ref('');
-const localNotes = ref([]);
+const savingNote = ref(false);
 
-const notes = computed(() => {
-    if (!customer.value) {
-        return [];
-    }
-
-    return [...localNotes.value, ...(customer.value.notes ?? [])];
-});
+const notes = computed(() => customer.value?.notes ?? []);
 
 const segmentStyles = computed(() => {
     if (!customer.value) {
@@ -310,17 +306,23 @@ watch(customer, (value) => {
 
 onUnmounted(clearPageTitle);
 
-function saveNote() {
+async function saveNote() {
     const text = noteDraft.value.trim();
 
-    if (!text) {
+    if (!text || savingNote.value) {
         return;
     }
 
-    localNotes.value = [
-        { who: 'You', when: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), text },
-        ...localNotes.value,
-    ];
-    noteDraft.value = '';
+    savingNote.value = true;
+
+    try {
+        const res = await apiClient.post(`/customers/${route.params.id}/notes`, { text });
+        customer.value = res?.data ?? customer.value;
+        noteDraft.value = '';
+    } catch (err) {
+        toast.show(err.message ?? t('customers.noteSaveFailed'));
+    } finally {
+        savingNote.value = false;
+    }
 }
 </script>

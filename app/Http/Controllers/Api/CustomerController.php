@@ -49,6 +49,24 @@ class CustomerController extends Controller
         return response()->json(['data' => $record]);
     }
 
+    public function storeNote(Request $request, string $customer): JsonResponse
+    {
+        $validated = $request->validate([
+            'text' => ['required', 'string', 'max:2000'],
+        ]);
+
+        try {
+            $record = $this->customers->addNote($request->user(), $customer, $validated['text']);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 404);
+        }
+
+        return response()->json([
+            'data' => $record,
+            'message' => 'Note saved.',
+        ], 201);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([

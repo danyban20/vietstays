@@ -456,6 +456,8 @@ const englishMessages = {
         notesNotice: 'Internal notes are shared with your team but never shown to the customer.',
         notePlaceholder: 'Write a note about the customer…',
         saveNote: 'Save note',
+        savingNote: 'Saving…',
+        noteSaveFailed: 'Could not save the note.',
         noNotes: 'No notes yet.',
         noDocs: 'No documents uploaded for this customer.',
         prefsNotice: 'Preferences come from previous stays and messages — use them to prepare the next check-in.',

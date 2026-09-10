@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Booking;
 use App\Models\HostCustomer;
+use App\Models\HostCustomerNote;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -87,11 +88,50 @@ class CustomerAggregationService
     {
         foreach ($this->buildCustomerList($user) as $customer) {
             if ($customer['id'] === $id) {
+                $customer['notes'] = array_merge(
+                    $this->persistedNotes($user, $id),
+                    $customer['notes'] ?? [],
+                );
+
                 return $customer;
             }
         }
 
         return null;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function persistedNotes(User $user, string $customerId): array
+    {
+        return HostCustomerNote::query()
+            ->where('user_id', $user->id)
+            ->where('customer_key', $customerId)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn (HostCustomerNote $note) => [
+                'who' => $note->author ?: $user->name,
+                'when' => $note->created_at->format('j M Y'),
+                'text' => $note->text,
+            ])
+            ->all();
+    }
+
+    public function addNote(User $user, string $customerId, string $text): array
+    {
+        if (! $this->findCustomer($user, $customerId)) {
+            throw new \InvalidArgumentException('Customer not found.');
+        }
+
+        HostCustomerNote::query()->create([
+            'user_id' => $user->id,
+            'customer_key' => $customerId,
+            'author' => $user->name,
+            'text' => $text,
+        ]);
+
+        return $this->findCustomer($user, $customerId) ?? [];
     }
 
     /**
