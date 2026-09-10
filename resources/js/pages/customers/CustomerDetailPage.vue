@@ -117,8 +117,8 @@
                     <p class="host-customer-detail__notice">{{ t('customers.notesNotice') }}</p>
                     <div class="host-customer-detail__note-form">
                         <input v-model="noteDraft" type="text" class="host-customer-detail__note-input" :placeholder="t('customers.notePlaceholder')" />
-                        <button type="button" class="host-btn host-btn--primary" :disabled="!noteDraft.trim()" @click="saveNote">
-                            {{ t('customers.saveNote') }}
+                        <button type="button" class="host-btn host-btn--primary" :disabled="!noteDraft.trim() || savingNote" @click="saveNote">
+                            {{ savingNote ? t('customers.savingNote') : t('customers.saveNote') }}
                         </button>
                     </div>
                     <article v-for="(note, index) in notes" :key="`${note.when}-${index}`" class="host-customer-detail__note">
@@ -158,6 +158,25 @@
                     <button type="button" class="host-btn host-btn--ghost">{{ t('customers.personalDiscount') }}</button>
                     <button type="button" class="host-customer-detail__block">{{ t('customers.blockCustomer') }}</button>
                 </div>
+
+                <div class="host-customer-detail__actions host-customer-detail__merge">
+                    <h3>{{ t('customers.mergeTitle') }}</h3>
+                    <p class="host-customer-detail__merge-hint">{{ t('customers.mergeHint') }}</p>
+                    <select v-model="mergeTargetId" class="host-customer-detail__merge-select">
+                        <option value="">{{ t('customers.mergeSelectPlaceholder') }}</option>
+                        <option v-for="candidate in mergeCandidates" :key="candidate.id" :value="candidate.id">
+                            {{ candidate.name }} · {{ candidate.email }}
+                        </option>
+                    </select>
+                    <button
+                        type="button"
+                        class="host-btn host-btn--ghost"
+                        :disabled="!mergeTargetId || merging"
+                        @click="mergeDuplicate"
+                    >
+                        {{ merging ? t('customers.merging') : t('customers.mergeAction') }}
+                    </button>
+                </div>
             </aside>
         </div>
         </div>
@@ -176,9 +195,11 @@ import {
     statusStyle,
 } from '@/data/customers-content.js';
 import { usePageTitle } from '@/composables/usePageTitle';
+import { useToast } from '@/composables/useToast';
 
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
 const { t } = useI18n();
 const { setPageTitle, clearPageTitle } = usePageTitle();
 
@@ -186,16 +207,17 @@ const customer = ref(null);
 const loading = ref(true);
 const error = ref('');
 const activeTab = ref('bookings');
+const otherCustomers = ref([]);
+const mergeTargetId = ref('');
+const merging = ref(false);
+
+const mergeCandidates = computed(() =>
+    otherCustomers.value.filter((c) => c.id !== route.params.id),
+);
 const noteDraft = ref('');
-const localNotes = ref([]);
+const savingNote = ref(false);
 
-const notes = computed(() => {
-    if (!customer.value) {
-        return [];
-    }
-
-    return [...localNotes.value, ...(customer.value.notes ?? [])];
-});
+const notes = computed(() => customer.value?.notes ?? []);
 
 const segmentStyles = computed(() => {
     if (!customer.value) {
@@ -300,7 +322,46 @@ async function loadCustomer() {
     }
 }
 
+async function loadOtherCustomers() {
+    try {
+        const response = await apiClient.get('/customers');
+        otherCustomers.value = Array.isArray(response.data) ? response.data : [];
+    } catch {
+        otherCustomers.value = [];
+    }
+}
+
+async function mergeDuplicate() {
+    if (!mergeTargetId.value || merging.value) {
+        return;
+    }
+
+    const duplicate = mergeCandidates.value.find((c) => c.id === mergeTargetId.value);
+    const label = duplicate?.name ?? '';
+
+    if (!window.confirm(t('customers.mergeConfirm', { name: label }))) {
+        return;
+    }
+
+    merging.value = true;
+
+    try {
+        const res = await apiClient.post(`/customers/${route.params.id}/merge`, {
+            duplicate_id: mergeTargetId.value,
+        });
+        customer.value = res?.data ?? customer.value;
+        mergeTargetId.value = '';
+        toast.show(t('customers.mergeSuccess'));
+        await loadOtherCustomers();
+    } catch (err) {
+        toast.show(err.message ?? t('customers.mergeFailed'));
+    } finally {
+        merging.value = false;
+    }
+}
+
 watch(() => route.params.id, loadCustomer, { immediate: true });
+watch(() => route.params.id, loadOtherCustomers, { immediate: true });
 
 watch(customer, (value) => {
     if (value) {
@@ -310,17 +371,23 @@ watch(customer, (value) => {
 
 onUnmounted(clearPageTitle);
 
-function saveNote() {
+async function saveNote() {
     const text = noteDraft.value.trim();
 
-    if (!text) {
+    if (!text || savingNote.value) {
         return;
     }
 
-    localNotes.value = [
-        { who: 'You', when: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), text },
-        ...localNotes.value,
-    ];
-    noteDraft.value = '';
+    savingNote.value = true;
+
+    try {
+        const res = await apiClient.post(`/customers/${route.params.id}/notes`, { text });
+        customer.value = res?.data ?? customer.value;
+        noteDraft.value = '';
+    } catch (err) {
+        toast.show(err.message ?? t('customers.noteSaveFailed'));
+    } finally {
+        savingNote.value = false;
+    }
 }
 </script>
