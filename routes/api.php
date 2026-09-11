@@ -12,9 +12,11 @@ use App\Http\Controllers\Api\LanguageSettingsController;
 use App\Http\Controllers\Api\LocaleController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\ManagementCompanyController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PublicApartmentController;
 use App\Http\Controllers\Api\PublicBookingController;
 use App\Http\Controllers\Api\PublicHostApplicationController;
+use App\Http\Controllers\Api\PublicMessageController;
 use App\Http\Controllers\Api\PublicTeamInvitationController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TeamController;
@@ -31,6 +33,8 @@ Route::post('/public/bookings/quote', [PublicBookingController::class, 'quote'])
 Route::post('/public/bookings', [PublicBookingController::class, 'store']);
 Route::get('/public/team-invitations/{token}', [PublicTeamInvitationController::class, 'show']);
 Route::post('/public/team-invitations/{token}/accept', [PublicTeamInvitationController::class, 'accept']);
+Route::get('/public/messages/{token}', [PublicMessageController::class, 'show']);
+Route::post('/public/messages/{token}', [PublicMessageController::class, 'store']);
 
 Route::get('/locales', [LocaleController::class, 'index']);
 Route::get('/locales/{locale}/messages', [LocaleController::class, 'messages']);
@@ -73,7 +77,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/customers/export', [CustomerController::class, 'export']);
     Route::get('/customers/{customer}', [CustomerController::class, 'show']);
     Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote']);
+    Route::get('/customers/{customer}/messages', [CustomerController::class, 'messages']);
+    Route::post('/customers/{customer}/messages', [CustomerController::class, 'storeMessage']);
     Route::post('/customers/{customer}/merge', [CustomerController::class, 'merge']);
+
+    Route::get('/messages', [MessageController::class, 'index']);
 
     Route::get('/team', [TeamController::class, 'index']);
     Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);

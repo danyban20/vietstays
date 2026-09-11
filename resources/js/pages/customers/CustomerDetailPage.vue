@@ -152,7 +152,7 @@
             <aside class="host-customer-detail__rail">
                 <div class="host-customer-detail__actions">
                     <h3>{{ t('customers.actionsTitle') }}</h3>
-                    <button type="button" class="host-btn host-btn--primary">{{ t('customers.sendMessage') }}</button>
+                    <button type="button" class="host-btn host-btn--primary" @click="goToMessages">{{ t('customers.sendMessage') }}</button>
                     <button type="button" class="host-btn host-btn--ghost">{{ t('customers.shareListings') }}</button>
                     <button type="button" class="host-btn host-btn--ghost" @click="createBooking">{{ t('customers.createBooking') }}</button>
                     <button type="button" class="host-btn host-btn--ghost">{{ t('customers.personalDiscount') }}</button>
@@ -285,6 +285,10 @@ function bookingStatus(status) {
 
 function goBack() {
     router.push({ name: 'customers' });
+}
+
+function goToMessages() {
+    router.push({ name: 'messages', query: { customer: route.params.id } });
 }
 
 function createBooking() {

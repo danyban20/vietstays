@@ -22,6 +22,7 @@ return [
         'host_welcome',
         'host_activation_reminder',
         'team_invitation',
+        'guest_message',
     ],
 
     'email_locales' => [

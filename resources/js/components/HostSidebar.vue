@@ -78,10 +78,14 @@
 
         <nav class="host-sidebar__group host-sidebar__group--bottom">
             <div class="host-sidebar__group-title">{{ t('nav.communicationAccount') }}</div>
-            <span class="host-sidebar__link host-sidebar__link--disabled">
+            <router-link
+                :to="{ name: 'messages' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('messages') }"
+            >
                 <SidebarIcon name="communication" />
                 <span class="host-sidebar__label">{{ t('nav.communication') }}</span>
-            </span>
+            </router-link>
             <span class="host-sidebar__link host-sidebar__link--disabled">
                 <SidebarIcon name="marketing" />
                 <span class="host-sidebar__label">{{ t('nav.marketing') }}</span>

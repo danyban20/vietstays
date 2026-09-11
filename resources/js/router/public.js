@@ -37,6 +37,11 @@ const routes = [
                 name: 'team-invitation-accept',
                 component: () => import('@/pages/public/TeamInvitationAcceptPage.vue'),
             },
+            {
+                path: 'messages/:token',
+                name: 'guest-message-thread',
+                component: () => import('@/pages/public/GuestMessageThreadPage.vue'),
+            },
         ],
     },
 ];
