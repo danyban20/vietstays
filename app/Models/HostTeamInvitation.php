@@ -17,11 +17,13 @@ class HostTeamInvitation extends Model
         'email',
         'phone',
         'role',
+        'role_key',
         'area',
         'permissions',
         'pay_rate',
         'pay_setup',
         'org',
+        'token',
         'sent_at',
     ];
 

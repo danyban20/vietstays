@@ -257,8 +257,8 @@
         <div class="host-mgmt-wizard__footer">
             <button type="button" class="host-btn host-btn--ghost" @click="onBack">{{ t('mgmtCompany.back') }}</button>
             <span class="host-mgmt-wizard__hint">{{ stepHint }}</span>
-            <button type="button" class="host-btn host-btn--primary" :disabled="!canProceed" @click="onNext">
-                {{ step === 4 ? t('mgmtCompany.createCompany') : t('mgmtCompany.next') }}
+            <button type="button" class="host-btn host-btn--primary" :disabled="!canProceed || saving" @click="onNext">
+                {{ step === 4 ? (saving ? t('mgmtCompany.creating') : t('mgmtCompany.createCompany')) : t('mgmtCompany.next') }}
             </button>
         </div>
     </div>
@@ -278,6 +278,10 @@ import {
     splitMemberRows,
     suggestedShares,
 } from '@/data/management-company-content.js';
+
+defineProps({
+    saving: { type: Boolean, default: false },
+});
 
 const emit = defineEmits(['cancel', 'complete']);
 

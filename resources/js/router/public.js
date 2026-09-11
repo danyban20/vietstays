@@ -32,6 +32,11 @@ const routes = [
                 name: 'host-application',
                 component: () => import('@/pages/public/HostApplicationPage.vue'),
             },
+            {
+                path: 'team-invite/:token',
+                name: 'team-invitation-accept',
+                component: () => import('@/pages/public/TeamInvitationAcceptPage.vue'),
+            },
         ],
     },
 ];

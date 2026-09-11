@@ -342,6 +342,7 @@ async function submit() {
             email,
             phone,
             role: roleLabel(form.role),
+            role_key: form.role,
             area: form.area,
             permissions: form.permissions,
             pay_rate: showPaySection.value && paySetup.value !== 'pooled' ? form.pay_rate : null,

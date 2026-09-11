@@ -21,6 +21,7 @@ return [
         'host_application_rejected',
         'host_welcome',
         'host_activation_reminder',
+        'team_invitation',
     ],
 
     'email_locales' => [

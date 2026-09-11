@@ -25,6 +25,12 @@
                     <button type="button" class="host-btn host-btn--ghost" @click="assignModalOpen = true">
                         {{ t('team.editAgreement') }}
                     </button>
+                    <button type="button" class="host-btn host-btn--ghost" @click="onToggleStatus">
+                        {{ member.status === 'active' ? t('team.pauseMember') : t('team.activateMember') }}
+                    </button>
+                    <button type="button" class="host-btn host-btn--ghost host-btn--danger" @click="onRemoveMember">
+                        {{ t('team.removeMember') }}
+                    </button>
                 </div>
             </div>
 
@@ -137,16 +143,19 @@
 <script setup>
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api/client';
 import AssignApartmentsModal from '@/components/modals/AssignApartmentsModal.vue';
+import { useToast } from '@/composables/useToast';
 import { usePageTitle } from '@/composables/usePageTitle';
 import { matchCodeFromApartmentName } from '@/utils/apartment-match-code';
 import { formatPeriodShort, formatStatus, formatVnd } from '@/utils/format';
 import { formatMillionsVnd, initials } from '@/data/team-content';
 
 const route = useRoute();
+const router = useRouter();
 const { t, locale } = useI18n();
+const toast = useToast();
 const { setPageTitle, clearPageTitle } = usePageTitle();
 
 const loading = ref(true);
@@ -218,6 +227,36 @@ function onAssigned(data) {
     discountFilters.value = data.discountFilters ?? discountFilters.value;
     assignedApartmentIds.value = data.assignedApartmentIds ?? assignedApartmentIds.value;
     bookings.value = data.bookings ?? bookings.value;
+}
+
+async function onToggleStatus() {
+    if (!member.value) {
+        return;
+    }
+
+    const nextStatus = member.value.status === 'active' ? 'paused' : 'active';
+
+    try {
+        const response = await apiClient.patch(`/team/members/${member.value.id}/status`, { status: nextStatus });
+        member.value = { ...member.value, status: response.data?.status ?? nextStatus };
+        toast.show(nextStatus === 'paused' ? t('team.memberPaused') : t('team.memberActivated'));
+    } catch (err) {
+        toast.show(err.message ?? t('team.memberStatusFailed'));
+    }
+}
+
+async function onRemoveMember() {
+    if (!member.value || !window.confirm(t('team.removeMemberConfirm', { name: member.value.name }))) {
+        return;
+    }
+
+    try {
+        await apiClient.delete(`/team/members/${member.value.id}`);
+        toast.show(t('team.memberRemoved'));
+        router.push({ name: 'team-sales' });
+    } catch (err) {
+        toast.show(err.message ?? t('team.memberRemoveFailed'));
+    }
 }
 
 watch(() => route.params.id, loadMember, { immediate: true });

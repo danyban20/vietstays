@@ -10,9 +10,16 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TeamService
 {
+    public function __construct(
+        protected VvEmailService $emailService,
+    ) {}
+
+
     private const AVATAR_COLORS = [
         '#12352b',
         '#1f7a44',
@@ -74,13 +81,17 @@ class TeamService
             'email' => $email,
             'phone' => $phone,
             'role' => (string) $data['role'],
+            'role_key' => filled($data['role_key'] ?? null) ? (string) $data['role_key'] : null,
             'area' => filled($data['area'] ?? null) ? trim((string) $data['area']) : null,
             'permissions' => $data['permissions'] ?? [],
             'pay_rate' => isset($data['pay_rate']) ? (int) $data['pay_rate'] : null,
             'pay_setup' => $data['pay_setup'] ?? null,
             'org' => filled($data['org'] ?? null) ? trim((string) $data['org']) : null,
+            'token' => Str::random(48),
             'sent_at' => now(),
         ]);
+
+        $this->sendInvitationEmail($user, $record);
 
         return $this->presentInvitation($record);
     }
@@ -115,9 +126,144 @@ class TeamService
             return null;
         }
 
-        $invite->update(['sent_at' => now()]);
+        if (blank($invite->token)) {
+            $invite->token = Str::random(48);
+        }
+
+        $invite->sent_at = now();
+        $invite->save();
+
+        $this->sendInvitationEmail($user, $invite);
 
         return $this->presentInvitation($invite->fresh());
+    }
+
+    public function invitationPreview(string $token): ?array
+    {
+        $invite = HostTeamInvitation::query()->where('token', $token)->first();
+
+        if (! $invite) {
+            return null;
+        }
+
+        $owner = User::query()->find($invite->user_id);
+
+        return [
+            'name' => $invite->name,
+            'role' => $invite->role,
+            'area' => $invite->area,
+            'teamType' => $invite->team_type,
+            'org' => $invite->org,
+            'inviterName' => $owner?->name ?? 'Vietstays host',
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function acceptInvitation(string $token): ?array
+    {
+        return DB::transaction(function () use ($token) {
+            $invite = HostTeamInvitation::query()->where('token', $token)->lockForUpdate()->first();
+
+            if (! $invite) {
+                return null;
+            }
+
+            $attributes = $this->memberAttributesFromInvitation($invite);
+
+            $member = HostTeamMember::query()->create([
+                'user_id' => $invite->user_id,
+                'legacy_host_id' => $invite->legacy_host_id,
+                'team_type' => $invite->team_type,
+                'name' => $invite->name,
+                'email' => $invite->email,
+                'phone' => $invite->phone,
+                'org' => $invite->org,
+                'area' => $invite->area,
+                'permissions' => $invite->permissions,
+                'status' => 'active',
+                ...$attributes,
+            ]);
+
+            $invite->delete();
+
+            return [
+                'teamType' => $member->team_type,
+                'member' => $this->presentMember($member),
+            ];
+        });
+    }
+
+    public function updateMemberStatus(User $user, int $memberId, string $status): ?array
+    {
+        $member = $this->scopedMembersQuery($user)->whereKey($memberId)->first();
+
+        if (! $member) {
+            return null;
+        }
+
+        $member->update(['status' => $status]);
+
+        return $this->presentMember($member->fresh());
+    }
+
+    public function removeMember(User $user, int $memberId): bool
+    {
+        $member = $this->scopedMembersQuery($user)->whereKey($memberId)->first();
+
+        if (! $member) {
+            return false;
+        }
+
+        $member->apartments()->detach();
+        $member->delete();
+
+        return true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function memberAttributesFromInvitation(HostTeamInvitation $invite): array
+    {
+        if ($invite->team_type === 'sales') {
+            $map = [
+                'host_internal' => ['member_type' => 'host', 'link' => 'internal', 'func' => 'Host', 'pooled' => true, 'out_pct' => 0],
+                'cohost_external' => ['member_type' => 'host', 'link' => 'external', 'func' => 'Co-host', 'pooled' => false, 'out_pct' => (int) ($invite->pay_rate ?? 0)],
+                'host_agent' => ['member_type' => 'agent', 'link' => 'internal', 'func' => 'Host Agent', 'pooled' => false, 'out_pct' => (int) ($invite->pay_rate ?? 0)],
+            ];
+
+            return $map[$invite->role_key] ?? ['member_type' => 'host', 'link' => 'internal', 'func' => $invite->role, 'pooled' => $invite->pay_setup === 'pooled', 'out_pct' => (int) ($invite->pay_rate ?? 0)];
+        }
+
+        return [
+            'roles' => $invite->role_key ? [$invite->role_key] : [],
+        ];
+    }
+
+    protected function sendInvitationEmail(User $inviter, HostTeamInvitation $invite): void
+    {
+        if (blank($invite->email)) {
+            return;
+        }
+
+        $tokens = [
+            'NAME' => (string) $invite->name,
+            'INVITER_NAME' => (string) ($inviter->name ?: 'Vietstays host'),
+            'ROLE' => (string) $invite->role,
+            'AREA_LINE' => filled($invite->area) ? " for {$invite->area}" : '',
+            'ACCEPT_LINK' => $this->invitationAcceptLink($invite),
+        ];
+
+        $this->emailService->sendByCode('team_invitation', (string) $invite->email, $tokens);
+    }
+
+    protected function invitationAcceptLink(HostTeamInvitation $invite): string
+    {
+        $base = rtrim((string) config('app.url'), '/');
+
+        return $base.'/team-invite/'.$invite->token;
     }
 
     /**

@@ -39,6 +39,7 @@ class TeamController extends Controller
             'pay_rate' => ['nullable', 'integer', 'min:0', 'max:100'],
             'pay_setup' => ['nullable', Rule::in(['pooled', 'reciprocal', 'one_way'])],
             'org' => ['nullable', 'string', 'max:255'],
+            'role_key' => ['nullable', 'string', 'max:30'],
         ]);
 
         if (blank($validated['email'] ?? null) && blank($validated['phone'] ?? null)) {
@@ -100,6 +101,30 @@ class TeamController extends Controller
         }
 
         return response()->json(['data' => $record]);
+    }
+
+    public function updateMemberStatus(Request $request, int $member): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['active', 'paused'])],
+        ]);
+
+        $record = $this->teams->updateMemberStatus($request->user(), $member, $validated['status']);
+
+        if (! $record) {
+            return response()->json(['message' => 'Team member not found.'], 404);
+        }
+
+        return response()->json(['data' => $record]);
+    }
+
+    public function destroyMember(Request $request, int $member): JsonResponse
+    {
+        if (! $this->teams->removeMember($request->user(), $member)) {
+            return response()->json(['message' => 'Team member not found.'], 404);
+        }
+
+        return response()->json(['message' => 'Team member removed.']);
     }
 
     public function remindInvitation(Request $request, int $invitation): JsonResponse
