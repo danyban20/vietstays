@@ -67,6 +67,41 @@ class CustomerController extends Controller
         ], 201);
     }
 
+    public function messages(Request $request, string $customer): JsonResponse
+    {
+        if (! $this->customers->findCustomer($request->user(), $customer)) {
+            return response()->json(['message' => 'Customer not found.'], 404);
+        }
+
+        return response()->json([
+            'data' => $this->customers->threadMessages($request->user(), $customer),
+        ]);
+    }
+
+    public function storeMessage(Request $request, string $customer): JsonResponse
+    {
+        $validated = $request->validate([
+            'text' => ['required', 'string', 'max:4000'],
+            'booking_id' => ['nullable', 'integer'],
+        ]);
+
+        try {
+            $record = $this->customers->sendHostMessage(
+                $request->user(),
+                $customer,
+                $validated['text'],
+                $validated['booking_id'] ?? null,
+            );
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 404);
+        }
+
+        return response()->json([
+            'data' => $record,
+            'message' => 'Message sent.',
+        ], 201);
+    }
+
     public function merge(Request $request, string $customer): JsonResponse
     {
         $validated = $request->validate([

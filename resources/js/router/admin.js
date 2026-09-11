@@ -127,6 +127,12 @@ const routes = [
                 component: () => import('@/pages/customers/CustomerDetailPage.vue'),
                 meta: { breadcrumbKey: 'nav.customers', detailShell: true },
             },
+            {
+                path: 'messages',
+                name: 'messages',
+                component: () => import('@/pages/messages/MessagesPage.vue'),
+                meta: { breadcrumbKey: 'nav.communication', detailShell: true },
+            },
         ],
     },
 ];
