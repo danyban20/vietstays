@@ -23,8 +23,11 @@
             </button>
         </div>
 
+        <p v-if="loading" class="host-team-empty">{{ t('common.loading') }}</p>
+
         <ManagementCompanyWizard
-            v-if="mode === 'setup'"
+            v-else-if="mode === 'setup'"
+            :saving="saving"
             @cancel="cancelSetup"
             @complete="onComplete"
         />
@@ -111,17 +114,22 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import apiClient from '@/api/client';
+import { useToast } from '@/composables/useToast';
 import SidebarIcon from '@/components/SidebarIcon.vue';
 import ManagementCompanyWizard from '@/components/management/ManagementCompanyWizard.vue';
 import ManagementCompanyActive from '@/components/management/ManagementCompanyActive.vue';
 
 const { t } = useI18n();
+const toast = useToast();
 
 const mode = ref('empty');
 const company = ref(null);
 const apartmentCount = ref(11);
+const loading = ref(true);
+const saving = ref(false);
 
 const pageTitle = computed(() => {
     if (mode.value === 'setup') {
@@ -176,11 +184,42 @@ function startSetup() {
 }
 
 function cancelSetup() {
-    mode.value = 'empty';
+    mode.value = company.value ? 'active' : 'empty';
 }
 
-function onComplete(payload) {
-    company.value = payload;
-    mode.value = 'active';
+async function loadCompany() {
+    loading.value = true;
+
+    try {
+        const response = await apiClient.get('/management-company');
+        company.value = response.data ?? null;
+        mode.value = company.value ? 'active' : 'empty';
+    } catch {
+        company.value = null;
+        mode.value = 'empty';
+    } finally {
+        loading.value = false;
+    }
 }
+
+async function onComplete(payload) {
+    if (saving.value) {
+        return;
+    }
+
+    saving.value = true;
+
+    try {
+        const response = await apiClient.post('/management-company', payload);
+        company.value = response.data ?? payload;
+        mode.value = 'active';
+        toast.show(response.message || t('mgmtCompany.saved'));
+    } catch (err) {
+        toast.show(err.message || t('mgmtCompany.saveFailed'));
+    } finally {
+        saving.value = false;
+    }
+}
+
+onMounted(loadCompany);
 </script>

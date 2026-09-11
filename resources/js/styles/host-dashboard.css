@@ -381,6 +381,12 @@ body {
     color: var(--vs-draft-text);
 }
 
+.host-btn--danger {
+    background: transparent;
+    color: #c4502a;
+    border-color: #eecabb;
+}
+
 /* ── Panels & cards ── */
 
 .host-panel {
@@ -5346,6 +5352,24 @@ body {
 .host-team-menu:hover {
     background: #f2ead9;
     color: #12352b;
+}
+
+.host-team-row-menu {
+    position: relative;
+    justify-self: center;
+}
+
+.host-team-row-menu__dropdown {
+    top: calc(100% + 4px);
+    min-width: 160px;
+}
+
+.host-team-toolbar__menu-item--danger {
+    color: #c4502a;
+}
+
+.host-team-toolbar__menu-item--danger:hover {
+    background: #fbe9e1;
 }
 
 /* ── Sales team member detail ── */

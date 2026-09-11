@@ -11,9 +11,11 @@ use App\Http\Controllers\Api\HostApplicationController;
 use App\Http\Controllers\Api\LanguageSettingsController;
 use App\Http\Controllers\Api\LocaleController;
 use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\ManagementCompanyController;
 use App\Http\Controllers\Api\PublicApartmentController;
 use App\Http\Controllers\Api\PublicBookingController;
 use App\Http\Controllers\Api\PublicHostApplicationController;
+use App\Http\Controllers\Api\PublicTeamInvitationController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\UserAdminController;
@@ -27,6 +29,8 @@ Route::get('/public/host-applications/options', [PublicHostApplicationController
 Route::post('/public/host-applications', [PublicHostApplicationController::class, 'store']);
 Route::post('/public/bookings/quote', [PublicBookingController::class, 'quote']);
 Route::post('/public/bookings', [PublicBookingController::class, 'store']);
+Route::get('/public/team-invitations/{token}', [PublicTeamInvitationController::class, 'show']);
+Route::post('/public/team-invitations/{token}/accept', [PublicTeamInvitationController::class, 'accept']);
 
 Route::get('/locales', [LocaleController::class, 'index']);
 Route::get('/locales/{locale}/messages', [LocaleController::class, 'messages']);
@@ -76,8 +80,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/team/members/{member}', [TeamController::class, 'showMember']);
     Route::patch('/team/members/{member}/apartments', [TeamController::class, 'assignApartments']);
     Route::patch('/team/members/{member}/guest-info', [TeamController::class, 'updateGuestInfo']);
+    Route::patch('/team/members/{member}/status', [TeamController::class, 'updateMemberStatus']);
+    Route::delete('/team/members/{member}', [TeamController::class, 'destroyMember']);
     Route::post('/team/invitations/{invitation}/remind', [TeamController::class, 'remindInvitation']);
     Route::delete('/team/invitations/{invitation}', [TeamController::class, 'destroyInvitation']);
+
+    Route::get('/management-company', [ManagementCompanyController::class, 'show']);
+    Route::post('/management-company', [ManagementCompanyController::class, 'store']);
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/users', [UserAdminController::class, 'index']);

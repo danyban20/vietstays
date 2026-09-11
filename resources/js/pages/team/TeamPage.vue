@@ -261,7 +261,17 @@
                         {{ statusLabel(member.status) }}
                     </span>
                 </div>
-                <div class="host-team-menu">⋮</div>
+                <div class="host-team-row-menu" @click.stop>
+                    <button type="button" class="host-team-menu" @click="toggleMemberMenu(member.id)">⋮</button>
+                    <div v-if="memberMenuOpen === member.id" class="host-team-toolbar__menu host-team-row-menu__dropdown">
+                        <button type="button" class="host-team-toolbar__menu-item" @click="onToggleStatus(member)">
+                            {{ member.status === 'active' ? t('team.pauseMember') : t('team.activateMember') }}
+                        </button>
+                        <button type="button" class="host-team-toolbar__menu-item host-team-toolbar__menu-item--danger" @click="onRemoveMember(member)">
+                            {{ t('team.removeMember') }}
+                        </button>
+                    </div>
+                </div>
             </div>
             <div v-if="!visibleSalesRows.length" class="host-team-empty">{{ t('team.noSalesMatches') }}</div>
         </div>
@@ -337,7 +347,17 @@
                         {{ statusLabel(member.status) }}
                     </span>
                 </div>
-                <div class="host-team-menu">⋮</div>
+                <div class="host-team-row-menu" @click.stop>
+                    <button type="button" class="host-team-menu" @click="toggleMemberMenu(member.id)">⋮</button>
+                    <div v-if="memberMenuOpen === member.id" class="host-team-toolbar__menu host-team-row-menu__dropdown">
+                        <button type="button" class="host-team-toolbar__menu-item" @click="onToggleStatus(member)">
+                            {{ member.status === 'active' ? t('team.pauseMember') : t('team.activateMember') }}
+                        </button>
+                        <button type="button" class="host-team-toolbar__menu-item host-team-toolbar__menu-item--danger" @click="onRemoveMember(member)">
+                            {{ t('team.removeMember') }}
+                        </button>
+                    </div>
+                </div>
             </div>
             <div v-if="!visibleOpsRows.length" class="host-team-empty">{{ t('team.noOpsMatches') }}</div>
         </div>
@@ -388,6 +408,7 @@ const filterArea = ref('all');
 const filterStatus = ref('all');
 const sortOption = ref('');
 const reminding = ref(null);
+const memberMenuOpen = ref(null);
 const invitations = ref([]);
 const teamStats = ref({});
 const areaOptions = ref([]);
@@ -588,6 +609,43 @@ function closeToolbarMenus(event) {
     if (!event.target.closest('.host-team-toolbar__dropdown')) {
         filterOpen.value = false;
         sortOpen.value = false;
+    }
+
+    if (!event.target.closest('.host-team-row-menu')) {
+        memberMenuOpen.value = null;
+    }
+}
+
+function toggleMemberMenu(id) {
+    memberMenuOpen.value = memberMenuOpen.value === id ? null : id;
+}
+
+async function onToggleStatus(member) {
+    memberMenuOpen.value = null;
+    const nextStatus = member.status === 'active' ? 'paused' : 'active';
+
+    try {
+        await apiClient.patch(`/team/members/${member.id}/status`, { status: nextStatus });
+        await loadTeam();
+        toast.show(nextStatus === 'paused' ? t('team.memberPaused') : t('team.memberActivated'));
+    } catch (err) {
+        toast.show(err.message ?? t('team.memberStatusFailed'));
+    }
+}
+
+async function onRemoveMember(member) {
+    memberMenuOpen.value = null;
+
+    if (!window.confirm(t('team.removeMemberConfirm', { name: member.name }))) {
+        return;
+    }
+
+    try {
+        await apiClient.delete(`/team/members/${member.id}`);
+        await loadTeam();
+        toast.show(t('team.memberRemoved'));
+    } catch (err) {
+        toast.show(err.message ?? t('team.memberRemoveFailed'));
     }
 }
 
