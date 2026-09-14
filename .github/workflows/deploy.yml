@@ -1,0 +1,83 @@
+name: Deploy to SiteGround
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: 'Run "php artisan migrate --force" after deploy'
+        type: boolean
+        default: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, bcmath, pdo_mysql, gd, intl, zip, curl
+          coverage: none
+
+      - name: Install Composer dependencies (production)
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Deploy files over rsync/SSH
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: >-
+            -avzr --no-perms --no-owner --no-group
+            --exclude=.git
+            --exclude=.github
+            --exclude=.env
+            --exclude=.env.*
+            --exclude=node_modules
+            --exclude=old
+            --exclude=tests
+            --exclude=deploy
+            --exclude=sftp-config.json
+            --exclude=storage
+            --exclude=public/uploads
+          path: ./
+          remote_path: ${{ secrets.SG_DEPLOY_PATH }}
+          remote_host: ${{ secrets.SG_SSH_HOST }}
+          remote_port: ${{ secrets.SG_SSH_PORT }}
+          remote_user: ${{ secrets.SG_SSH_USER }}
+          remote_key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
+
+      - name: Run post-deploy commands (migrate + cache)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SG_SSH_HOST }}
+          port: ${{ secrets.SG_SSH_PORT }}
+          username: ${{ secrets.SG_SSH_USER }}
+          key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd "${{ secrets.SG_DEPLOY_PATH }}"
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            if [ "${{ inputs.run_migrations }}" = "true" ]; then
+              php artisan migrate --force
+            fi
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
