@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\PricingMatrix;
 use App\Models\DistrictPriceIndex;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PriceMatrixSeeder extends Seeder
 {
@@ -29,22 +30,30 @@ class PriceMatrixSeeder extends Seeder
             );
         }
 
-        // District price indices from spec
+        // District price indices from LOGIC-SPEC.md §2.1 PM_DISTRICT_INDEX. The
+        // non-numbered districts are keyed by their full Vietnamese name (not an
+        // abbreviation) because that's the exact district_code DistrictCodeSeeder
+        // assigns — see memory "vietstays-district-code-gotcha": a mismatch here
+        // silently drops these districts to the 'unknown' 0.85 index.
         $districtIndices = [
-            ['D1', 'District 1', 1.15],
-            ['D2', 'District 2', 1.05],
-            ['D3', 'District 3', 1.05],
-            ['D4', 'District 4', 0.90],
-            ['D5', 'District 5', 0.88],
-            ['D7', 'District 7', 1.00],
-            ['D10', 'District 10', 0.90],
-            ['BT', 'Binh Thanh', 0.95],
-            ['PN', 'Phu Nhuan', 0.92],
-            ['TB', 'Tan Binh', 0.88],
-            ['TD', 'Thu Duc', 0.90],
-            ['GV', 'Go Vap', 0.85],
+            ['D1', 'Quận 1', 1.15],
+            ['D2', 'Quận 2', 1.05],
+            ['D3', 'Quận 3', 1.05],
+            ['D4', 'Quận 4', 0.90],
+            ['D5', 'Quận 5', 0.88],
+            ['D7', 'Quận 7', 1.00],
+            ['D10', 'Quận 10', 0.90],
+            ['Bình Thạnh', 'Bình Thạnh', 0.95],
+            ['Phú Nhuận', 'Phú Nhuận', 0.92],
+            ['Tân Bình', 'Tân Bình', 0.88],
+            ['Thủ Đức', 'Thủ Đức', 0.90],
+            ['Gò Vấp', 'Gò Vấp', 0.85],
             ['unknown', 'Unknown District', 0.85],
         ];
+
+        DB::table('district_price_indices')
+            ->whereIn('district_code', ['BT', 'PN', 'TB', 'TD', 'GV'])
+            ->delete();
 
         foreach ($districtIndices as [$code, $name, $index]) {
             DistrictPriceIndex::updateOrCreate(

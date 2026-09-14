@@ -7,8 +7,11 @@ export const useAuthStore = defineStore('auth', () => {
     const loaded = ref(false);
 
     const role = computed(() => user.value?.role ?? null);
-    const isPlatformRole = computed(() => role.value === 'admin' || role.value === 'partner');
+    const isPlatformRole = computed(() => role.value === 'superadmin' || role.value === 'partner');
     const isHostRole = computed(() => role.value === 'host');
+    const canUseSuperadminTools = computed(
+        () => role.value === 'superadmin' || role.value === 'supervisor',
+    );
 
     async function fetchUser() {
         try {
@@ -38,6 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
         role,
         isPlatformRole,
         isHostRole,
+        canUseSuperadminTools,
         fetchUser,
         logout,
     };

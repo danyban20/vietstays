@@ -13,7 +13,7 @@ class UserAdminController extends Controller
     /**
      * @var list<string>
      */
-    protected array $assignableRoles = ['admin', 'partner', 'host', 'staff', 'ambassador'];
+    protected array $assignableRoles = ['superadmin', 'supervisor', 'partner', 'host', 'staff', 'ambassador'];
 
     public function index(Request $request): JsonResponse
     {
@@ -53,7 +53,7 @@ class UserAdminController extends Controller
             'email' => $data['email'],
             'password' => $data['password'],
             'display_name' => $data['display_name'] ?? $data['name'],
-            'role' => $data['role'] ?? 'admin',
+            'role' => $data['role'] ?? 'superadmin',
         ]);
 
         // Apartment/booking/customer ownership is keyed off legacy_wp_id (it
@@ -84,15 +84,15 @@ class UserAdminController extends Controller
         $updates = [];
 
         if ($request->has('role')) {
-            if ($request->user()?->id === $user->id && $data['role'] !== 'admin') {
+            if ($request->user()?->id === $user->id && $data['role'] !== 'superadmin') {
                 return response()->json([
                     'message' => 'You cannot remove your own administrator access.',
                 ], 422);
             }
 
-            if ($user->isAdmin() && $data['role'] !== 'admin') {
+            if ($user->isAdmin() && $data['role'] !== 'superadmin') {
                 $otherAdmins = User::query()
-                    ->where('role', 'admin')
+                    ->where('role', 'superadmin')
                     ->where('id', '!=', $user->id)
                     ->exists();
 
@@ -134,7 +134,8 @@ class UserAdminController extends Controller
     protected function roleLabel(?string $role): string
     {
         return match ($role) {
-            'admin' => 'Administrator',
+            'superadmin' => 'Superadmin',
+            'supervisor' => 'Supervisor',
             'partner' => 'Partner',
             'host' => 'Host',
             'staff' => 'Staff',

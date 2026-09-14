@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             LegacyDataSeeder::class,
             LocationSeeder::class,
             DistrictCodeSeeder::class,
+            CountrySeeder::class,
             UserSeeder::class,
             BuildingSeeder::class,
             PriceMatrixSeeder::class,

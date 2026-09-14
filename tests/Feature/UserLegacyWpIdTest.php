@@ -19,7 +19,7 @@ class UserLegacyWpIdTest extends TestCase
      */
     public function test_admin_created_user_gets_a_synthetic_legacy_wp_id(): void
     {
-        $admin = User::query()->where('role', 'admin')->first();
+        $admin = User::query()->where('role', 'superadmin')->first();
         $this->assertNotNull($admin);
 
         $response = $this->actingAs($admin)->postJson('/api/admin/users', [
