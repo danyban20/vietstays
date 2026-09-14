@@ -9,7 +9,11 @@ on:
         default: true
 
 jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     environment: production
 
@@ -53,6 +57,7 @@ jobs:
             --exclude=tests
             --exclude=deploy
             --exclude=sftp-config.json
+            --exclude=public/hot
             --exclude=storage
             --exclude=public/uploads
           path: ./
@@ -62,7 +67,7 @@ jobs:
           remote_user: ${{ secrets.SG_SSH_USER }}
           remote_key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
 
-      - name: Run post-deploy commands (migrate + cache)
+      - name: Backup database, then migrate + cache
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SG_SSH_HOST }}
@@ -72,12 +77,36 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.SG_DEPLOY_PATH }}"
+
             php artisan config:clear
             php artisan route:clear
             php artisan view:clear
+
             if [ "${{ inputs.run_migrations }}" = "true" ]; then
+              # Dump the live database before touching schema, so a bad
+              # migration can be rolled back by hand without digging through
+              # binlogs. Kept outside public_html so it's never served or
+              # wiped by the next rsync.
+              BACKUP_DIR="$HOME/db-backups"
+              mkdir -p "$BACKUP_DIR"
+
+              DB_DATABASE=$(grep -E '^DB_DATABASE=' .env | tail -1 | cut -d '=' -f2-)
+              DB_USERNAME=$(grep -E '^DB_USERNAME=' .env | tail -1 | cut -d '=' -f2-)
+              DB_PASSWORD=$(grep -E '^DB_PASSWORD=' .env | tail -1 | cut -d '=' -f2-)
+              DB_HOST=$(grep -E '^DB_HOST=' .env | tail -1 | cut -d '=' -f2-)
+
+              STAMP=$(date +%Y%m%d-%H%M%S)
+              BACKUP_FILE="$BACKUP_DIR/pre-deploy-$STAMP.sql.gz"
+
+              mysqldump -h"$DB_HOST" -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" | gzip > "$BACKUP_FILE"
+              echo "Database backed up to $BACKUP_FILE"
+
+              # Keep the 10 most recent backups only.
+              ls -1t "$BACKUP_DIR"/pre-deploy-*.sql.gz | tail -n +11 | xargs -r rm --
+
               php artisan migrate --force
             fi
+
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
