@@ -196,7 +196,7 @@ class HostApplicationService
             ]);
         }
 
-        if ($existing && in_array($existing->role, ['partner', 'admin'], true)) {
+        if ($existing && in_array($existing->role, ['partner', 'superadmin'], true)) {
             throw ValidationException::withMessages([
                 'email' => 'This email is already registered as an approved host or partner.',
             ]);

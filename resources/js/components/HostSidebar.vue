@@ -76,6 +76,42 @@
             </span>
         </nav>
 
+        <nav v-if="auth.canUseSuperadminTools" class="host-sidebar__group">
+            <div class="host-sidebar__group-title">{{ t('nav.platformContent') }}</div>
+            <router-link
+                :to="{ name: 'superadmin-hosts' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('superadmin-hosts') }"
+            >
+                <SidebarIcon name="sales-team" />
+                <span class="host-sidebar__label">{{ t('nav.hostsList') }}</span>
+            </router-link>
+            <router-link
+                :to="{ name: 'superadmin-buildings' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('superadmin-buildings') }"
+            >
+                <SidebarIcon name="management" />
+                <span class="host-sidebar__label">{{ t('nav.buildings') }}</span>
+            </router-link>
+            <router-link
+                :to="{ name: 'superadmin-locations' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('superadmin-locations') }"
+            >
+                <SidebarIcon name="operations" />
+                <span class="host-sidebar__label">{{ t('nav.locations') }}</span>
+            </router-link>
+            <router-link
+                :to="{ name: 'superadmin-price-matrix' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('superadmin-price-matrix') }"
+            >
+                <SidebarIcon name="finance" />
+                <span class="host-sidebar__label">{{ t('nav.priceMatrix') }}</span>
+            </router-link>
+        </nav>
+
         <nav class="host-sidebar__group host-sidebar__group--bottom">
             <div class="host-sidebar__group-title">{{ t('nav.communicationAccount') }}</div>
             <router-link
@@ -113,9 +149,11 @@ import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import SidebarApartmentsBookings from '@/components/SidebarApartmentsBookings.vue';
 import SidebarIcon from '@/components/SidebarIcon.vue';
+import { useAuthStore } from '@/stores/auth';
 
 const route = useRoute();
 const { t } = useI18n();
+const auth = useAuthStore();
 
 const customerCount = ref(0);
 

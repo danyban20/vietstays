@@ -200,16 +200,17 @@ const form = reactive({
     name: '',
     email: '',
     password: '',
-    role: 'admin',
+    role: 'superadmin',
 });
 
 const editForm = reactive({
-    role: 'admin',
+    role: 'superadmin',
     password: '',
 });
 
 const roleOptions = [
-    { value: 'admin', label: 'Administrator' },
+    { value: 'superadmin', label: 'Superadmin' },
+    { value: 'supervisor', label: 'Supervisor' },
     { value: 'partner', label: 'Partner' },
     { value: 'host', label: 'Host' },
     { value: 'staff', label: 'Staff' },
@@ -230,7 +231,8 @@ function formatDate(value) {
 
 function roleClass(role) {
     return {
-        'host-pill--success': role === 'admin',
+        'host-pill--success': role === 'superadmin',
+        'host-pill--pending': role === 'supervisor',
         'host-pill--sand': role === 'partner',
         'host-pill--muted': role === 'host',
     };

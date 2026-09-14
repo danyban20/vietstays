@@ -56,11 +56,11 @@ class UserSeeder extends Seeder
         }
 
         if (! empty($meta['gyh_capabilities']) && str_contains($meta['gyh_capabilities'], 'administrator')) {
-            return 'admin';
+            return 'superadmin';
         }
 
         if ($wpId >= 1 && $wpId <= 3) {
-            return 'admin';
+            return 'superadmin';
         }
 
         if (Str::contains(Str::lower($email), 'partner')) {
@@ -73,7 +73,8 @@ class UserSeeder extends Seeder
     protected function normalizeRole(string $role): string
     {
         return match (Str::lower($role)) {
-            'admin', 'administrator' => 'admin',
+            'admin', 'administrator', 'superadmin' => 'superadmin',
+            'supervisor' => 'supervisor',
             'partner' => 'partner',
             'ambassador' => 'ambassador',
             'staff' => 'staff',

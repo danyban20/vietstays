@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\BuildingAdminController;
+use App\Http\Controllers\Api\Admin\HostOverviewController;
+use App\Http\Controllers\Api\Admin\LocationAdminController;
+use App\Http\Controllers\Api\Admin\PriceMatrixAdminController;
 use App\Http\Controllers\Api\ApartmentAvailabilityController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ApartmentController;
@@ -96,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/management-company', [ManagementCompanyController::class, 'show']);
     Route::post('/management-company', [ManagementCompanyController::class, 'store']);
 
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role:superadmin')->group(function () {
         Route::get('/admin/users', [UserAdminController::class, 'index']);
         Route::post('/admin/users', [UserAdminController::class, 'store']);
         Route::patch('/admin/users/{user}', [UserAdminController::class, 'update']);
@@ -115,5 +119,27 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/settings/languages/{locale}', [LanguageSettingsController::class, 'show']);
         Route::put('/settings/languages/{locale}', [LanguageSettingsController::class, 'update']);
         Route::delete('/settings/languages/{locale}', [LanguageSettingsController::class, 'destroy']);
+    });
+
+    Route::middleware('role:superadmin,supervisor')->group(function () {
+        Route::get('/admin/hosts', [HostOverviewController::class, 'index']);
+
+        Route::get('/admin/countries', [LocationAdminController::class, 'countries']);
+        Route::post('/admin/countries', [LocationAdminController::class, 'storeCountry']);
+        Route::patch('/admin/countries/{country}', [LocationAdminController::class, 'updateCountry']);
+        Route::get('/admin/cities', [LocationAdminController::class, 'cities']);
+        Route::post('/admin/cities', [LocationAdminController::class, 'storeCity']);
+        Route::patch('/admin/cities/{city:city_id}', [LocationAdminController::class, 'updateCity']);
+        Route::get('/admin/districts', [LocationAdminController::class, 'districts']);
+        Route::post('/admin/districts', [LocationAdminController::class, 'storeDistrict']);
+        Route::patch('/admin/districts/{district:district_id}', [LocationAdminController::class, 'updateDistrict']);
+
+        Route::get('/admin/buildings', [BuildingAdminController::class, 'index']);
+        Route::post('/admin/buildings', [BuildingAdminController::class, 'store']);
+        Route::patch('/admin/buildings/{building}', [BuildingAdminController::class, 'update']);
+        Route::patch('/admin/buildings/{building}/archive', [BuildingAdminController::class, 'archive']);
+
+        Route::get('/admin/price-matrix', [PriceMatrixAdminController::class, 'index']);
+        Route::patch('/admin/price-matrix', [PriceMatrixAdminController::class, 'update']);
     });
 });

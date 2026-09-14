@@ -205,4 +205,15 @@ class PriceMatrixService
     {
         return DistrictPriceIndex::getAllIndices();
     }
+
+    /**
+     * Apartment-standard adjustment factors (LOGIC-SPEC.md §2.3 STANDARD_FACTOR),
+     * keyed by this app's quality_standard values.
+     *
+     * @return array<string, float>
+     */
+    public function getStandardFactors(): array
+    {
+        return self::STANDARD_FACTOR;
+    }
 }

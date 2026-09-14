@@ -92,6 +92,30 @@ const routes = [
                 meta: { breadcrumbKey: 'nav.adminUsers', adminSection: true },
             },
             {
+                path: 'hosts',
+                name: 'superadmin-hosts',
+                component: () => import('@/pages/superadmin/HostsOverviewPage.vue'),
+                meta: { breadcrumbKey: 'nav.hostsList', adminSection: true },
+            },
+            {
+                path: 'buildings',
+                name: 'superadmin-buildings',
+                component: () => import('@/pages/superadmin/BuildingsAdminPage.vue'),
+                meta: { breadcrumbKey: 'nav.buildings', adminSection: true },
+            },
+            {
+                path: 'locations',
+                name: 'superadmin-locations',
+                component: () => import('@/pages/superadmin/LocationsAdminPage.vue'),
+                meta: { breadcrumbKey: 'nav.locations', adminSection: true },
+            },
+            {
+                path: 'price-matrix',
+                name: 'superadmin-price-matrix',
+                component: () => import('@/pages/superadmin/PriceMatrixAdminPage.vue'),
+                meta: { breadcrumbKey: 'nav.priceMatrix', adminSection: true },
+            },
+            {
                 path: 'team/sales',
                 name: 'team-sales',
                 component: () => import('@/pages/team/TeamPage.vue'),
