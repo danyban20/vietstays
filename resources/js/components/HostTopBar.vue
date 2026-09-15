@@ -16,7 +16,12 @@
         <div class="host-topbar__spacer" />
 
         <div class="host-topbar__actions">
-            <button type="button" class="host-topbar__icon-btn" aria-label="Messages">
+            <button
+                type="button"
+                class="host-topbar__icon-btn"
+                aria-label="Messages"
+                @click="router.push({ name: 'messages' })"
+            >
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
                         d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.2-4.4A8 8 0 1 1 21 12z"
