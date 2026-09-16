@@ -36,7 +36,7 @@
                 </select>
             </div>
 
-            <div class="host-filters">
+            <div class="host-filters buildings-admin__filter-row">
                 <input
                     v-model="filters.search"
                     type="search"
@@ -354,12 +354,31 @@ onMounted(async () => {
     gap: 12px;
 }
 
+.buildings-admin__filter-row {
+    align-items: center;
+}
+
 .buildings-admin__toggle {
     display: flex;
     align-items: center;
     gap: 8px;
+    height: 100%;
+    padding: 0 14px;
     font-size: 14px;
     color: var(--host-text-muted, #5c6b66);
+    border: 1px solid var(--vs-border-input, #d8d0bd);
+    border-radius: var(--vs-radius-sm, 8px);
+    background: var(--vs-surface, #fff);
+}
+
+.buildings-admin__toggle input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--vs-primary, #16331f);
+}
+
+.host-table td {
+    vertical-align: middle;
 }
 
 .buildings-admin__stats {
