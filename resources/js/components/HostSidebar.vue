@@ -19,7 +19,7 @@
             @open-section="openSection"
         />
 
-        <nav class="host-sidebar__group">
+        <nav v-if="!auth.canUseSuperadminTools" class="host-sidebar__group">
             <div class="host-sidebar__group-title">{{ t('nav.myTeam') }}</div>
             <router-link
                 :to="{ name: 'team-sales' }"
@@ -52,7 +52,7 @@
             </span>
         </nav>
 
-        <nav class="host-sidebar__group">
+        <nav v-if="!auth.canUseSuperadminTools" class="host-sidebar__group">
             <div class="host-sidebar__group-title">{{ t('nav.discountVisibility') }}</div>
             <span class="host-sidebar__link host-sidebar__link--disabled">
                 <SidebarIcon name="campaign" />
@@ -77,7 +77,11 @@
         </nav>
 
         <nav v-if="auth.canUseSuperadminTools" class="host-sidebar__group">
-            <div class="host-sidebar__group-title">{{ t('nav.platformContent') }}</div>
+            <div class="host-sidebar__group-title">{{ t('nav.hostsPartners') }}</div>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="management" />
+                <span class="host-sidebar__label">{{ t('nav.managementCompanies') }}</span>
+            </span>
             <router-link
                 :to="{ name: 'superadmin-hosts' }"
                 class="host-sidebar__link"
@@ -86,6 +90,41 @@
                 <SidebarIcon name="sales-team" />
                 <span class="host-sidebar__label">{{ t('nav.hostsList') }}</span>
             </router-link>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="host-agents" />
+                <span class="host-sidebar__label">{{ t('nav.hostAgents') }}</span>
+            </span>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="ambassadors" />
+                <span class="host-sidebar__label">{{ t('nav.ambassadors') }}</span>
+            </span>
+            <router-link
+                :to="{ name: 'host-applications' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('host-applications') }"
+            >
+                <SidebarIcon name="content" />
+                <span class="host-sidebar__label">{{ t('nav.hostApplications') }}</span>
+            </router-link>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="host-points" />
+                <span class="host-sidebar__label">{{ t('nav.hostPointsSystem') }}</span>
+            </span>
+        </nav>
+
+        <nav v-if="auth.canUseSuperadminTools" class="host-sidebar__group">
+            <router-link
+                :to="{ name: 'admin-users' }"
+                class="host-sidebar__link"
+                :class="{ 'host-sidebar__link--active': isActive('admin-users') }"
+            >
+                <SidebarIcon name="users" />
+                <span class="host-sidebar__label">{{ t('nav.users') }}</span>
+            </router-link>
+        </nav>
+
+        <nav v-if="auth.canUseSuperadminTools" class="host-sidebar__group">
+            <div class="host-sidebar__group-title">{{ t('nav.platformContent') }}</div>
             <router-link
                 :to="{ name: 'superadmin-buildings' }"
                 class="host-sidebar__link"
@@ -110,6 +149,25 @@
                 <SidebarIcon name="finance" />
                 <span class="host-sidebar__label">{{ t('nav.priceMatrix') }}</span>
             </router-link>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="content" />
+                <span class="host-sidebar__label">{{ t('nav.houseRulesFacilities') }}</span>
+            </span>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="operations" />
+                <span class="host-sidebar__label">{{ t('nav.opsChecklists') }}</span>
+            </span>
+        </nav>
+
+        <nav v-if="auth.canUseSuperadminTools" class="host-sidebar__group">
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="settings" />
+                <span class="host-sidebar__label">{{ t('nav.configuration') }}</span>
+            </span>
+            <span class="host-sidebar__link host-sidebar__link--disabled">
+                <SidebarIcon name="payouts" />
+                <span class="host-sidebar__label">{{ t('nav.payouts') }}</span>
+            </span>
         </nav>
 
         <nav class="host-sidebar__group host-sidebar__group--bottom">
@@ -126,7 +184,7 @@
                 <SidebarIcon name="marketing" />
                 <span class="host-sidebar__label">{{ t('nav.marketing') }}</span>
             </span>
-            <span class="host-sidebar__link host-sidebar__link--disabled">
+            <span v-if="!auth.canUseSuperadminTools" class="host-sidebar__link host-sidebar__link--disabled">
                 <SidebarIcon name="host-points" />
                 <span class="host-sidebar__label">{{ t('nav.hostPoints') }}</span>
             </span>
@@ -138,6 +196,10 @@
                 <SidebarIcon name="settings" />
                 <span class="host-sidebar__label">{{ t('nav.settings') }}</span>
             </router-link>
+            <span v-if="auth.canUseSuperadminTools" class="host-sidebar__link host-sidebar__link--disabled host-sidebar__link--role-permissions">
+                <SidebarIcon name="administration" />
+                <span class="host-sidebar__label">{{ t('nav.rolePermissions') }}</span>
+            </span>
         </nav>
     </aside>
 </template>

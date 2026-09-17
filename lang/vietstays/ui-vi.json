@@ -1,5 +1,11 @@
 {
     "brand": "Vietstays",
+    "common": {
+        "roleSuperadmin": "Superadmin",
+        "roleSupervisor": "Supervisor",
+        "roleStaff": "Nhân viên",
+        "roleAmbassador": "Đại sứ"
+    },
     "nav": {
         "dashboard": "Bảng điều khiển",
         "manager": "Quản lý",
@@ -16,10 +22,19 @@
         "hostApplications": "Đơn đăng ký host",
         "adminUsers": "Quản trị viên",
         "platformContent": "Công cụ Superadmin",
+        "hostsPartners": "Host / Đối tác",
+        "managementCompanies": "Công ty quản lý",
         "hostsList": "Tất cả host",
+        "hostPointsSystem": "Hệ thống điểm host",
+        "users": "Người dùng",
         "buildings": "Toà nhà",
         "locations": "Quốc gia và địa điểm",
         "priceMatrix": "Bảng giá",
+        "houseRulesFacilities": "Nội quy & tiện ích",
+        "opsChecklists": "Checklist vận hành",
+        "configuration": "Cấu hình",
+        "payouts": "Quyết toán",
+        "rolePermissions": "Quyền theo vai trò",
         "myTeam": "Đội của tôi",
         "operationsTeam": "Đội vận hành",
         "managementCompany": "Công ty quản lý",
