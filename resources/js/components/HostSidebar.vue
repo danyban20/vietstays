@@ -31,6 +31,8 @@
                 </router-link>
             </nav>
 
+            <div class="host-sidebar__divider" />
+
             <nav class="host-sidebar__group">
                 <button
                     type="button"
@@ -70,9 +72,6 @@
                         {{ t('nav.hostPointsSystem') }}
                     </span>
                 </template>
-            </nav>
-
-            <nav class="host-sidebar__group">
                 <router-link
                     :to="{ name: 'admin-users' }"
                     class="host-sidebar__link"
@@ -81,6 +80,11 @@
                     <SidebarIcon name="users" />
                     <span class="host-sidebar__label">{{ t('nav.users') }}</span>
                 </router-link>
+            </nav>
+
+            <div class="host-sidebar__divider" />
+
+            <nav class="host-sidebar__group">
                 <span class="host-sidebar__link host-sidebar__link--disabled">
                     <SidebarIcon name="finance" />
                     <span class="host-sidebar__label">{{ t('nav.finance') }}</span>
@@ -90,6 +94,8 @@
                     <span class="host-sidebar__label">{{ t('nav.marketing') }}</span>
                 </span>
             </nav>
+
+            <div class="host-sidebar__divider" />
 
             <nav class="host-sidebar__group">
                 <button
@@ -131,9 +137,6 @@
                         {{ t('nav.opsChecklists') }}
                     </span>
                 </template>
-            </nav>
-
-            <nav class="host-sidebar__group">
                 <span class="host-sidebar__link host-sidebar__link--disabled">
                     <SidebarIcon name="settings" />
                     <span class="host-sidebar__label">{{ t('nav.configuration') }}</span>
@@ -146,6 +149,11 @@
                     <SidebarIcon name="reports" />
                     <span class="host-sidebar__label">{{ t('nav.reports') }}</span>
                 </span>
+            </nav>
+
+            <div class="host-sidebar__divider" />
+
+            <nav class="host-sidebar__group">
                 <router-link
                     :to="{ name: 'messages' }"
                     class="host-sidebar__link"
@@ -155,6 +163,8 @@
                     <span class="host-sidebar__label">{{ t('nav.communication') }}</span>
                 </router-link>
             </nav>
+
+            <div class="host-sidebar__divider" />
 
             <nav class="host-sidebar__group host-sidebar__group--bottom">
                 <div class="host-sidebar__group-title host-sidebar__group-title--admin">{{ t('nav.administration') }}</div>
@@ -192,6 +202,8 @@
                 @open-section="openSection"
             />
 
+            <div class="host-sidebar__divider" />
+
             <nav class="host-sidebar__group">
                 <div class="host-sidebar__group-title">{{ t('nav.myTeam') }}</div>
                 <router-link
@@ -225,6 +237,8 @@
                 </span>
             </nav>
 
+            <div class="host-sidebar__divider" />
+
             <nav class="host-sidebar__group">
                 <div class="host-sidebar__group-title">{{ t('nav.discountVisibility') }}</div>
                 <span class="host-sidebar__link host-sidebar__link--disabled">
@@ -237,6 +251,8 @@
                 </span>
             </nav>
 
+            <div class="host-sidebar__divider" />
+
             <nav class="host-sidebar__group">
                 <div class="host-sidebar__group-title">{{ t('nav.financeReports') }}</div>
                 <span class="host-sidebar__link host-sidebar__link--disabled">
@@ -248,6 +264,8 @@
                     <span class="host-sidebar__label">{{ t('nav.reports') }}</span>
                 </span>
             </nav>
+
+            <div class="host-sidebar__divider" />
 
             <nav class="host-sidebar__group host-sidebar__group--bottom">
                 <div class="host-sidebar__group-title">{{ t('nav.communicationAccount') }}</div>
@@ -294,8 +312,8 @@ const { t } = useI18n();
 const auth = useAuthStore();
 
 const customerCount = ref(0);
-const hostsPartnersOpen = ref(false);
-const platformContentOpen = ref(true);
+const hostsPartnersOpen = ref(true);
+const platformContentOpen = ref(false);
 
 const openSections = reactive({
     apartments: true,
