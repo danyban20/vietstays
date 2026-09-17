@@ -91,7 +91,7 @@
                     <span class="host-topbar__avatar">{{ initials }}</span>
                     <div class="host-topbar__profile-text">
                         <span class="host-topbar__profile-name">{{ displayName }}</span>
-                        <span class="host-topbar__profile-meta">{{ apartmentCountLabel }}</span>
+                        <span class="host-topbar__profile-meta">{{ profileSubtitle }}</span>
                     </div>
                     <span class="host-topbar__chevron">▾</span>
                 </button>
@@ -182,6 +182,18 @@ const initials = computed(() => {
         .map((part) => part[0]?.toUpperCase() ?? '')
         .join('');
 });
+const roleLabelKey = {
+    superadmin: 'common.roleSuperadmin',
+    supervisor: 'common.roleSupervisor',
+    staff: 'common.roleStaff',
+    ambassador: 'common.roleAmbassador',
+};
+
+const profileSubtitle = computed(() => {
+    const key = roleLabelKey[auth.role];
+    return key ? `${t(key)} · ${t('brand')}` : apartmentCountLabel.value;
+});
+
 const apartmentCountLabel = computed(() => {
     if (apartmentCount.value == null) return t('common.hostDashboard');
     const n = apartmentCount.value;

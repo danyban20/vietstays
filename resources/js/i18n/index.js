@@ -17,6 +17,10 @@ const englishMessages = {
         myProfile: 'My profile',
         accountSettings: 'Account settings',
         billing: 'Billing',
+        roleSuperadmin: 'Superadmin',
+        roleSupervisor: 'Supervisor',
+        roleStaff: 'Staff',
+        roleAmbassador: 'Ambassador',
     },
     locale: {
         label: 'Language',
@@ -86,6 +90,7 @@ const englishMessages = {
         languages: 'Language files',
         notificationPreferences: 'Notification preferences',
         changePassword: 'Change password',
+        rolePermissions: 'Role permissions',
     },
     bookingDetail: {
         loading: 'Loading booking…',
