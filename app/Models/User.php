@@ -7,10 +7,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'legacy_wp_id', 'role', 'display_name', 'phone', 'admin_locale'])]
+#[Fillable(['name', 'email', 'password', 'legacy_wp_id', 'role', 'display_name', 'phone', 'admin_locale', 'management_company_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -59,5 +60,10 @@ class User extends Authenticatable
     public function isOperator(): bool
     {
         return $this->isPartner() || $this->isHost();
+    }
+
+    public function managementCompany(): BelongsTo
+    {
+        return $this->belongsTo(HostManagementCompany::class, 'management_company_id');
     }
 }

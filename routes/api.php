@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\BuildingAdminController;
 use App\Http\Controllers\Api\Admin\HostOverviewController;
 use App\Http\Controllers\Api\Admin\LocationAdminController;
+use App\Http\Controllers\Api\Admin\ManagementCompanyAdminController;
 use App\Http\Controllers\Api\Admin\PriceMatrixAdminController;
 use App\Http\Controllers\Api\ApartmentAvailabilityController;
 use App\Http\Controllers\Api\AuthController;
@@ -141,5 +142,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/admin/price-matrix', [PriceMatrixAdminController::class, 'index']);
         Route::patch('/admin/price-matrix', [PriceMatrixAdminController::class, 'update']);
+
+        Route::get('/admin/management-companies', [ManagementCompanyAdminController::class, 'index']);
+        Route::post('/admin/management-companies', [ManagementCompanyAdminController::class, 'store']);
+        Route::patch('/admin/management-companies/{company}/status', [ManagementCompanyAdminController::class, 'updateStatus']);
     });
 });
