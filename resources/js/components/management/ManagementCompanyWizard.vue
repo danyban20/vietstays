@@ -65,7 +65,7 @@
         <!-- Step 2 -->
         <div v-else-if="step === 2" class="host-mgmt-wizard__panel">
             <h2 class="host-mgmt-wizard__panel-title">{{ t('mgmtCompany.selectApartmentsTitle') }}</h2>
-            <p class="host-mgmt-wizard__panel-sub">{{ t('mgmtCompany.selectApartmentsSub', { total: MY_APARTMENTS.length }) }}</p>
+            <p class="host-mgmt-wizard__panel-sub">{{ t('mgmtCompany.selectApartmentsSub', { total: myApartments.length }) }}</p>
             <div class="host-mgmt-wizard__privacy">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1f5b3f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
                 <span>{{ t('mgmtCompany.privacyNote') }}</span>
@@ -99,11 +99,12 @@
                     <span>{{ t('mgmtCompany.colCode') }}</span>
                     <span>{{ t('mgmtCompany.colName') }}</span>
                     <span>{{ t('mgmtCompany.colBeds') }}</span>
-                    <span>{{ t('mgmtCompany.colSqm') }}</span>
                     <span>{{ t('mgmtCompany.colDistrict') }}</span>
                     <span>{{ t('mgmtCompany.colSegment') }}</span>
                     <span>{{ t('mgmtCompany.colRate') }}</span>
                 </div>
+                <p v-if="apartmentsLoading" class="host-team-empty">{{ t('common.loading') }}</p>
+                <p v-else-if="!myApartments.length" class="host-team-empty">{{ t('mgmtCompany.noApartments') }}</p>
                 <button
                     v-for="apt in filteredApartments"
                     :key="apt.code"
@@ -118,7 +119,6 @@
                     <span class="host-mgmt-apt-table__code">{{ apt.code }}</span>
                     <span class="host-mgmt-apt-table__name">{{ apt.name }}</span>
                     <span>{{ apt.beds }}</span>
-                    <span class="host-mgmt-apt-table__right">{{ apt.sqm }}</span>
                     <span>{{ apt.district }}</span>
                     <span class="host-mgmt-apt-table__seg" :style="segmentStyle(apt.segment)">{{ apt.segment }}</span>
                     <span class="host-mgmt-apt-table__rate">{{ apt.rate }}</span>
@@ -129,61 +129,19 @@
         <!-- Step 3 -->
         <div v-else-if="step === 3" class="host-mgmt-wizard__panel">
             <h2 class="host-mgmt-wizard__panel-title">{{ t('mgmtCompany.stepInviteHosts') }}</h2>
-            <p class="host-mgmt-wizard__panel-sub">{{ t('mgmtCompany.inviteHostsSub') }}</p>
-            <div class="host-mgmt-invite-search">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a9187" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-                <input
-                    v-model="inviteQuery"
-                    type="text"
-                    class="host-mgmt-invite-search__input"
-                    :placeholder="t('mgmtCompany.inviteSearchPlaceholder')"
-                    @focus="searchOpen = true"
-                    @blur="onSearchBlur"
-                />
-                <div v-if="searchOpen && inviteQuery.trim()" class="host-mgmt-invite-search__dropdown">
-                    <div v-for="host in searchResults" :key="host.id" class="host-mgmt-invite-search__result">
-                        <div class="host-mgmt-invite-search__avatar">{{ host.initials }}</div>
-                        <div class="host-mgmt-invite-search__meta">
-                            <div class="host-mgmt-invite-search__name">
-                                {{ host.name }}
-                                <span v-if="host.verified" class="host-mgmt-invite-search__verified">{{ t('mgmtCompany.idVerified') }}</span>
-                            </div>
-                            <div class="host-mgmt-invite-search__sub">{{ host.id }} · {{ host.city }}</div>
-                        </div>
-                        <button
-                            type="button"
-                            class="host-mgmt-invite-search__btn"
-                            :class="{ 'host-mgmt-invite-search__btn--sent': isPending(host.id) }"
-                            @mousedown.prevent="toggleInvite(host)"
-                        >
-                            {{ isPending(host.id) ? t('mgmtCompany.invited') : t('mgmtCompany.invite') }}
-                        </button>
-                    </div>
-                    <p v-if="searchResults.length === 0" class="host-mgmt-invite-search__empty">{{ t('mgmtCompany.noHostMatches') }}</p>
-                    <p class="host-mgmt-invite-search__footer">{{ t('mgmtCompany.invitePrivacyFooter') }}</p>
-                </div>
-            </div>
+            <p class="host-mgmt-wizard__panel-sub">{{ t('mgmtCompany.inviteHostsComingSoonSub') }}</p>
             <div class="host-mgmt-member-list">
-                <div v-for="member in memberRows" :key="member.name" class="host-mgmt-member-list__row">
-                    <div class="host-mgmt-member-list__avatar">{{ member.initials }}</div>
+                <div class="host-mgmt-member-list__row">
+                    <div class="host-mgmt-member-list__avatar">{{ youInitials }}</div>
                     <div class="host-mgmt-member-list__body">
                         <div class="host-mgmt-member-list__name">
-                            {{ member.name }}
-                            <span v-if="member.isYou" class="host-mgmt-member-list__you">{{ t('mgmtCompany.youBadge') }}</span>
+                            {{ youName }}
+                            <span class="host-mgmt-member-list__you">{{ t('mgmtCompany.youBadge') }}</span>
                         </div>
-                        <div class="host-mgmt-member-list__meta">{{ member.meta }}</div>
+                        <div class="host-mgmt-member-list__meta">{{ t('mgmtCompany.creatorMeta') }}</div>
                     </div>
-                    <span class="host-mgmt-member-list__apt">{{ member.aptLabel }}</span>
-                    <span class="host-mgmt-member-list__status host-mgmt-member-list__status--ok">{{ member.status }}</span>
-                </div>
-                <div v-for="pending in pendingRows" :key="pending.id" class="host-mgmt-member-list__row host-mgmt-member-list__row--pending">
-                    <div class="host-mgmt-member-list__avatar">{{ pending.initials }}</div>
-                    <div class="host-mgmt-member-list__body">
-                        <div class="host-mgmt-member-list__name">{{ pending.name }}</div>
-                        <div class="host-mgmt-member-list__meta">{{ pending.meta }}</div>
-                    </div>
-                    <span class="host-mgmt-member-list__hidden">{{ t('mgmtCompany.hiddenUntilAccept') }}</span>
-                    <span class="host-mgmt-member-list__status host-mgmt-member-list__status--wait">{{ t('mgmtCompany.awaitingReply') }}</span>
+                    <span class="host-mgmt-member-list__apt">{{ t('mgmtCompany.apartmentCount', { count: includedCount }) }}</span>
+                    <span class="host-mgmt-member-list__status host-mgmt-member-list__status--ok">{{ t('mgmtCompany.statusCreator') }}</span>
                 </div>
             </div>
         </div>
@@ -212,45 +170,20 @@
                 </button>
             </div>
             <div class="host-mgmt-split-table">
-                <div class="host-mgmt-split-table__head">
+                <div class="host-mgmt-split-table__head host-mgmt-split-table__head--simple">
                     <span>{{ t('mgmtCompany.colHost') }}</span>
                     <span>{{ t('mgmtCompany.colBasis') }}</span>
-                    <span>{{ t('mgmtCompany.colHostSince') }}</span>
-                    <span>{{ t('mgmtCompany.colRating') }}</span>
                     <span>{{ t('mgmtCompany.colOwnership') }}</span>
                 </div>
-                <div v-for="row in splitRows" :key="row.key" class="host-mgmt-split-table__row">
+                <div v-for="row in splitRows" :key="row.key" class="host-mgmt-split-table__row host-mgmt-split-table__row--simple">
                     <span class="host-mgmt-split-table__name">{{ row.name }}</span>
                     <span class="host-mgmt-split-table__muted">{{ row.basis }}</span>
-                    <span>{{ row.since }}</span>
-                    <span>{{ row.rating }}</span>
                     <span class="host-mgmt-split-table__pct">
-                        <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            :value="shares[row.key]"
-                            @input="updateShare(row.key, $event.target.value)"
-                        />
+                        <input type="number" min="0" max="100" :value="row.pct" disabled />
                         <span>%</span>
                     </span>
                 </div>
-                <div v-for="pending in pendingRows" :key="'split-' + pending.id" class="host-mgmt-split-table__row host-mgmt-split-table__row--pending">
-                    <span class="host-mgmt-split-table__muted">{{ pending.name }}</span>
-                    <span class="host-mgmt-split-table__muted">{{ t('mgmtCompany.awaitingApproval') }}</span>
-                    <span class="host-mgmt-split-table__muted">—</span>
-                    <span class="host-mgmt-split-table__muted">—</span>
-                    <span class="host-mgmt-split-table__muted host-mgmt-split-table__right">—</span>
-                </div>
-                <div class="host-mgmt-split-table__footer">
-                    <span class="host-mgmt-split-table__suggest">{{ suggestedLabel }}</span>
-                    <button type="button" class="host-mgmt-apt-table__link" @click="useSuggested">{{ t('mgmtCompany.useSuggested') }}</button>
-                    <span class="host-mgmt-split-table__total" :class="{ 'host-mgmt-split-table__total--ok': shareTotal === 100 }">{{ shareTotal }} %</span>
-                </div>
-                <p class="host-mgmt-split-table__note">
-                    {{ t('mgmtCompany.splitSetupNote') }}
-                    <strong :class="{ 'host-mgmt-split-table__total--ok': shareTotal === 100, 'host-mgmt-split-table__total--bad': shareTotal !== 100 }">{{ shareTotalNote }}</strong>
-                </p>
+                <p class="host-mgmt-split-table__note">{{ t('mgmtCompany.singleHostSplitNote') }}</p>
             </div>
         </div>
 
@@ -265,18 +198,17 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import apiClient from '@/api/client';
+import { useAuthStore } from '@/stores/auth';
 import {
-    HOST_DIRECTORY,
     LEGAL_OPTIONS,
-    MY_APARTMENTS,
     REVENUE_MODELS,
     SEGMENT_STYLES,
-    SETUP_MEMBERS,
     WIZARD_STEPS,
+    segmentForStandard,
     splitMemberRows,
-    suggestedShares,
 } from '@/data/management-company-content.js';
 
 defineProps({
@@ -286,23 +218,48 @@ defineProps({
 const emit = defineEmits(['cancel', 'complete']);
 
 const { t } = useI18n();
+const auth = useAuthStore();
 
 const step = ref(1);
-const form = ref({ name: 'Saigon Homes Management', tagline: '' });
+const form = ref({ name: '', tagline: '' });
 const legalRegistered = ref(false);
 const excluded = ref([]);
 const segmentFilter = ref('all');
-const inviteQuery = ref('');
-const searchOpen = ref(false);
-const pendingInvites = ref([]);
 const revenueModel = ref('pool');
-const customShares = ref(null);
 
-const includedCount = computed(() => MY_APARTMENTS.length - excluded.value.length);
+const myApartments = ref([]);
+const apartmentsLoading = ref(true);
 
-const shares = computed(() => customShares.value ?? suggestedShares(includedCount.value));
+const youName = computed(() => auth.user?.display_name || auth.user?.name || t('mgmtCompany.you'));
+const youInitials = computed(() => youName.value.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase());
 
-const shareTotal = computed(() => shares.value.me + shares.value.lars + shares.value.hoa);
+async function loadApartments() {
+    apartmentsLoading.value = true;
+
+    try {
+        const res = await apiClient.get('/apartments');
+        myApartments.value = (res?.data ?? []).map((apt) => ({
+            code: `#${apt.id}`,
+            name: apt.name,
+            beds: apt.rooms > 0 ? t('mgmtCompany.bedroomsCount', { count: apt.rooms }) : t('mgmtCompany.studio'),
+            district: apt.district ?? '—',
+            segment: segmentForStandard(apt.standard),
+            rate: apt.price_daily ? new Intl.NumberFormat('vi-VN').format(apt.price_daily) : '—',
+        }));
+    } catch {
+        myApartments.value = [];
+    } finally {
+        apartmentsLoading.value = false;
+    }
+}
+
+onMounted(loadApartments);
+
+const includedCount = computed(() => myApartments.value.length - excluded.value.length);
+
+const shares = computed(() => ({ me: 100 }));
+
+const shareTotal = computed(() => shares.value.me);
 
 const segmentFilters = computed(() => [
     { id: 'all', label: t('mgmtCompany.filterAll') },
@@ -313,10 +270,10 @@ const segmentFilters = computed(() => [
 
 const filteredApartments = computed(() => {
     if (segmentFilter.value === 'all') {
-        return MY_APARTMENTS;
+        return myApartments.value;
     }
 
-    return MY_APARTMENTS.filter((apt) => apt.segment === segmentFilter.value);
+    return myApartments.value.filter((apt) => apt.segment === segmentFilter.value);
 });
 
 const listSummary = computed(() => {
@@ -327,82 +284,17 @@ const listSummary = computed(() => {
 });
 
 const apartmentStats = computed(() => [
-    { labelKey: 'mgmtCompany.statTotal', value: String(MY_APARTMENTS.length), subKey: 'mgmtCompany.statTotalSub' },
+    { labelKey: 'mgmtCompany.statTotal', value: String(myApartments.value.length), subKey: 'mgmtCompany.statTotalSub' },
     { labelKey: 'mgmtCompany.statIncluded', value: String(includedCount.value), subKey: 'mgmtCompany.statIncludedSub' },
     { labelKey: 'mgmtCompany.statPrivate', value: String(excluded.value.length), subKey: 'mgmtCompany.statPrivateSub' },
 ]);
 
-const searchResults = computed(() => {
-    const query = inviteQuery.value.trim().toLowerCase();
-    if (!query) {
-        return [];
-    }
-
-    const memberNames = SETUP_MEMBERS.map((member) => member.name.toLowerCase());
-
-    return HOST_DIRECTORY.filter((host) => {
-        if (memberNames.includes(host.name.toLowerCase())) {
-            return false;
-        }
-
-        return host.name.toLowerCase().includes(query)
-            || host.id.toLowerCase().includes(query)
-            || host.city.toLowerCase().includes(query);
-    });
-});
-
-const pendingRows = computed(() =>
-    pendingInvites.value.map((id) => {
-        const host = HOST_DIRECTORY.find((entry) => entry.id === id);
-
-        return {
-            id,
-            initials: host?.initials ?? '?',
-            name: host?.name ?? id,
-            meta: `${id} · ${host?.city ?? ''}`,
-        };
-    }),
-);
-
-const memberRows = computed(() =>
-    SETUP_MEMBERS.map((member) => ({
-        initials: member.initials,
-        name: member.name,
-        isYou: member.isYou,
-        meta: member.isYou
-            ? t('mgmtCompany.creatorMeta')
-            : t('mgmtCompany.memberMeta', { date: member.name.includes('Lars') ? '8 Aug' : '9 Aug', count: member.apartments }),
-        aptLabel: member.isYou
-            ? t('mgmtCompany.apartmentCount', { count: includedCount.value })
-            : t('mgmtCompany.apartmentCount', { count: member.apartments }),
-        status: member.isYou ? t('mgmtCompany.statusCreator') : t('mgmtCompany.statusAccepted'),
-    })),
-);
-
-const splitRows = computed(() => splitMemberRows(shares.value, includedCount.value));
-
-const suggestedLabel = computed(() =>
-    t('mgmtCompany.suggestedSplit', {
-        me: suggestedShares(includedCount.value).me,
-        lars: suggestedShares(includedCount.value).lars,
-        hoa: suggestedShares(includedCount.value).hoa,
-    }),
-);
-
-const shareTotalNote = computed(() =>
-    shareTotal.value === 100
-        ? t('mgmtCompany.shareTotalOk')
-        : t('mgmtCompany.shareTotalBad', { total: shareTotal.value }),
-);
+const splitRows = computed(() => splitMemberRows(youName.value, includedCount.value));
 
 const stepHint = computed(() => t(`mgmtCompany.stepHint${step.value}`));
 
 const canProceed = computed(() => {
     if (step.value === 2 && includedCount.value === 0) {
-        return false;
-    }
-
-    if (step.value === 4 && shareTotal.value !== 100) {
         return false;
     }
 
@@ -437,34 +329,6 @@ function segmentStyle(segment) {
     return { background: style.bg, color: style.color };
 }
 
-function isPending(id) {
-    return pendingInvites.value.includes(id);
-}
-
-function toggleInvite(host) {
-    if (isPending(host.id)) {
-        pendingInvites.value = pendingInvites.value.filter((entry) => entry !== host.id);
-        return;
-    }
-
-    pendingInvites.value = [...pendingInvites.value, host.id];
-}
-
-function onSearchBlur() {
-    window.setTimeout(() => {
-        searchOpen.value = false;
-    }, 150);
-}
-
-function updateShare(key, value) {
-    const parsed = Math.max(0, Math.min(100, Number(value) || 0));
-    customShares.value = { ...shares.value, [key]: parsed };
-}
-
-function useSuggested() {
-    customShares.value = null;
-}
-
 function goToStep(target) {
     if (target < step.value) {
         step.value = target;
@@ -490,11 +354,11 @@ function onNext() {
             form: { ...form.value },
             legalRegistered: legalRegistered.value,
             excluded: [...excluded.value],
-            pendingInvites: [...pendingInvites.value],
+            pendingInvites: [],
             revenueModel: revenueModel.value,
             shares: { ...shares.value },
             includedCount: includedCount.value,
-            companyApartmentCount: includedCount.value + 10,
+            companyApartmentCount: includedCount.value,
         });
         return;
     }

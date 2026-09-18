@@ -53,6 +53,7 @@ class ManagementCompanyAdminService
             'company_number' => $company->company_number,
             'status' => $company->status,
             'status_label' => config('management_companies.statuses.'.$company->status, $company->status),
+            'manager_user_id' => $company->user_id,
             'manager_name' => $company->user?->display_name ?: $company->user?->name,
             'manager_email' => $company->user?->email,
             'manager_since' => optional($company->created_at)?->toIso8601String(),

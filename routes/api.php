@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\BuildingAdminController;
+use App\Http\Controllers\Api\Admin\HostMessageAdminController;
 use App\Http\Controllers\Api\Admin\HostOverviewController;
 use App\Http\Controllers\Api\Admin\LocationAdminController;
 use App\Http\Controllers\Api\Admin\ManagementCompanyAdminController;
 use App\Http\Controllers\Api\Admin\PriceMatrixAdminController;
+use App\Http\Controllers\Api\AdminHostMessageController;
 use App\Http\Controllers\Api\ApartmentAvailabilityController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ApartmentController;
@@ -101,6 +103,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/management-company', [ManagementCompanyController::class, 'show']);
     Route::post('/management-company', [ManagementCompanyController::class, 'store']);
 
+    Route::get('/messages/admin-thread', [AdminHostMessageController::class, 'index']);
+    Route::post('/messages/admin-thread', [AdminHostMessageController::class, 'store']);
+
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/admin/users', [UserAdminController::class, 'index']);
         Route::post('/admin/users', [UserAdminController::class, 'store']);
@@ -146,5 +151,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/management-companies', [ManagementCompanyAdminController::class, 'index']);
         Route::post('/admin/management-companies', [ManagementCompanyAdminController::class, 'store']);
         Route::patch('/admin/management-companies/{company}/status', [ManagementCompanyAdminController::class, 'updateStatus']);
+
+        Route::get('/admin/hosts/{host}/messages', [HostMessageAdminController::class, 'index']);
+        Route::post('/admin/hosts/{host}/messages', [HostMessageAdminController::class, 'store']);
     });
 });

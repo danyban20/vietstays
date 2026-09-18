@@ -134,14 +134,15 @@
                                 <span v-else-if="company.status === 'invited'" class="mgmt-companies-admin__muted">
                                     {{ t('managementCompaniesAdmin.awaitingHost') }}
                                 </span>
-                                <a
-                                    v-if="company.manager_email"
+                                <button
+                                    v-if="company.manager_user_id"
+                                    type="button"
                                     class="host-btn host-btn--ghost"
-                                    :href="messagesLink"
                                     :title="company.manager_email"
+                                    @click="openMessages(company)"
                                 >
                                     {{ t('managementCompaniesAdmin.messageHost') }}
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -191,18 +192,50 @@
                 </div>
             </template>
         </HostModalShell>
+
+        <HostModalShell :open="messagesModalOpen" :title="t('managementCompaniesAdmin.messagesTitle', { name: messagesHostName })" @close="closeMessages">
+            <div class="mgmt-companies-admin__messages">
+                <p v-if="messagesLoading" class="host-loading">{{ t('common.loading') }}</p>
+                <template v-else>
+                    <div v-if="!hostMessages.length" class="mgmt-companies-admin__muted">{{ t('managementCompaniesAdmin.messagesEmpty') }}</div>
+                    <div v-else class="mgmt-companies-admin__message-list">
+                        <div
+                            v-for="message in hostMessages"
+                            :key="message.id"
+                            class="mgmt-companies-admin__bubble"
+                            :class="message.sender_role === 'admin' ? 'mgmt-companies-admin__bubble--admin' : 'mgmt-companies-admin__bubble--host'"
+                        >
+                            <div class="mgmt-companies-admin__bubble-meta">{{ message.sender_name }}</div>
+                            <div>{{ message.body }}</div>
+                        </div>
+                    </div>
+                </template>
+                <textarea
+                    v-model="messageDraft"
+                    class="host-input mgmt-companies-admin__message-input"
+                    rows="2"
+                    :placeholder="t('managementCompaniesAdmin.messagePlaceholder')"
+                />
+            </div>
+            <template #footer>
+                <div class="host-modal__footer-actions">
+                    <button type="button" class="host-btn host-btn--ghost" @click="closeMessages">{{ t('common.cancel') }}</button>
+                    <button type="button" class="host-btn host-btn--accent" :disabled="sendingMessage || !messageDraft.trim()" @click="sendMessage">
+                        {{ sendingMessage ? t('common.loading') : t('managementCompaniesAdmin.send') }}
+                    </button>
+                </div>
+            </template>
+        </HostModalShell>
     </div>
 </template>
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 import apiClient from '@/api/client';
 import HostModalShell from '@/components/modals/HostModalShell.vue';
 
 const { t } = useI18n();
-const router = useRouter();
 
 const loading = ref(true);
 const accessDenied = ref(false);
@@ -238,7 +271,14 @@ const rejecting = ref(false);
 const rejectError = ref('');
 const rejectForm = reactive({ companyId: null, reason: '' });
 
-const messagesLink = computed(() => router.resolve({ name: 'messages' }).href);
+const messagesModalOpen = ref(false);
+const messagesLoading = ref(false);
+const sendingMessage = ref(false);
+const messageDraft = ref('');
+const hostMessages = ref([]);
+const messagesHostId = ref(null);
+const messagesHostName = ref('');
+const messagesCompanyName = ref('');
 
 const STATUS_LABEL_KEYS = {
     pending: 'managementCompaniesAdmin.statusPending',
@@ -369,6 +409,56 @@ async function submitReject() {
     }
 }
 
+async function openMessages(company) {
+    messagesHostId.value = company.manager_user_id;
+    messagesHostName.value = company.manager_name || company.manager_email || '';
+    messagesCompanyName.value = company.name;
+    messageDraft.value = '';
+    messagesModalOpen.value = true;
+    messagesLoading.value = true;
+
+    try {
+        const res = await apiClient.get(`/admin/hosts/${messagesHostId.value}/messages`);
+        hostMessages.value = res?.data ?? [];
+
+        if (!hostMessages.value.length) {
+            const intro = t('managementCompaniesAdmin.autoMessageBody', { company: messagesCompanyName.value });
+            const sendRes = await apiClient.post(`/admin/hosts/${messagesHostId.value}/messages`, { body: intro });
+            if (sendRes?.data) {
+                hostMessages.value = [sendRes.data];
+            }
+        }
+    } catch (err) {
+        loadError.value = err.message ?? t('managementCompaniesAdmin.loadFailed');
+    } finally {
+        messagesLoading.value = false;
+    }
+}
+
+function closeMessages() {
+    messagesModalOpen.value = false;
+}
+
+async function sendMessage() {
+    if (!messageDraft.value.trim() || sendingMessage.value) {
+        return;
+    }
+
+    sendingMessage.value = true;
+
+    try {
+        const res = await apiClient.post(`/admin/hosts/${messagesHostId.value}/messages`, { body: messageDraft.value.trim() });
+        if (res?.data) {
+            hostMessages.value = [...hostMessages.value, res.data];
+        }
+        messageDraft.value = '';
+    } catch {
+        // Leave the draft in place so the admin can retry.
+    } finally {
+        sendingMessage.value = false;
+    }
+}
+
 function openCreate() {
     createError.value = '';
     createForm.name = '';
@@ -411,6 +501,50 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.mgmt-companies-admin__messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mgmt-companies-admin__message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.mgmt-companies-admin__bubble {
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    line-height: 1.4;
+}
+
+.mgmt-companies-admin__bubble--admin {
+    align-self: flex-end;
+    background: #12352b;
+    color: #f2ead9;
+}
+
+.mgmt-companies-admin__bubble--host {
+    align-self: flex-start;
+    background: #f0ecdf;
+    color: #1c2b23;
+}
+
+.mgmt-companies-admin__bubble-meta {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-bottom: 2px;
+}
+
+.mgmt-companies-admin__message-input {
+    resize: vertical;
+}
+
 .host-page-header--row {
     display: flex;
     justify-content: space-between;

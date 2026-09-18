@@ -28,6 +28,7 @@
         <div v-else-if="mode === 'pending'" class="host-mgmt-status-banner host-mgmt-status-banner--pending">
             <h2 class="host-mgmt-status-banner__title">{{ t('mgmtCompany.pendingTitle') }}</h2>
             <p class="host-mgmt-status-banner__text">{{ t('mgmtCompany.pendingText') }}</p>
+            <AdminHostMessagePanel />
         </div>
 
         <div v-else-if="mode === 'rejected'" class="host-mgmt-status-banner host-mgmt-status-banner--rejected">
@@ -38,6 +39,7 @@
             <button type="button" class="host-btn host-btn--primary" @click="startSetup">
                 {{ t('mgmtCompany.reviseCta') }}
             </button>
+            <AdminHostMessagePanel />
         </div>
 
         <ManagementCompanyWizard
@@ -136,6 +138,7 @@ import { useToast } from '@/composables/useToast';
 import SidebarIcon from '@/components/SidebarIcon.vue';
 import ManagementCompanyWizard from '@/components/management/ManagementCompanyWizard.vue';
 import ManagementCompanyActive from '@/components/management/ManagementCompanyActive.vue';
+import AdminHostMessagePanel from '@/components/management/AdminHostMessagePanel.vue';
 
 const { t } = useI18n();
 const toast = useToast();

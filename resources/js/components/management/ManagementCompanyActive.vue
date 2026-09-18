@@ -51,7 +51,8 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { REVENUE_MODELS, SETUP_MEMBERS } from '@/data/management-company-content.js';
+import { useAuthStore } from '@/stores/auth';
+import { REVENUE_MODELS } from '@/data/management-company-content.js';
 
 const props = defineProps({
     company: {
@@ -61,12 +62,16 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const auth = useAuthStore();
 
 const modelDef = computed(() => REVENUE_MODELS.find((model) => model.id === props.company.revenueModel) ?? REVENUE_MODELS[0]);
 
 const modelTitle = computed(() => t(modelDef.value.titleKey));
 const modelBody = computed(() => t(modelDef.value.bodyKey));
 const legalRegistered = computed(() => props.company.legalRegistered);
+
+const youName = computed(() => auth.user?.display_name || auth.user?.name || t('mgmtCompany.you'));
+const youInitials = computed(() => youName.value.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase());
 
 const kpis = computed(() => [
     {
@@ -76,27 +81,25 @@ const kpis = computed(() => [
     },
     {
         labelKey: 'mgmtCompany.kpiRevenue',
-        value: '412.5M',
-        sub: t('mgmtCompany.kpiRevenueSub'),
+        value: '—',
+        sub: t('mgmtCompany.kpiRevenueComingSoon'),
     },
     {
         labelKey: 'mgmtCompany.kpiHosts',
-        value: String(3 + props.company.pendingInvites.length),
+        value: String(1 + props.company.pendingInvites.length),
         sub: t('mgmtCompany.kpiHostsSub'),
     },
 ]);
 
-const members = computed(() => {
-    const shareKeys = ['me', 'lars', 'hoa'];
-
-    return SETUP_MEMBERS.map((member, index) => ({
-        initials: member.initials,
-        name: member.name,
-        isYou: member.isYou,
-        role: member.isYou ? t('mgmtCompany.roleCreator') : t('mgmtCompany.roleHost'),
-        apartments: member.isYou ? props.company.includedCount : member.apartments,
-        share: props.company.shares[shareKeys[index]],
+const members = computed(() => [
+    {
+        initials: youInitials.value,
+        name: youName.value,
+        isYou: true,
+        role: t('mgmtCompany.roleCreator'),
+        apartments: props.company.includedCount,
+        share: props.company.shares?.me ?? 100,
         shareBasis: t('mgmtCompany.shareBasis'),
-    }));
-});
+    },
+]);
 </script>

@@ -215,6 +215,11 @@
         "reactivate": "Kích hoạt lại",
         "awaitingHost": "Chờ gắn host",
         "messageHost": "Nhắn tin cho host",
+        "messagesTitle": "Tin nhắn với {name}",
+        "messagesEmpty": "Chưa có tin nhắn nào.",
+        "messagePlaceholder": "Nhập phản hồi…",
+        "send": "Gửi",
+        "autoMessageBody": "Xin chào, chúng tôi đang xem xét đơn đăng ký công ty quản lý \"{company}\" của bạn. Vui lòng phản hồi tại đây nếu có câu hỏi.",
         "empty": "Không tìm thấy công ty quản lý nào.",
         "accessDenied": "Chỉ Superadmin và Supervisor mới quản lý được công ty quản lý.",
         "loadFailed": "Không thể tải danh sách công ty quản lý.",
@@ -235,6 +240,10 @@
         "pendingText": "Yêu cầu đăng ký công ty quản lý của bạn đã được gửi. Quản trị viên Vietstays sẽ xem xét và liên hệ nếu cần bổ sung thông tin.",
         "rejectedTitle": "Đăng ký bị từ chối",
         "rejectedText": "Đăng ký công ty quản lý của bạn đã bị từ chối: {reason}. Hãy chỉnh sửa lại thông tin bên dưới và gửi lại để được duyệt.",
-        "reviseCta": "Chỉnh sửa và gửi lại"
+        "reviseCta": "Chỉnh sửa và gửi lại",
+        "messagesTitle": "Tin nhắn với Vietstays",
+        "messagesEmpty": "Chưa có tin nhắn nào.",
+        "messagePlaceholder": "Nhập phản hồi…",
+        "send": "Gửi"
     }
 }
