@@ -8,12 +8,22 @@ on:
         type: boolean
         default: true
 
+# Never let two production deploys rsync/migrate on top of each other; a
+# second dispatch waits for the first instead of cancelling it mid-migration.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   test:
+    # Production only ships from main — dispatching from any other branch
+    # skips both jobs.
+    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/ci.yml
 
   deploy:
     needs: test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
 
@@ -42,6 +52,21 @@ jobs:
 
       - name: Build frontend assets
         run: npm run build
+
+      - name: Enter maintenance mode
+        id: down
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SG_SSH_HOST }}
+          port: ${{ secrets.SG_SSH_PORT }}
+          username: ${{ secrets.SG_SSH_USER }}
+          key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd "${{ secrets.SG_DEPLOY_PATH }}"
+            # Visitors get a 503 instead of new code running against the old
+            # schema while files sync and migrations run.
+            php artisan down --retry=60
 
       - name: Deploy files over rsync/SSH
         uses: burnett01/rsync-deployments@7.0.1
@@ -75,7 +100,7 @@ jobs:
           username: ${{ secrets.SG_SSH_USER }}
           key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
           script: |
-            set -e
+            set -eo pipefail
             cd "${{ secrets.SG_DEPLOY_PATH }}"
 
             php artisan config:clear
@@ -90,15 +115,34 @@ jobs:
               BACKUP_DIR="$HOME/db-backups"
               mkdir -p "$BACKUP_DIR"
 
-              DB_DATABASE=$(grep -E '^DB_DATABASE=' .env | tail -1 | cut -d '=' -f2-)
-              DB_USERNAME=$(grep -E '^DB_USERNAME=' .env | tail -1 | cut -d '=' -f2-)
-              DB_PASSWORD=$(grep -E '^DB_PASSWORD=' .env | tail -1 | cut -d '=' -f2-)
-              DB_HOST=$(grep -E '^DB_HOST=' .env | tail -1 | cut -d '=' -f2-)
+              # Read a key from .env, stripping one pair of surrounding quotes
+              # (DB_PASSWORD="..." is valid dotenv but mysqldump would get the
+              # quotes as part of the password).
+              env_get() {
+                { grep -E "^$1=" .env || true; } | tail -1 | cut -d '=' -f2- | sed -E "s/^([\"'])(.*)\1\$/\2/"
+              }
+              DB_DATABASE=$(env_get DB_DATABASE)
+              DB_USERNAME=$(env_get DB_USERNAME)
+              DB_HOST=$(env_get DB_HOST)
 
               STAMP=$(date +%Y%m%d-%H%M%S)
               BACKUP_FILE="$BACKUP_DIR/pre-deploy-$STAMP.sql.gz"
 
-              mysqldump -h"$DB_HOST" -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" | gzip > "$BACKUP_FILE"
+              # pipefail makes a mysqldump failure abort the deploy instead of
+              # gzip happily writing an empty backup. MYSQL_PWD keeps the
+              # password out of the process list. --no-tablespaces: shared
+              # hosting users lack the PROCESS privilege mysqldump 8 wants.
+              MYSQL_PWD="$(env_get DB_PASSWORD)" mysqldump \
+                -h"${DB_HOST:-127.0.0.1}" -u"$DB_USERNAME" \
+                --single-transaction --no-tablespaces \
+                "$DB_DATABASE" | gzip > "$BACKUP_FILE"
+
+              # An empty database still dumps a header, so a tiny file means
+              # something went wrong even if every command exited 0.
+              if [ "$(gzip -dc "$BACKUP_FILE" | head -c 1024 | wc -c)" -lt 1024 ]; then
+                echo "Backup $BACKUP_FILE looks empty; refusing to migrate." >&2
+                exit 1
+              fi
               echo "Database backed up to $BACKUP_FILE"
 
               # Keep the 10 most recent backups only.
@@ -110,3 +154,17 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+
+      # Runs even if a step above failed, so a broken deploy doesn't leave the
+      # site stuck on the 503 page; only skipped if we never went down.
+      - name: Leave maintenance mode
+        if: always() && steps.down.outcome == 'success'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SG_SSH_HOST }}
+          port: ${{ secrets.SG_SSH_PORT }}
+          username: ${{ secrets.SG_SSH_USER }}
+          key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
+          script: |
+            cd "${{ secrets.SG_DEPLOY_PATH }}"
+            php artisan up

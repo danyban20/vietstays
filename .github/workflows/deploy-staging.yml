@@ -1,6 +1,11 @@
 name: Deploy to staging (dev.vietstays.com)
 
 on:
+  # Every commit that lands on main (i.e. every merged PR) goes to staging
+  # automatically once the test job below passes. Manual dispatch stays
+  # available for redeploying a feature branch or reseeding.
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       run_migrations:
@@ -12,8 +17,16 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
 jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -41,6 +54,19 @@ jobs:
 
       - name: Build frontend assets
         run: npm run build
+
+      - name: Enter maintenance mode
+        id: down
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SG_SSH_HOST }}
+          port: ${{ secrets.SG_SSH_PORT }}
+          username: ${{ secrets.SG_SSH_USER }}
+          key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
+          script: |
+            cd "${{ secrets.SG_STAGING_DEPLOY_PATH }}" || exit 0
+            # Tolerated on a first deploy, when there's no app to take down yet.
+            php artisan down --retry=60 || true
 
       - name: Deploy files over rsync/SSH
         uses: burnett01/rsync-deployments@7.0.1
@@ -88,7 +114,8 @@ jobs:
             php artisan route:clear
             php artisan view:clear
 
-            if [ "${{ inputs.run_migrations }}" = "true" ]; then
+            # inputs are empty on push events, so auto-deploys always migrate.
+            if [ "${{ github.event_name == 'push' || inputs.run_migrations }}" = "true" ]; then
               php artisan migrate --force
             fi
 
@@ -100,3 +127,17 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             php artisan storage:link || true
+
+      # Runs even if a step above failed, so a broken deploy doesn't leave the
+      # site stuck on the 503 page.
+      - name: Leave maintenance mode
+        if: always() && steps.down.outcome == 'success'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SG_SSH_HOST }}
+          port: ${{ secrets.SG_SSH_PORT }}
+          username: ${{ secrets.SG_SSH_USER }}
+          key: ${{ secrets.SG_SSH_PRIVATE_KEY }}
+          script: |
+            cd "${{ secrets.SG_STAGING_DEPLOY_PATH }}"
+            php artisan up
