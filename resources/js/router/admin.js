@@ -116,6 +116,12 @@ const routes = [
                 meta: { breadcrumbKey: 'nav.priceMatrix', adminSection: true },
             },
             {
+                path: 'management-companies',
+                name: 'superadmin-management-companies',
+                component: () => import('@/pages/superadmin/ManagementCompaniesAdminPage.vue'),
+                meta: { breadcrumbKey: 'nav.managementCompanies', adminSection: true },
+            },
+            {
                 path: 'team/sales',
                 name: 'team-sales',
                 component: () => import('@/pages/team/TeamPage.vue'),

@@ -45,9 +45,13 @@
                     <span class="host-sidebar__chevron" :class="{ 'host-sidebar__chevron--open': hostsPartnersOpen }">▾</span>
                 </button>
                 <template v-if="hostsPartnersOpen">
-                    <span class="host-sidebar__link host-sidebar__link--child host-sidebar__link--disabled">
+                    <router-link
+                        :to="{ name: 'superadmin-management-companies' }"
+                        class="host-sidebar__link host-sidebar__link--child"
+                        :class="{ 'host-sidebar__link--active': isActive('superadmin-management-companies') }"
+                    >
                         {{ t('nav.managementCompanies') }}
-                    </span>
+                    </router-link>
                     <router-link
                         :to="{ name: 'superadmin-hosts' }"
                         class="host-sidebar__link host-sidebar__link--child"

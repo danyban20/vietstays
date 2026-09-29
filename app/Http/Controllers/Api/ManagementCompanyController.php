@@ -36,8 +36,10 @@ class ManagementCompanyController extends Controller
             'companyApartmentCount' => ['required', 'integer', 'min:0'],
         ]);
 
+        $user = $request->user();
+
         $company = HostManagementCompany::query()->updateOrCreate(
-            ['user_id' => $request->user()->id],
+            ['user_id' => $user->id],
             [
                 'name' => trim((string) $validated['form']['name']),
                 'tagline' => filled($validated['form']['tagline'] ?? null) ? trim((string) $validated['form']['tagline']) : null,
@@ -48,12 +50,21 @@ class ManagementCompanyController extends Controller
                 'shares' => $validated['shares'],
                 'included_count' => $validated['includedCount'],
                 'company_apartment_count' => $validated['companyApartmentCount'],
+                // Every (re)submission goes back to the review queue.
+                'status' => 'pending',
+                'rejection_reason' => null,
+                'reviewed_by' => null,
+                'reviewed_at' => null,
             ],
         );
 
+        if ($user->management_company_id !== $company->id) {
+            $user->update(['management_company_id' => $company->id]);
+        }
+
         return response()->json([
             'data' => $this->present($company),
-            'message' => 'Management company saved.',
+            'message' => 'Registration request submitted for review.',
         ]);
     }
 
@@ -74,6 +85,11 @@ class ManagementCompanyController extends Controller
             'shares' => $company->shares ?? [],
             'includedCount' => (int) $company->included_count,
             'companyApartmentCount' => (int) $company->company_apartment_count,
+            'status' => $company->status,
+            'rejectionReason' => $company->rejection_reason,
+            'rejectionReasonLabel' => $company->rejection_reason
+                ? config('management_companies.rejection_reasons.'.$company->rejection_reason, $company->rejection_reason)
+                : null,
         ];
     }
 }

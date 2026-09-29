@@ -25,6 +25,23 @@
 
         <p v-if="loading" class="host-team-empty">{{ t('common.loading') }}</p>
 
+        <div v-else-if="mode === 'pending'" class="host-mgmt-status-banner host-mgmt-status-banner--pending">
+            <h2 class="host-mgmt-status-banner__title">{{ t('mgmtCompany.pendingTitle') }}</h2>
+            <p class="host-mgmt-status-banner__text">{{ t('mgmtCompany.pendingText') }}</p>
+            <AdminHostMessagePanel />
+        </div>
+
+        <div v-else-if="mode === 'rejected'" class="host-mgmt-status-banner host-mgmt-status-banner--rejected">
+            <h2 class="host-mgmt-status-banner__title">{{ t('mgmtCompany.rejectedTitle') }}</h2>
+            <p class="host-mgmt-status-banner__text">
+                {{ t('mgmtCompany.rejectedText', { reason: company?.rejectionReasonLabel ?? '' }) }}
+            </p>
+            <button type="button" class="host-btn host-btn--primary" @click="startSetup">
+                {{ t('mgmtCompany.reviseCta') }}
+            </button>
+            <AdminHostMessagePanel />
+        </div>
+
         <ManagementCompanyWizard
             v-else-if="mode === 'setup'"
             :saving="saving"
@@ -121,6 +138,7 @@ import { useToast } from '@/composables/useToast';
 import SidebarIcon from '@/components/SidebarIcon.vue';
 import ManagementCompanyWizard from '@/components/management/ManagementCompanyWizard.vue';
 import ManagementCompanyActive from '@/components/management/ManagementCompanyActive.vue';
+import AdminHostMessagePanel from '@/components/management/AdminHostMessagePanel.vue';
 
 const { t } = useI18n();
 const toast = useToast();
@@ -136,7 +154,7 @@ const pageTitle = computed(() => {
         return t('mgmtCompany.setupTitle');
     }
 
-    if (mode.value === 'active' && company.value) {
+    if (['active', 'pending', 'rejected'].includes(mode.value) && company.value) {
         return company.value.form.name.trim() || t('mgmtCompany.defaultCompanyName');
     }
 
@@ -179,12 +197,28 @@ const benefits = [
     },
 ];
 
+function modeForCompany(value) {
+    if (!value) {
+        return 'empty';
+    }
+
+    if (value.status === 'pending') {
+        return 'pending';
+    }
+
+    if (value.status === 'rejected') {
+        return 'rejected';
+    }
+
+    return 'active';
+}
+
 function startSetup() {
     mode.value = 'setup';
 }
 
 function cancelSetup() {
-    mode.value = company.value ? 'active' : 'empty';
+    mode.value = modeForCompany(company.value);
 }
 
 async function loadCompany() {
@@ -193,7 +227,7 @@ async function loadCompany() {
     try {
         const response = await apiClient.get('/management-company');
         company.value = response.data ?? null;
-        mode.value = company.value ? 'active' : 'empty';
+        mode.value = modeForCompany(company.value);
     } catch {
         company.value = null;
         mode.value = 'empty';
@@ -212,7 +246,7 @@ async function onComplete(payload) {
     try {
         const response = await apiClient.post('/management-company', payload);
         company.value = response.data ?? payload;
-        mode.value = 'active';
+        mode.value = modeForCompany(company.value);
         toast.show(response.message || t('mgmtCompany.saved'));
     } catch (err) {
         toast.show(err.message || t('mgmtCompany.saveFailed'));

@@ -5778,6 +5778,38 @@ body {
     margin-bottom: 16px;
 }
 
+.host-mgmt-status-banner {
+    background: #fff;
+    border: 1px solid #eee6d0;
+    border-left: 4px solid var(--vs-warning-border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.host-mgmt-status-banner--rejected {
+    border-left-color: var(--vs-error);
+}
+
+.host-mgmt-status-banner__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: #1c2b23;
+}
+
+.host-mgmt-status-banner__text {
+    margin: 0;
+    font-size: 13.5px;
+    color: #5e6b62;
+    line-height: 1.5;
+}
+
 .host-mgmt-hero__top {
     display: flex;
     align-items: center;

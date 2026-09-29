@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HostManagementCompany extends Model
 {
@@ -20,6 +21,11 @@ class HostManagementCompany extends Model
         'shares',
         'included_count',
         'company_apartment_count',
+        'status',
+        'company_number',
+        'rejection_reason',
+        'reviewed_by',
+        'reviewed_at',
     ];
 
     protected function casts(): array
@@ -29,11 +35,26 @@ class HostManagementCompany extends Model
             'excluded' => 'array',
             'pending_invites' => 'array',
             'shares' => 'array',
+            'reviewed_at' => 'datetime',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Every host currently linked to this company (the submitting host is
+     * linked to their own company as soon as it's created).
+     */
+    public function linkedHosts(): HasMany
+    {
+        return $this->hasMany(User::class, 'management_company_id');
     }
 }
