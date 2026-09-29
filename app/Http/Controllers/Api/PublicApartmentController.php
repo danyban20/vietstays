@@ -68,9 +68,13 @@ class PublicApartmentController extends Controller
             $apartmentQuery->where('district', $request->integer('district'));
         }
 
-        if ($request->filled('city')) {
+        $cityId = $request->filled('city')
+            ? $request->integer('city')
+            : $request->integer('city_id');
+
+        if ($cityId) {
             $districtIds = District::query()
-                ->where('city_id', $request->integer('city'))
+                ->where('city_id', $cityId)
                 ->pluck('district_id');
             $apartmentQuery->whereIn('district', $districtIds);
         }
@@ -106,8 +110,8 @@ class PublicApartmentController extends Controller
             ->with('city')
             ->whereIn('district_id', $countsByDistrict->keys());
 
-        if ($request->filled('city')) {
-            $districtQuery->where('city_id', $request->integer('city'));
+        if ($cityId) {
+            $districtQuery->where('city_id', $cityId);
         }
 
         $districts = $districtQuery

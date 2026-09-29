@@ -369,6 +369,7 @@ import {
     SECTION_HCM,
 } from '@/data/apartments-content';
 import { formatVnd } from '@/utils/format';
+import { hasLegacySearchQuery, rewriteLegacySearchQuery } from '@/utils/legacy-search-query';
 
 const listIcon = String('/home/images/list2.svg');
 const listActiveIcon = String('/home/images/list_h.svg');
@@ -398,6 +399,8 @@ const filters = reactive({
     rooms: 2,
     adults: 2,
     children: 0,
+    from: '',
+    to: '',
     price: '',
     sort: '',
 });
@@ -454,11 +457,14 @@ const visibleApartments = computed(() => {
 });
 
 function syncFromRoute() {
-    filters.city = route.query.city ? String(route.query.city) : '';
-    filters.district = route.query.district ? String(route.query.district) : '';
-    filters.rooms = route.query.rooms ? Number(route.query.rooms) : 2;
-    filters.adults = route.query.adults ? Number(route.query.adults) : 2;
-    filters.children = route.query.children ? Number(route.query.children) : 0;
+    const query = rewriteLegacySearchQuery(route.query);
+    filters.city = query.city ? String(query.city) : '';
+    filters.district = query.district ? String(query.district) : '';
+    filters.rooms = query.rooms ? Number(query.rooms) : 2;
+    filters.adults = query.adults ? Number(query.adults) : 2;
+    filters.children = query.children ? Number(query.children) : 0;
+    filters.from = query.from ? String(query.from) : '';
+    filters.to = query.to ? String(query.to) : '';
     if (filters.district) {
         selectedDistrict.value = Number(filters.district);
     }
@@ -471,6 +477,8 @@ function buildQuery() {
     if (filters.rooms) query.rooms = String(filters.rooms);
     if (filters.adults) query.adults = String(filters.adults);
     if (filters.children) query.children = String(filters.children);
+    if (filters.from) query.from = filters.from;
+    if (filters.to) query.to = filters.to;
     return query;
 }
 
@@ -521,6 +529,8 @@ function clearFilters() {
     filters.rooms = 2;
     filters.adults = 2;
     filters.children = 0;
+    filters.from = '';
+    filters.to = '';
     filters.price = '';
     filters.sort = '';
     activeFacilities.value = [];
@@ -568,8 +578,11 @@ function onDocumentClick(event) {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
     mount();
+    if (hasLegacySearchQuery(route.query)) {
+        await router.replace({ name: 'public-apartments', query: rewriteLegacySearchQuery(route.query) });
+    }
     syncFromRoute();
     loadSearch();
     window.addEventListener('scroll', onScroll, { passive: true });

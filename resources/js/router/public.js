@@ -1,8 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { getAppBasePath } from '@/utils/app-base';
+import { rewriteLegacySearchQuery } from '@/utils/legacy-search-query';
 
 const routes = [
+    {
+        path: '/wp/:pathMatch(.*)*',
+        redirect: (to) => {
+            const rest = to.params.pathMatch;
+            const suffix = Array.isArray(rest) ? rest.filter(Boolean).join('/') : (rest || '');
+
+            return {
+                path: `/${suffix}`,
+                query: rewriteLegacySearchQuery(to.query),
+                hash: to.hash,
+            };
+        },
+    },
     {
         path: '/',
         component: PublicLayout,
