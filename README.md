@@ -1,143 +1,146 @@
-# Vietstays v2 — Laravel + Vue Host Dashboard
+# Vietstays v2
 
-Standalone rewrite of the Vietstays WordPress plugin as a **Laravel 13** API + **Vue 3** SPA.
+A rewrite of the Vietstays WordPress plugin as a **Laravel 13** API with two **Vue 3** apps:
 
-## Stack
+- **Public site** (`/`): browse apartments, get a price quote, book, message the host, apply to become a host.
+- **Dashboard** (`/admin`): where hosts, partners and the Vietstays team manage apartments, bookings, customers and settings.
 
-- **Backend:** Laravel 13, Sanctum (session SPA auth), MySQL
-- **Frontend:** Vue 3, Vue Router, Pinia, Vite
-- **Design:** `design_handoff_host_dashboard/` (Host Dashboard standalone mockup + README tokens)
-- **Legacy data:** `db/vietstays.sql` (WordPress export with `vv_*` tables)
+| | URL | Deploys |
+|---|---|---|
+| Production | https://vietstays.com | Manually, from `main` |
+| Staging | https://dev.vietstays.com | Automatically, on every merge to `main` |
 
-## Folder layout
+---
 
-```
-vietstays/                  # Laravel app root (document root: public/)
-├── app/
-├── database/
-├── resources/js/           # Vue SPA (host dashboard)
-├── routes/api.php
-├── design_handoff_host_dashboard/
-├── db/vietstays.sql
-└── old/                    # Archived WordPress site + plugin
-```
+## Quick start
 
-## Setup (Laragon)
-
-Point **vietstays.test** at `D:\laragon\www\vietstays\public` (already configured in Laragon).
-
-### 1. Create the database
-
-```sql
-CREATE DATABASE vietstays_v2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-### 2. Configure environment
+You need PHP 8.3+, Composer, Node 20+ and MySQL 8.
 
 ```bash
-cd D:\laragon\www\vietstays
-copy .env.example .env
+# 1. Database
+mysql -u root -e "CREATE DATABASE vietstays_v2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+
+# 2. Environment
+cp .env.example .env          # defaults: DB vietstays_v2, user root, APP_URL http://vietstays.test
 php artisan key:generate
-```
 
-Edit `.env` — set `DB_DATABASE=vietstays_v2`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_URL=http://vietstays.test`.
-
-Laragon vhost document root: `D:\laragon\www\vietstays\public`.
-
-### 3. Install dependencies
-
-```bash
+# 3. Dependencies
 composer install
-npm install --legacy-peer-deps
-```
+npm install
 
-### 4. Migrate & seed legacy data
-
-```bash
+# 4. Schema + legacy data (vv_* tables, WordPress users, buildings)
 php artisan migrate
-php artisan db:seed
-```
+php artisan db:seed           # or: php artisan vietstays:import-legacy
 
-Or one-shot:
-
-```bash
-php artisan vietstays:import-legacy
-```
-
-This imports all `vv_*` tables, WordPress users (with roles), and buildings from `gyh_posts` (neighbourhood type).
-
-### 5. Run
-
-```bash
-# Terminal 1 (optional if using Laragon Apache)
-php artisan serve --host=vietstays.test --port=8000
-
-# Terminal 2
+# 5. Run
+php artisan serve             # skip if Laragon/Apache already serves public/
 npm run dev
 ```
 
-Open `http://vietstays.test`.
+Then open `APP_URL` for the public site, or `APP_URL/admin` for the dashboard.
 
-## Login
-
-Legacy WordPress passwords are supported via `WordPressPasswordVerifier` (phpass + `$wp$` bcrypt).
-
-Example accounts from the SQL dump:
-
-| Email | Role |
-|-------|------|
-| dan@wiise.no | admin |
-| partner1@visitvietnam.no | partner |
-| dev2@wiise.no | host |
-
-Use the same password as on the WordPress site.
-
-To set a new Laravel password for testing:
+**Logging in:** legacy WordPress passwords (phpass and `$wp$` bcrypt) still work, so any account from `db/vietstays.sql` can log in with its old password. To set a password for local testing:
 
 ```bash
 php artisan tinker
->>> \App\Models\User::where('email','dan@wiise.no')->update(['password' => bcrypt('secret')]);
+>>> \App\Models\User::where('email', 'you@example.com')->update(['password' => bcrypt('secret')]);
 ```
 
-## API endpoints
+Staging has one test account per role; see [DEPLOYMENT.md](DEPLOYMENT.md#test-accounts-on-staging).
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/login` | Session login |
-| POST | `/api/logout` | Logout |
-| GET | `/api/user` | Current user |
-| GET | `/api/dashboard` | Dashboard stats |
-| GET | `/api/apartments` | Apartment list |
-| GET | `/api/apartments/{id}` | Apartment detail |
-| GET | `/api/bookings` | Booking list |
-| GET | `/api/bookings/{id}` | Booking detail |
+---
 
-## Vue pages (host dashboard)
+## What's built
 
-- **Dashboard** — stats overview
-- **Bookings** — list, calendar placeholder, detail
-- **Apartments** — card list, detail tabs (Availability / Price / Presentation)
+### Public site
+- Home page and apartment list and detail pages
+- Price quote and booking checkout
+- Message thread between guest and host
+- Host application form
+- Accepting a team invitation
 
-UI follows design tokens from `design_handoff_host_dashboard/README.md` (green `#12352b`, orange `#e0793a`, sand backgrounds).
+### Dashboard
+| Area | What it does |
+|---|---|
+| **Dashboard** | Stats overview |
+| **Bookings** | List, detail, and a calendar where you drag to move bookings |
+| **Apartments** | List and detail (availability, price, presentation); add-apartment wizard; photo uploads |
+| **Customers** | List and detail, notes, merging duplicate customers, Excel export |
+| **Messages** | Host ↔ guest conversations; admin ↔ host thread about management company registrations |
+| **Team** | Sales team (with member detail pages), operations team, management company setup wizard (hosts submit a registration request, then an admin reviews it) |
+| **Settings** | Email, email templates, languages |
+| **Superadmin tools** | Users, host applications, hosts overview, management companies (approve / reject / pause), buildings, countries and locations, price matrix |
 
-## Migration from WordPress plugin
+### Platform
+- **Roles:** `superadmin`, `supervisor`, `partner`, `host`, `staff` and `ambassador`. Routes are gated with the `role:` middleware. See [DEPLOYMENT.md → Role model](DEPLOYMENT.md#role-model) for who can reach what.
+- **Languages:** English (default), Norwegian, Vietnamese and Tagalog, via `vue-i18n` and `lang/vietstays/`.
+- **Pricing:** base price × district index × building factor. See [PRICE_MATRIX_README.md](PRICE_MATRIX_README.md).
+- **CI/CD:** tests run on every PR; merging to `main` deploys staging; production is deployed manually after a DB backup. See [Deploying](#deploying).
+
+---
+
+## Project layout
+
+```
+vietstays/
+├── app/                        # Models, API controllers, services
+├── database/                   # Migrations + seeders (incl. legacy import)
+├── resources/js/
+│   ├── pages/                  # Dashboard pages
+│   ├── pages/public/           # Public site pages
+│   ├── router/                 # admin.js (dashboard), public.js (public site)
+│   └── i18n/                   # Translations
+├── routes/api.php              # JSON API
+├── tests/Feature/              # PHPUnit feature tests
+├── db/vietstays.sql            # Legacy WordPress dump (vv_* tables)
+├── design_handoff_host_dashboard/  # Design mockup + tokens
+├── .github/workflows/          # CI and deploys
+└── old/                        # Archived WordPress site (reference only)
+```
+
+---
+
+## Testing
+
+```bash
+php artisan test
+```
+
+Tests use in-memory SQLite by default (`phpunit.xml`). CI runs them against MySQL 8 instead, to catch MySQL-specific issues.
+
+---
+
+## Deploying
+
+```
+feature branch ──PR (CI runs)──▶ main ──CI passes──▶ staging (automatic)
+                                   │
+                                   └── Actions → "Deploy to SiteGround" ──▶ production (manual)
+```
+
+- **Staging** deploys on every push to `main` once tests pass. It runs migrations but never seeds. You can also run it by hand from the Actions tab, for example to deploy a feature branch or to reseed.
+- **Production** is deployed manually and only from `main`. It dumps the database to `~/db-backups/` first and aborts if the backup fails. The site is in maintenance mode while files sync and migrations run.
+
+Environments, secrets and known gotchas are all in **[DEPLOYMENT.md](DEPLOYMENT.md)**. Read it before touching a shared database.
+
+---
+
+## More docs
+
+| File | Topic |
+|---|---|
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Environments, CI/CD, secrets, role model, gotchas |
+| [PRICE_MATRIX_README.md](PRICE_MATRIX_README.md) | Price matrix system |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Price matrix architecture |
+| [PRICE_MATRIX_BOOKING_INTEGRATION.md](PRICE_MATRIX_BOOKING_INTEGRATION.md) | Price matrix in the booking form |
+| [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) | Price simulator setup |
+| `design_handoff_host_dashboard/` | Design tokens; open `Host Dashboard (standalone).html` for the prototype |
+
+### WordPress → Laravel mapping
 
 | WordPress | Laravel v2 |
-|-----------|------------|
-| `vv_*` custom tables | Same table names (legacy migrations) |
-| `gyh_posts` neighbourhood | `buildings` table |
+|---|---|
+| `vv_*` custom tables | Same table names |
+| `gyh_posts` (neighbourhood) | `buildings` table |
 | `gyh_users` | `users` + `legacy_wp_id` |
-| `/vv-admin/*` PHP views | Vue SPA routes |
-| Plugin classes | `App\Models\*` + API controllers |
-
-## Next steps
-
-- [ ] Apartment wizard (5-step modal from design handoff)
-- [ ] Booking calendar drag-and-drop
-- [ ] Full CRUD for bookings/apartments
-- [ ] Admin vs host role middleware
-- [ ] i18n (nb/en/vi keys from design README section 12)
-
-## Design reference
-
-Open `design_handoff_host_dashboard/Host Dashboard (standalone).html` in a browser for the interactive prototype (Norwegian UI copy).
+| `/vv-admin/*` PHP views | Vue dashboard at `/admin` |
