@@ -136,9 +136,3 @@ export const STAY_BENEFITS = [
     { icon: '/home/assets/np_like_1555605_000000.svg', text: 'Perfect environment for family and business trips' },
 ];
 
-export const DEFAULT_CITIES = [
-    { district_id: 449, name: 'Da Nang' },
-    { district_id: 452, name: 'Haiphong' },
-    { district_id: 453, name: 'Hanoi' },
-    { district_id: 440, name: 'Ho Chi Minh City' },
-];

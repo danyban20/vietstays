@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Apartment;
 use App\Models\Booking;
+use App\Models\District;
 use App\Models\HostTeamInvitation;
 use App\Models\HostTeamMember;
 use App\Models\User;
@@ -57,7 +58,7 @@ class TeamService
             'members' => $members,
             'invitations' => $invitations,
             'stats' => $this->buildStats($members, $teamType),
-            'areas' => $this->areaOptions($members),
+            'areas' => $this->areaOptions($user, $members, $invitations),
         ];
     }
 
@@ -613,18 +614,53 @@ class TeamService
 
     /**
      * @param  array<int, array<string, mixed>>  $members
+     * @param  array<int, array<string, mixed>>  $invitations
      * @return array<int, string>
      */
-    protected function areaOptions(array $members): array
+    protected function areaOptions(User $user, array $members, array $invitations = []): array
     {
-        $areas = array_values(array_unique(array_filter(array_map(
-            fn (array $member) => $member['area'] ?? null,
-            $members,
-        ))));
+        $areas = [];
 
-        sort($areas);
+        foreach ([...$members, ...$invitations] as $row) {
+            $area = trim((string) ($row['area'] ?? ''));
 
-        return array_values(array_filter($areas, fn (string $area) => $area !== 'All buildings'));
+            if ($area !== '' && strcasecmp($area, 'All buildings') !== 0) {
+                $areas[] = $area;
+            }
+        }
+
+        foreach ($this->hostPortfolioAreaNames($user) as $name) {
+            $areas[] = $name;
+        }
+
+        $areas = array_values(array_unique($areas));
+        sort($areas, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return $areas;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function hostPortfolioAreaNames(User $user): array
+    {
+        $query = Apartment::query();
+
+        if ($user->isOperator() && ! $user->isAdmin()) {
+            $query->where('user_id', $user->legacy_wp_id);
+        }
+
+        $districtIds = $query->pluck('district')->filter()->unique()->values();
+
+        if ($districtIds->isEmpty()) {
+            return [];
+        }
+
+        return District::query()
+            ->whereIn('district_id', $districtIds)
+            ->orderBy('name')
+            ->pluck('name')
+            ->all();
     }
 
     protected function presentMember(HostTeamMember $member): array

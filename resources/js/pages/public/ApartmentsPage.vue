@@ -170,6 +170,10 @@
                         <template v-else>
                             <div class="list_wrap">
                                 <div v-if="!selectedDistrict" class="districts_list">
+                                    <p v-if="!districts.length" class="host-apartments-empty">
+                                        {{ emptyResultsLabel }}
+                                        <a href="#" @click.prevent="clearFilters">View all apartments</a>
+                                    </p>
                                     <div
                                         v-for="district in districts"
                                         :key="district.district_id"
@@ -220,7 +224,7 @@
                                         class="city_app_block_1"
                                     >
                                         <router-link
-                                            :to="{ name: 'public-apartment', params: { id: apt.id } }"
+                                            :to="{ name: 'public-apartment', params: { slug: apt.slug || String(apt.id) } }"
                                             class="city_app_block_1_inner"
                                         >
                                             <div class="img" :class="{ 'district-greenbox': !apt.image }">
@@ -369,6 +373,7 @@ import {
     SECTION_HCM,
 } from '@/data/apartments-content';
 import { formatVnd } from '@/utils/format';
+import { hasLegacySearchQuery, rewriteLegacySearchQuery } from '@/utils/legacy-search-query';
 
 const listIcon = String('/home/images/list2.svg');
 const listActiveIcon = String('/home/images/list_h.svg');
@@ -398,6 +403,8 @@ const filters = reactive({
     rooms: 2,
     adults: 2,
     children: 0,
+    from: '',
+    to: '',
     price: '',
     sort: '',
 });
@@ -438,6 +445,22 @@ const apartmentsHeading = computed(() => {
     return `Now displaying ${count} apartments${suffix}`;
 });
 
+const selectedCityName = computed(() => {
+    if (!filters.city) {
+        return '';
+    }
+
+    return cities.value.find((city) => String(city.city_id) === String(filters.city))?.name || '';
+});
+
+const emptyResultsLabel = computed(() => {
+    if (selectedCityName.value) {
+        return `No apartments found in ${selectedCityName.value}.`;
+    }
+
+    return 'No apartments found.';
+});
+
 const visibleApartments = computed(() => {
     let list = apartments.value;
     if (selectedDistrict.value) {
@@ -454,11 +477,14 @@ const visibleApartments = computed(() => {
 });
 
 function syncFromRoute() {
-    filters.city = route.query.city ? String(route.query.city) : '';
-    filters.district = route.query.district ? String(route.query.district) : '';
-    filters.rooms = route.query.rooms ? Number(route.query.rooms) : 2;
-    filters.adults = route.query.adults ? Number(route.query.adults) : 2;
-    filters.children = route.query.children ? Number(route.query.children) : 0;
+    const query = rewriteLegacySearchQuery(route.query);
+    filters.city = query.city ? String(query.city) : '';
+    filters.district = query.district ? String(query.district) : '';
+    filters.rooms = query.rooms ? Number(query.rooms) : 2;
+    filters.adults = query.adults ? Number(query.adults) : 2;
+    filters.children = query.children ? Number(query.children) : 0;
+    filters.from = query.from ? String(query.from) : '';
+    filters.to = query.to ? String(query.to) : '';
     if (filters.district) {
         selectedDistrict.value = Number(filters.district);
     }
@@ -471,6 +497,8 @@ function buildQuery() {
     if (filters.rooms) query.rooms = String(filters.rooms);
     if (filters.adults) query.adults = String(filters.adults);
     if (filters.children) query.children = String(filters.children);
+    if (filters.from) query.from = filters.from;
+    if (filters.to) query.to = filters.to;
     return query;
 }
 
@@ -521,6 +549,8 @@ function clearFilters() {
     filters.rooms = 2;
     filters.adults = 2;
     filters.children = 0;
+    filters.from = '';
+    filters.to = '';
     filters.price = '';
     filters.sort = '';
     activeFacilities.value = [];
@@ -570,8 +600,12 @@ function onDocumentClick(event) {
 
 onMounted(() => {
     mount();
-    syncFromRoute();
-    loadSearch();
+    if (hasLegacySearchQuery(route.query)) {
+        router.replace({ name: 'public-apartments', query: rewriteLegacySearchQuery(route.query) });
+    } else {
+        syncFromRoute();
+        loadSearch();
+    }
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('click', onDocumentClick);
     onScroll();

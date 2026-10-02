@@ -14,6 +14,7 @@ class BookingCreationService
     public function __construct(
         protected BookingPricingService $pricingService,
         protected BookingAvailabilityService $availabilityService,
+        protected PromoCodeService $promoCodeService,
     ) {}
 
     public function createGuest(array $payload): Booking
@@ -28,20 +29,30 @@ class BookingCreationService
         $adults = max(1, (int) ($payload['adults'] ?? 1));
         $children = max(0, (int) ($payload['children'] ?? 0));
         $totalGuests = $adults + $children;
+        $maxGuests = (int) ($apartment->max_guests ?? 0);
 
-        if ($totalGuests > (int) ($apartment->max_guests ?? 0)) {
+        if ($maxGuests > 0 && $totalGuests > $maxGuests) {
             throw new \InvalidArgumentException(
-                'This apartment allows a maximum of '.(int) $apartment->max_guests.' guest(s).'
+                'This apartment allows a maximum of '.$maxGuests.' guest(s).'
             );
         }
 
         $this->availabilityService->assertAvailable($apartment->ID, $checkIn, $checkOut);
 
+        $promoCode = trim((string) ($payload['promo_code'] ?? ''));
+        $promo = $promoCode === ''
+            ? null
+            : $this->promoCodeService->resolve($promoCode, (int) $apartment->ID);
+
+        if ($promoCode !== '' && ! $promo) {
+            throw new \InvalidArgumentException('Promo code not found.');
+        }
+
         $quote = $this->pricingService->quote($apartment, $checkIn, $checkOut, [
             'num_cleaning' => (int) ($payload['num_cleaning'] ?? 0),
             'airport_pickup' => ! empty($payload['airport_pickup']),
-            'promo_code' => $payload['promo_code'] ?? '',
-            'promo_code_discount_percent' => (float) ($payload['promo_code_discount'] ?? 0),
+            'promo_code' => $promo['code'] ?? '',
+            'promo_code_discount_percent' => (float) ($promo['discount'] ?? 0),
             'payment_method' => $payload['payment_method'] ?? 'onsite',
         ]);
 
@@ -63,7 +74,7 @@ class BookingCreationService
 
         return DB::transaction(function () use (
             $payload, $apartment, $checkIn, $checkOut, $dates, $nights,
-            $firstname, $lastname, $now, $quote, $discountTotal, $adults, $children
+            $firstname, $lastname, $now, $quote, $discountTotal, $adults, $children, $promo
         ) {
             $extraData = array_filter([
                 'phone' => $payload['phone'] ?? null,
@@ -93,7 +104,7 @@ class BookingCreationService
                 'basic_discount' => (float) ($quote['basic_discount_percent'] ?? 0),
                 'campaign_discount' => $discountTotal,
                 'campaign_discount_desc' => $quote['campaign_discount_desc'] ?? [],
-                'ambassador_id' => 0,
+                'ambassador_id' => (int) ($promo['ambassador_id'] ?? 0),
                 'ambassador_commission' => 0,
                 'promo_code' => $quote['promo_code'] ?? '',
                 'promo_code_discount' => (float) ($quote['promo_code_discount_percent'] ?? 0),

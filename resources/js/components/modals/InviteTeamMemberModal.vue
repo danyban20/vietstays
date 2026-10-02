@@ -10,10 +10,15 @@
                 <input
                     id="team-email"
                     v-model="form.contact"
-                    type="text"
+                    :type="isSales ? 'email' : 'tel'"
                     class="host-input"
+                    :class="{ 'host-input--invalid': contactTouched && !contactValid }"
                     :placeholder="isSales ? t('team.inviteEmailPlaceholder') : t('team.inviteContactPlaceholder')"
+                    @blur="contactTouched = true"
                 />
+                <p v-if="contactTouched && !contactValid && form.contact.trim()" class="host-field-hint host-field-hint--error">
+                    {{ isSales ? t('team.inviteEmailInvalid') : t('team.inviteContactInvalid') }}
+                </p>
             </div>
 
             <div class="host-field">
@@ -29,7 +34,7 @@
                 <label class="host-field__label" for="team-area">{{ t('team.inviteArea') }}</label>
                 <select id="team-area" v-model="form.area" class="host-select">
                     <option value="All buildings">{{ t('team.areaAllBuildings') }}</option>
-                    <option v-for="area in areaOptions" :key="area" :value="area">{{ area }}</option>
+                    <option v-for="area in mergedAreaOptions" :key="area" :value="area">{{ area }}</option>
                 </select>
             </div>
 
@@ -83,9 +88,10 @@
                         </div>
                     </div>
 
-                    <p v-if="paySetup === 'reciprocal'" class="host-team-invite-pay__reciprocal">
-                        {{ t('team.inviteReciprocalNote', { name: inviteeName }) }}
-                    </p>
+                    <div v-if="paySetup === 'reciprocal'" class="host-team-invite-pay__reciprocal">
+                        <span class="host-team-invite-pay__reciprocal-icon" aria-hidden="true">↔</span>
+                        <p>{{ t('team.inviteReciprocalNote', { name: inviteeName }) }}</p>
+                    </div>
                 </template>
             </div>
 
@@ -96,7 +102,19 @@
                     :key="right.key"
                     class="host-team-invite-rights__item"
                 >
-                    <input v-model="form.permissions" type="checkbox" :value="right.key" />
+                    <span
+                        class="host-team-invite-rights__box"
+                        :class="{ 'host-team-invite-rights__box--on': form.permissions.includes(right.key) }"
+                        aria-hidden="true"
+                    >
+                        {{ form.permissions.includes(right.key) ? '✓' : '' }}
+                    </span>
+                    <input
+                        v-model="form.permissions"
+                        type="checkbox"
+                        class="host-team-invite-rights__input"
+                        :value="right.key"
+                    />
                     <span>{{ right.label }}</span>
                 </label>
             </div>
@@ -143,7 +161,9 @@ const toast = useToast();
 
 const saving = ref(false);
 const error = ref('');
+const contactTouched = ref(false);
 const sampleAmount = ref(12_000_000);
+const loadedAreaOptions = ref([]);
 
 const form = reactive({
     contact: '',
@@ -154,6 +174,30 @@ const form = reactive({
 });
 
 const isSales = computed(() => props.mode === 'sales');
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+const mergedAreaOptions = computed(() => {
+    const names = new Set([...props.areaOptions, ...loadedAreaOptions.value]);
+
+    return [...names].filter(Boolean).sort((a, b) => a.localeCompare(b));
+});
+
+const contactValid = computed(() => {
+    const contact = form.contact.trim();
+
+    if (!contact) {
+        return false;
+    }
+
+    if (isSales.value) {
+        return emailPattern.test(contact);
+    }
+
+    return contact.includes('@')
+        ? emailPattern.test(contact)
+        : contact.replace(/\D/g, '').length >= 8;
+});
 
 const modalTitle = computed(() => (
     isSales.value ? t('team.inviteSalesTitle') : t('team.inviteOpsTitle')
@@ -252,25 +296,14 @@ const payRateLabel = computed(() => t('team.invitePayRateLabel', { name: invitee
 
 const theirCut = computed(() => Math.round(sampleAmount.value * (Number(form.pay_rate) || 0) / 100));
 
-const canSubmit = computed(() => {
-    const contact = form.contact.trim();
-
-    if (!contact) {
-        return false;
-    }
-
-    if (isSales.value) {
-        return contact.includes('@');
-    }
-
-    return contact.includes('@') || contact.replace(/\D/g, '').length >= 8;
-});
+const canSubmit = computed(() => contactValid.value);
 
 watch(
     () => props.open,
     (isOpen) => {
         if (isOpen) {
             resetForm();
+            loadAreaOptions();
         }
     },
 );
@@ -288,9 +321,27 @@ watch(
     },
 );
 
+async function loadAreaOptions() {
+    if (props.areaOptions.length > 0) {
+        loadedAreaOptions.value = [];
+
+        return;
+    }
+
+    try {
+        const res = await apiClient.get('/locations/filters');
+        const districts = res?.data?.districts ?? [];
+
+        loadedAreaOptions.value = districts.map((d) => d.name).filter(Boolean);
+    } catch {
+        loadedAreaOptions.value = [];
+    }
+}
+
 function resetForm() {
     error.value = '';
     saving.value = false;
+    contactTouched.value = false;
     sampleAmount.value = 12_000_000;
 
     Object.assign(form, {
@@ -326,7 +377,19 @@ function splitContact(contact) {
     return { email: null, phone: trimmed };
 }
 
+function formatSubmitError(err) {
+    const payload = err?.payload;
+
+    if (payload?.errors && typeof payload.errors === 'object') {
+        return Object.values(payload.errors).flat().join(' ');
+    }
+
+    return err?.message || t('team.inviteFailed');
+}
+
 async function submit() {
+    contactTouched.value = true;
+
     if (!canSubmit.value || saving.value) {
         return;
     }
@@ -335,7 +398,7 @@ async function submit() {
     error.value = '';
 
     try {
-        const { email, phone } = splitContact(form.contact);
+        const { email, phone } = splitContact(form.contact.trim());
 
         const response = await apiClient.post('/team/invitations', {
             type: props.mode,
@@ -353,7 +416,7 @@ async function submit() {
         emit('invited');
         emit('close');
     } catch (err) {
-        error.value = err.message || t('team.inviteFailed');
+        error.value = formatSubmitError(err);
     } finally {
         saving.value = false;
     }

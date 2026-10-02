@@ -579,6 +579,14 @@ body {
     outline-offset: 1px;
 }
 
+.host-input--invalid {
+    border-color: var(--vs-error, #c4502a);
+}
+
+.host-input--invalid:focus {
+    outline-color: color-mix(in srgb, var(--vs-error, #c4502a) 35%, transparent);
+}
+
 /* ── Table ── */
 
 .host-table-wrap {
@@ -5719,6 +5727,9 @@ body {
 }
 
 .host-team-invite-pay__reciprocal {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
     margin: 10px 0 0;
     padding: 10px 12px;
     border-radius: 8px;
@@ -5726,6 +5737,16 @@ body {
     font-size: 11.5px;
     color: #5e6b62;
     line-height: 1.55;
+}
+
+.host-team-invite-pay__reciprocal-icon {
+    flex: none;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.host-team-invite-pay__reciprocal p {
+    margin: 0;
 }
 
 .host-team-invite-rights {
@@ -5751,8 +5772,37 @@ body {
     padding: 2px 0;
 }
 
-.host-team-invite-rights__item input {
-    accent-color: #12352b;
+.host-team-invite-rights__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.host-team-invite-rights__box {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid #c4b896;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 700;
+    box-sizing: border-box;
+}
+
+.host-team-invite-rights__box--on {
+    border-color: #12352b;
+    background: #12352b;
 }
 
 /* ── Management company page ── */

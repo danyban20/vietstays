@@ -1,8 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { getAppBasePath } from '@/utils/app-base';
+import { rewriteLegacySearchQuery } from '@/utils/legacy-search-query';
 
 const routes = [
+    {
+        path: '/wp/:pathMatch(.*)*',
+        redirect: (to) => {
+            const rest = to.params.pathMatch;
+            const suffix = Array.isArray(rest) ? rest.filter(Boolean).join('/') : (rest || '');
+
+            return {
+                path: `/${suffix}`,
+                query: rewriteLegacySearchQuery(to.query),
+                hash: to.hash,
+            };
+        },
+    },
     {
         path: '/',
         component: PublicLayout,
@@ -18,8 +32,13 @@ const routes = [
                 component: () => import('@/pages/public/ApartmentsPage.vue'),
             },
             {
-                path: 'apartments/:id',
+                path: 'apartment/:slug',
                 name: 'public-apartment',
+                component: () => import('@/pages/public/ApartmentDetailPage.vue'),
+            },
+            {
+                path: 'apartments/:id(\\d+)',
+                name: 'public-apartment-id',
                 component: () => import('@/pages/public/ApartmentDetailPage.vue'),
             },
             {

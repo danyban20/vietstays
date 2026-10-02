@@ -87,8 +87,10 @@ class ApartmentCreationService
         $allowed = [
             'name', 'display_name', 'building_id', 'district', 'distinguishing_feature',
             'apartment_type', 'quality_standard', 'price_level', 'room_number', 'floor_number',
+            'address', 'house_rules',
             'about_this_short', 'description', 'facilities', 'images', 'price_daily',
-            'cleaning_fee', 'status', 'pricing_model', 'pricing', 'seasonal_pricing',
+            'cleaning_fee', 'extra_cleaning_fee', 'cleaning_fee_enabled', 'promocode_discount',
+            'status', 'pricing_model', 'pricing', 'seasonal_pricing',
         ];
 
         $data = array_intersect_key($payload, array_flip($allowed));
@@ -138,7 +140,8 @@ class ApartmentCreationService
             $row[$key] = match ($key) {
                 'about_this_short', 'description' => (string) ($value ?? ''),
                 'distinguishing_feature' => $value === null ? null : (string) $value,
-                'price_daily', 'cleaning_fee' => round((float) ($value ?? 0), 2),
+                'price_daily', 'cleaning_fee', 'extra_cleaning_fee', 'promocode_discount' => round((float) ($value ?? 0), 2),
+                'cleaning_fee_enabled' => $value ? 1 : 0,
                 default => $value,
             };
         }

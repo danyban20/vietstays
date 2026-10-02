@@ -327,16 +327,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button type="submit" class="book_now_btn">Book now</button>
+                                        <button type="submit" class="book_now_btn" :disabled="!canBook">Book now</button>
+                                        <div v-if="priceError" class="alert alert-danger mt-3">{{ priceError }}</div>
                                         <div class="app_price">
                                             <h2>Your price:</h2>
                                             <ul>
                                                 <li v-for="(line, index) in priceLines" :key="index">
                                                     <span class="lbltxt">{{ line.label }}</span>
-                                                    <span class="valtxt">
-                                                        <i v-if="line.strike">{{ line.strike }}</i>
-                                                        {{ line.value }}
-                                                    </span>
+                                                    <span class="valtxt">{{ line.value }}</span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -440,7 +438,7 @@ import {
     facilityIcon,
 } from '@/data/apartment-detail-content';
 import { DISTRICT_GREENBOX_LOGO } from '@/data/apartments-content';
-import { formatVnd, nightsBetween } from '@/utils/format';
+import { formatVnd } from '@/utils/format';
 
 const route = useRoute();
 const router = useRouter();
@@ -529,32 +527,104 @@ const guestsLabel = computed(() => {
 const checkInDisplay = computed(() => formatUsDate(booking.checkIn));
 const checkOutDisplay = computed(() => formatUsDate(booking.checkOut));
 
+const stayQuote = ref(null);
+const priceError = ref('');
+const priceLoading = ref(false);
+let priceTimer = null;
+
+const canBook = computed(() => Boolean(stayQuote.value) && !priceError.value && !priceLoading.value);
+
 const priceLines = computed(() => {
+    if (priceLoading.value) {
+        return [{ label: 'Calculating price…', value: '' }];
+    }
+
     if (!booking.checkIn || !booking.checkOut) {
         return [{ label: 'Select dates to see your price', value: '—' }];
     }
 
-    const nights = nightsBetween(booking.checkIn, booking.checkOut);
-    const nightly = Number(apartment.value.price_daily || 0);
-    const subtotal = nightly * nights;
-    const cleaning = Number(apartment.value.cleaning_fee || 0);
-    const total = subtotal + cleaning;
-
-    const lines = [
-        {
-            label: `${formatVnd(nightly)} x ${nights} night${nights === 1 ? '' : 's'}`,
-            value: formatVnd(subtotal),
-        },
-    ];
-
-    if (cleaning > 0) {
-        lines.push({ label: 'Cleaning fee', value: formatVnd(cleaning) });
+    const quote = stayQuote.value;
+    if (!quote) {
+        return [{ label: 'Select dates to see your price', value: '—' }];
     }
 
-    lines.push({ label: 'Total', value: formatVnd(total), strike: null });
+    const lines = [];
+
+    if (quote.rate_lines?.length) {
+        quote.rate_lines.forEach((line) => {
+            const nights = Number(line.nights || 1);
+            lines.push({
+                label: `${formatVnd(line.price)} x ${nights} night${nights === 1 ? '' : 's'}`,
+                value: formatVnd(Number(line.price) * nights),
+            });
+        });
+    } else {
+        lines.push({
+            label: quote.label || 'Accommodation',
+            value: formatVnd(quote.room_total || 0),
+        });
+    }
+
+    if (Number(quote.campaign_discount) > 0) {
+        lines.push({
+            label: 'Campaign discount',
+            value: `- ${formatVnd(quote.campaign_discount)}`,
+        });
+    }
+
+    if (Number(quote.basic_discount_amount) > 0) {
+        lines.push({
+            label: `Extended stay discount (${quote.basic_discount_percent}%)`,
+            value: `- ${formatVnd(quote.basic_discount_amount)}`,
+        });
+    }
+
+    if (Number(quote.booking_fee) > 0) {
+        lines.push({
+            label: `Booking fee (${quote.booking_fee_percent}%)`,
+            value: formatVnd(quote.booking_fee),
+        });
+    }
+
+    if (Number(quote.cleaning_fee) > 0) {
+        lines.push({ label: 'Cleaning fee', value: formatVnd(quote.cleaning_fee) });
+    }
+
+    lines.push({ label: 'Total', value: formatVnd(quote.total || 0) });
 
     return lines;
 });
+
+function schedulePriceQuote() {
+    clearTimeout(priceTimer);
+    priceTimer = setTimeout(refreshStayPrice, 200);
+}
+
+async function refreshStayPrice() {
+    if (!apartment.value.id || !booking.checkIn || !booking.checkOut) {
+        stayQuote.value = null;
+        return;
+    }
+
+    priceLoading.value = true;
+    priceError.value = '';
+
+    try {
+        const res = await apiClient.post('/public/bookings/quote', {
+            apartment_id: apartment.value.id,
+            check_in_date: booking.checkIn,
+            check_out_date: booking.checkOut,
+            adults: booking.adults,
+            children: booking.children,
+        });
+        stayQuote.value = res?.data ?? null;
+    } catch (err) {
+        stayQuote.value = null;
+        priceError.value = err.message || 'Selected dates are unavailable.';
+    } finally {
+        priceLoading.value = false;
+    }
+}
 
 function formatClock(value) {
     if (!value) {
@@ -571,23 +641,46 @@ function formatUsDate(isoDate) {
     return `${month}/${day}/${year}`;
 }
 
+function toLocalIsoDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function defaultCheckIn() {
     const date = new Date();
     date.setDate(date.getDate() + 1);
-    return date.toISOString().slice(0, 10);
+    return toLocalIsoDate(date);
 }
 
 function defaultCheckOut(checkIn) {
     const date = new Date(`${checkIn}T00:00:00`);
     date.setDate(date.getDate() + 1);
-    return date.toISOString().slice(0, 10);
+    return toLocalIsoDate(date);
 }
 
 async function loadApartment() {
+    const key = route.params.slug || route.params.id;
+    if (!key) {
+        apartment.value = {};
+        return;
+    }
+
     loading.value = true;
     try {
-        const res = await apiClient.get(`/public/apartments/${route.params.id}`);
+        const res = await apiClient.get(`/public/apartments/${encodeURIComponent(key)}`);
         apartment.value = res?.data ?? {};
+
+        const slug = apartment.value.slug;
+        if (slug && route.params.slug !== slug) {
+            await router.replace({
+                name: 'public-apartment',
+                params: { slug },
+                query: route.query,
+                hash: route.hash,
+            });
+        }
     } catch {
         apartment.value = {};
     } finally {
@@ -605,6 +698,7 @@ async function setupDatePickers() {
             if (!booking.checkOut || booking.checkOut <= isoDate) {
                 booking.checkOut = defaultCheckOut(isoDate || defaultCheckIn());
             }
+            schedulePriceQuote();
         },
     });
 
@@ -612,6 +706,7 @@ async function setupDatePickers() {
         minDate: booking.checkIn ? new Date(`${booking.checkIn}T00:00:00`) : new Date(),
         onApply: (isoDate) => {
             booking.checkOut = isoDate;
+            schedulePriceQuote();
         },
     });
 }
@@ -619,6 +714,7 @@ async function setupDatePickers() {
 function adjustGuests(field, delta) {
     const min = field === 'children' ? 0 : 1;
     booking[field] = Math.max(min, Number(booking[field] || 0) + delta);
+    schedulePriceQuote();
 }
 
 function scrollTo(id) {
@@ -639,6 +735,11 @@ async function shareApartment() {
 }
 
 function submitBooking() {
+    if (!canBook.value) {
+        window.alert(priceError.value || 'Please select available dates.');
+        return;
+    }
+
     if (!booking.checkIn || !booking.checkOut) {
         window.alert('Please select check-in and check-out dates.');
         return;
@@ -676,6 +777,7 @@ onMounted(async () => {
     booking.checkOut = defaultCheckOut(booking.checkIn);
     await loadApartment();
     await setupDatePickers();
+    schedulePriceQuote();
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('click', onDocumentClick);
     onScroll();
@@ -689,10 +791,25 @@ onUnmounted(() => {
 });
 
 watch(
-    () => route.params.id,
-    async () => {
+    () => route.params.slug || route.params.id,
+    async (key) => {
+        if (!key || key === apartment.value.slug) {
+            return;
+        }
+
+        if (apartment.value.slug && String(key) === String(apartment.value.id)) {
+            await router.replace({
+                name: 'public-apartment',
+                params: { slug: apartment.value.slug },
+                query: route.query,
+                hash: route.hash,
+            });
+            return;
+        }
+
         await loadApartment();
         await setupDatePickers();
+        schedulePriceQuote();
     },
 );
 </script>

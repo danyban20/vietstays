@@ -45,7 +45,7 @@
                             </a>
                             <div class="city_dropdown book_dropdown">
                                 <ul>
-                                    <li v-for="city in cities" :key="city.district_id">
+                                    <li v-for="city in cities" :key="city.city_id">
                                         <a href="#" @click.prevent="selectCity(city)">
                                             <strong>{{ city.name }}</strong>
                                         </a>
@@ -329,7 +329,6 @@ import { useHomeLegacyStyles } from '@/composables/useHomeLegacyStyles';
 import { useHomeSearchBar } from '@/composables/useHomeSearchBar';
 import {
     CAMPAIGN_OFFERS,
-    DEFAULT_CITIES,
     EXPLORE_CITIES,
     HERO_SLIDES,
     HOME_IMAGES,
@@ -355,7 +354,7 @@ const headerFixed = ref(false);
 const mobileNavOpen = ref(false);
 const logoFailed = ref(false);
 const openDropdown = ref(null);
-const cities = ref([...DEFAULT_CITIES]);
+const cities = ref([]);
 
 const search = reactive({
     cityId: '',
@@ -395,7 +394,7 @@ function onDatePickerShow() {
 }
 
 function selectCity(city) {
-    search.cityId = String(city.district_id);
+    search.cityId = String(city.city_id);
     search.cityName = city.name;
     closeDropdowns();
 }
@@ -416,7 +415,7 @@ function cityRoute(city) {
 function submitSearch() {
     const query = {};
 
-    if (search.cityId) query.district = search.cityId;
+    if (search.cityId) query.city = search.cityId;
     if (search.rooms) query.rooms = String(search.rooms);
     if (search.adults) query.adults = String(search.adults);
     if (search.children) query.children = String(search.children);
@@ -446,20 +445,18 @@ function onDatesClear() {
     search.checkOut = '';
 }
 
-async function loadDistricts() {
+async function loadCities() {
     try {
-        const res = await apiClient.get('/public/districts');
-        if (Array.isArray(res?.data) && res.data.length) {
-            cities.value = res.data;
-        }
+        const res = await apiClient.get('/public/cities');
+        cities.value = Array.isArray(res?.data) ? res.data : [];
     } catch {
-        cities.value = [...DEFAULT_CITIES];
+        cities.value = [];
     }
 }
 
 onMounted(async () => {
     mount();
-    loadDistricts();
+    loadCities();
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('click', onDocumentClick);
     onScroll();

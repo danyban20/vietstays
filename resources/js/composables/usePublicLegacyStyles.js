@@ -16,7 +16,7 @@ const BASE_STYLE_SHEETS = [
 const PAGE_CONFIG = {
     home: {
         bodyClasses: ['home', 'wp-theme-visitvietnam', 'page-template-home-page'],
-        extraSheets: ['/home/assets/home-fixes.css'],
+        extraSheets: ['/home/assets/home-fixes.css?v=4'],
     },
     apartments: {
         bodyClasses: ['search', 'wp-theme-visitvietnam'],
@@ -24,7 +24,7 @@ const PAGE_CONFIG = {
     },
     'apartment-detail': {
         bodyClasses: ['single-apartment', 'wp-theme-visitvietnam'],
-        extraSheets: ['/home/assets/apartment-detail-fixes.css'],
+        extraSheets: ['/home/assets/apartment-detail-fixes.css?v=4'],
     },
     booking: {
         bodyClasses: ['page-template-booking', 'wp-theme-visitvietnam'],
