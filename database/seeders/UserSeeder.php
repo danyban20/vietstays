@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Support\LegacySqlParser;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
@@ -67,7 +68,15 @@ class UserSeeder extends Seeder
             return 'partner';
         }
 
-        return 'host';
+        // No role meta: a host only if they own an apartment, otherwise a
+        // customer. Defaulting to 'host' gave customers the host dashboard.
+        return $this->ownsApartment($wpId) ? 'host' : 'member';
+    }
+
+    protected function ownsApartment(int $wpId): bool
+    {
+        return Schema::hasTable('vv_apartments')
+            && DB::table('vv_apartments')->where('user_id', $wpId)->exists();
     }
 
     protected function normalizeRole(string $role): string
@@ -78,7 +87,7 @@ class UserSeeder extends Seeder
             'partner' => 'partner',
             'ambassador' => 'ambassador',
             'staff' => 'staff',
-            'customer', 'guest', 'user' => 'host',
+            'customer', 'guest', 'user', 'subscriber' => 'member',
             default => $role,
         };
     }

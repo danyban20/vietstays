@@ -47,6 +47,21 @@ const routes = [
                 component: () => import('@/pages/public/BookingCheckoutPage.vue'),
             },
             {
+                path: 'register',
+                name: 'member-register',
+                component: () => import('@/pages/public/MemberRegisterPage.vue'),
+            },
+            {
+                path: 'login',
+                name: 'member-login',
+                component: () => import('@/pages/public/MemberLoginPage.vue'),
+            },
+            {
+                path: 'account',
+                name: 'member-account',
+                component: () => import('@/pages/public/MemberAccountPage.vue'),
+            },
+            {
                 path: 'host-application',
                 name: 'host-application',
                 component: () => import('@/pages/public/HostApplicationPage.vue'),

@@ -106,6 +106,11 @@ class PublicBookingController extends Controller
             'payment_method' => ['nullable', Rule::in(['onsite', 'card'])],
         ]);
 
+        // Signed-in customers get the booking under "My account".
+        $validated['member_user_id'] = $request->user()?->id;
+        // See quote(): the discount rate is never taken from the browser.
+        $validated['promo_code_discount'] = 0;
+
         try {
             $booking = $this->bookingService->createGuest($validated);
         } catch (\InvalidArgumentException $e) {

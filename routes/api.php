@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\Admin\BuildingAdminController;
 use App\Http\Controllers\Api\Admin\HostMessageAdminController;
 use App\Http\Controllers\Api\Admin\HostOverviewController;
@@ -50,111 +51,119 @@ Route::get('/locales/{locale}/messages', [LocaleController::class, 'messages']);
 Route::get('/locale', [LocaleController::class, 'current']);
 Route::put('/public/locale', [LocaleController::class, 'updatePublic']);
 
-Route::post('/login', [AuthController::class, 'login'])->middleware('web');
+Route::post('/login', [AuthController::class, 'login'])->middleware(['web', 'throttle:10,1']);
+Route::post('/register', [AuthController::class, 'register'])->middleware(['web', 'throttle:10,1']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['web', 'auth:sanctum']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/locale', [LocaleController::class, 'updatePreference']);
-    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    Route::get('/locations/cities', [LocationController::class, 'cities']);
-    Route::get('/locations/districts', [LocationController::class, 'districts']);
-    Route::get('/locations/buildings', [LocationController::class, 'buildings']);
-    Route::get('/locations/filters', [LocationController::class, 'filterOptions']);
-    Route::get('/facilities', [LocationController::class, 'facilities']);
+    Route::get('/account', [AccountController::class, 'show']);
+    Route::put('/account', [AccountController::class, 'update']);
 
-    Route::get('/apartments', [ApartmentController::class, 'index']);
-    Route::post('/apartments', [ApartmentController::class, 'store']);
-    Route::get('/apartments/{apartment}', [ApartmentController::class, 'show']);
-    Route::put('/apartments/{apartment}', [ApartmentController::class, 'update']);
-    Route::post('/apartments/{apartment}/photos', [ApartmentController::class, 'uploadPhotos']);
-    Route::get('/apartments/{apartment}/suggested-price', [ApartmentController::class, 'suggestedPrice']);
-    Route::get('/apartments/{apartment}/periods', [ApartmentAvailabilityController::class, 'index']);
-    Route::patch('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'update']);
-    Route::delete('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'destroy']);
+    // Everything below is the host/admin dashboard; customer (member)
+    // accounts are turned away here.
+    Route::middleware('dashboard')->group(function () {        Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    Route::get('/calendar', [CalendarController::class, 'index']);
-    Route::get('/bookings', [BookingController::class, 'index']);
-    Route::post('/bookings', [BookingController::class, 'store']);
-    Route::get('/bookings/{booking}', [BookingController::class, 'show']);
-    Route::put('/bookings/{booking}', [BookingController::class, 'update']);
-    Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);
+        Route::get('/locations/cities', [LocationController::class, 'cities']);
+        Route::get('/locations/districts', [LocationController::class, 'districts']);
+        Route::get('/locations/buildings', [LocationController::class, 'buildings']);
+        Route::get('/locations/filters', [LocationController::class, 'filterOptions']);
+        Route::get('/facilities', [LocationController::class, 'facilities']);
 
-    Route::get('/customers', [CustomerController::class, 'index']);
-    Route::post('/customers', [CustomerController::class, 'store']);
-    Route::get('/customers/export', [CustomerController::class, 'export']);
-    Route::get('/customers/{customer}', [CustomerController::class, 'show']);
-    Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote']);
-    Route::get('/customers/{customer}/messages', [CustomerController::class, 'messages']);
-    Route::post('/customers/{customer}/messages', [CustomerController::class, 'storeMessage']);
-    Route::post('/customers/{customer}/merge', [CustomerController::class, 'merge']);
+        Route::get('/apartments', [ApartmentController::class, 'index']);
+        Route::post('/apartments', [ApartmentController::class, 'store']);
+        Route::get('/apartments/{apartment}', [ApartmentController::class, 'show']);
+        Route::put('/apartments/{apartment}', [ApartmentController::class, 'update']);
+        Route::post('/apartments/{apartment}/photos', [ApartmentController::class, 'uploadPhotos']);
+        Route::get('/apartments/{apartment}/suggested-price', [ApartmentController::class, 'suggestedPrice']);
+        Route::get('/apartments/{apartment}/periods', [ApartmentAvailabilityController::class, 'index']);
+        Route::patch('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'update']);
+        Route::delete('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'destroy']);
 
-    Route::get('/messages', [MessageController::class, 'index']);
+        Route::get('/calendar', [CalendarController::class, 'index']);
+        Route::get('/bookings', [BookingController::class, 'index']);
+        Route::post('/bookings', [BookingController::class, 'store']);
+        Route::get('/bookings/{booking}', [BookingController::class, 'show']);
+        Route::put('/bookings/{booking}', [BookingController::class, 'update']);
+        Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);
 
-    Route::get('/team', [TeamController::class, 'index']);
-    Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);
-    Route::get('/team/members/{member}', [TeamController::class, 'showMember']);
-    Route::patch('/team/members/{member}/apartments', [TeamController::class, 'assignApartments']);
-    Route::patch('/team/members/{member}/guest-info', [TeamController::class, 'updateGuestInfo']);
-    Route::patch('/team/members/{member}/status', [TeamController::class, 'updateMemberStatus']);
-    Route::delete('/team/members/{member}', [TeamController::class, 'destroyMember']);
-    Route::post('/team/invitations/{invitation}/remind', [TeamController::class, 'remindInvitation']);
-    Route::delete('/team/invitations/{invitation}', [TeamController::class, 'destroyInvitation']);
+        Route::get('/customers', [CustomerController::class, 'index']);
+        Route::post('/customers', [CustomerController::class, 'store']);
+        Route::get('/customers/export', [CustomerController::class, 'export']);
+        Route::get('/customers/{customer}', [CustomerController::class, 'show']);
+        Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote']);
+        Route::get('/customers/{customer}/messages', [CustomerController::class, 'messages']);
+        Route::post('/customers/{customer}/messages', [CustomerController::class, 'storeMessage']);
+        Route::post('/customers/{customer}/merge', [CustomerController::class, 'merge']);
 
-    Route::get('/management-company', [ManagementCompanyController::class, 'show']);
-    Route::post('/management-company', [ManagementCompanyController::class, 'store']);
+        Route::get('/messages', [MessageController::class, 'index']);
 
-    Route::get('/messages/admin-thread', [AdminHostMessageController::class, 'index']);
-    Route::post('/messages/admin-thread', [AdminHostMessageController::class, 'store']);
+        Route::get('/team', [TeamController::class, 'index']);
+        Route::post('/team/invitations', [TeamController::class, 'storeInvitation']);
+        Route::get('/team/members/{member}', [TeamController::class, 'showMember']);
+        Route::patch('/team/members/{member}/apartments', [TeamController::class, 'assignApartments']);
+        Route::patch('/team/members/{member}/guest-info', [TeamController::class, 'updateGuestInfo']);
+        Route::patch('/team/members/{member}/status', [TeamController::class, 'updateMemberStatus']);
+        Route::delete('/team/members/{member}', [TeamController::class, 'destroyMember']);
+        Route::post('/team/invitations/{invitation}/remind', [TeamController::class, 'remindInvitation']);
+        Route::delete('/team/invitations/{invitation}', [TeamController::class, 'destroyInvitation']);
 
-    Route::middleware('role:superadmin')->group(function () {
-        Route::get('/admin/users', [UserAdminController::class, 'index']);
-        Route::post('/admin/users', [UserAdminController::class, 'store']);
-        Route::patch('/admin/users/{user}', [UserAdminController::class, 'update']);
+        Route::get('/management-company', [ManagementCompanyController::class, 'show']);
+        Route::post('/management-company', [ManagementCompanyController::class, 'store']);
 
-        Route::get('/settings/email', [SettingsController::class, 'showEmail']);
-        Route::put('/settings/email', [SettingsController::class, 'updateEmail']);
-        Route::get('/settings/email-templates', [SettingsController::class, 'indexEmailTemplates']);
-        Route::put('/settings/email-templates/{code}', [SettingsController::class, 'updateEmailTemplate']);
+        Route::get('/messages/admin-thread', [AdminHostMessageController::class, 'index']);
+        Route::post('/messages/admin-thread', [AdminHostMessageController::class, 'store']);
 
-        Route::get('/host-applications', [HostApplicationController::class, 'index']);
-        Route::get('/host-applications/{application}', [HostApplicationController::class, 'show']);
-        Route::patch('/host-applications/{application}/status', [HostApplicationController::class, 'updateStatus']);
+        Route::middleware('role:superadmin')->group(function () {
+            Route::get('/admin/users', [UserAdminController::class, 'index']);
+            Route::post('/admin/users', [UserAdminController::class, 'store']);
+            Route::patch('/admin/users/{user}', [UserAdminController::class, 'update']);
 
-        Route::get('/settings/languages', [LanguageSettingsController::class, 'index']);
-        Route::post('/settings/languages', [LanguageSettingsController::class, 'store']);
-        Route::get('/settings/languages/{locale}', [LanguageSettingsController::class, 'show']);
-        Route::put('/settings/languages/{locale}', [LanguageSettingsController::class, 'update']);
-        Route::delete('/settings/languages/{locale}', [LanguageSettingsController::class, 'destroy']);
-    });
+            Route::get('/settings/email', [SettingsController::class, 'showEmail']);
+            Route::put('/settings/email', [SettingsController::class, 'updateEmail']);
+            Route::get('/settings/email-templates', [SettingsController::class, 'indexEmailTemplates']);
+            Route::put('/settings/email-templates/{code}', [SettingsController::class, 'updateEmailTemplate']);
 
-    Route::middleware('role:superadmin,supervisor')->group(function () {
-        Route::get('/admin/hosts', [HostOverviewController::class, 'index']);
+            Route::get('/host-applications', [HostApplicationController::class, 'index']);
+            Route::get('/host-applications/{application}', [HostApplicationController::class, 'show']);
+            Route::patch('/host-applications/{application}/status', [HostApplicationController::class, 'updateStatus']);
 
-        Route::get('/admin/countries', [LocationAdminController::class, 'countries']);
-        Route::post('/admin/countries', [LocationAdminController::class, 'storeCountry']);
-        Route::patch('/admin/countries/{country}', [LocationAdminController::class, 'updateCountry']);
-        Route::get('/admin/cities', [LocationAdminController::class, 'cities']);
-        Route::post('/admin/cities', [LocationAdminController::class, 'storeCity']);
-        Route::patch('/admin/cities/{city:city_id}', [LocationAdminController::class, 'updateCity']);
-        Route::get('/admin/districts', [LocationAdminController::class, 'districts']);
-        Route::post('/admin/districts', [LocationAdminController::class, 'storeDistrict']);
-        Route::patch('/admin/districts/{district:district_id}', [LocationAdminController::class, 'updateDistrict']);
+            Route::get('/settings/languages', [LanguageSettingsController::class, 'index']);
+            Route::post('/settings/languages', [LanguageSettingsController::class, 'store']);
+            Route::get('/settings/languages/{locale}', [LanguageSettingsController::class, 'show']);
+            Route::put('/settings/languages/{locale}', [LanguageSettingsController::class, 'update']);
+            Route::delete('/settings/languages/{locale}', [LanguageSettingsController::class, 'destroy']);
+        });
 
-        Route::get('/admin/buildings', [BuildingAdminController::class, 'index']);
-        Route::post('/admin/buildings', [BuildingAdminController::class, 'store']);
-        Route::patch('/admin/buildings/{building}', [BuildingAdminController::class, 'update']);
-        Route::patch('/admin/buildings/{building}/archive', [BuildingAdminController::class, 'archive']);
+        Route::middleware('role:superadmin,supervisor')->group(function () {
+            Route::get('/admin/hosts', [HostOverviewController::class, 'index']);
 
-        Route::get('/admin/price-matrix', [PriceMatrixAdminController::class, 'index']);
-        Route::patch('/admin/price-matrix', [PriceMatrixAdminController::class, 'update']);
+            Route::get('/admin/countries', [LocationAdminController::class, 'countries']);
+            Route::post('/admin/countries', [LocationAdminController::class, 'storeCountry']);
+            Route::patch('/admin/countries/{country}', [LocationAdminController::class, 'updateCountry']);
+            Route::get('/admin/cities', [LocationAdminController::class, 'cities']);
+            Route::post('/admin/cities', [LocationAdminController::class, 'storeCity']);
+            Route::patch('/admin/cities/{city:city_id}', [LocationAdminController::class, 'updateCity']);
+            Route::get('/admin/districts', [LocationAdminController::class, 'districts']);
+            Route::post('/admin/districts', [LocationAdminController::class, 'storeDistrict']);
+            Route::patch('/admin/districts/{district:district_id}', [LocationAdminController::class, 'updateDistrict']);
 
-        Route::get('/admin/management-companies', [ManagementCompanyAdminController::class, 'index']);
-        Route::post('/admin/management-companies', [ManagementCompanyAdminController::class, 'store']);
-        Route::patch('/admin/management-companies/{company}/status', [ManagementCompanyAdminController::class, 'updateStatus']);
+            Route::get('/admin/buildings', [BuildingAdminController::class, 'index']);
+            Route::post('/admin/buildings', [BuildingAdminController::class, 'store']);
+            Route::patch('/admin/buildings/{building}', [BuildingAdminController::class, 'update']);
+            Route::patch('/admin/buildings/{building}/archive', [BuildingAdminController::class, 'archive']);
 
-        Route::get('/admin/hosts/{host}/messages', [HostMessageAdminController::class, 'index']);
-        Route::post('/admin/hosts/{host}/messages', [HostMessageAdminController::class, 'store']);
+            Route::get('/admin/price-matrix', [PriceMatrixAdminController::class, 'index']);
+            Route::patch('/admin/price-matrix', [PriceMatrixAdminController::class, 'update']);
+
+            Route::get('/admin/management-companies', [ManagementCompanyAdminController::class, 'index']);
+            Route::post('/admin/management-companies', [ManagementCompanyAdminController::class, 'store']);
+            Route::patch('/admin/management-companies/{company}/status', [ManagementCompanyAdminController::class, 'updateStatus']);
+
+            Route::get('/admin/hosts/{host}/messages', [HostMessageAdminController::class, 'index']);
+            Route::post('/admin/hosts/{host}/messages', [HostMessageAdminController::class, 'store']);
+        });
     });
 });

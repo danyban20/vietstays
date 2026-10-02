@@ -25,7 +25,7 @@ class HostApplicationService
         }
 
         return DB::transaction(function () use ($data) {
-            $user = $this->createOrUpdateApplicantUser($data);
+            $user = $this->applicantUser($data);
             $now = now()->format('Y-m-d H:i:s');
             $ref = $this->generateApplicationRef();
 
@@ -116,6 +116,10 @@ class HostApplicationService
 
         $application->update($update);
 
+        if ($status === 'approved') {
+            $this->promoteApplicantToHost($application);
+        }
+
         return $application->fresh();
     }
 
@@ -183,9 +187,14 @@ class HostApplicationService
     }
 
     /**
+     * The applicant's account. This form is public, so it never changes an
+     * existing account: anyone could type someone else's email and rewrite
+     * that person's name, phone and role. A new applicant starts as a
+     * customer ('member') and becomes a host only when an admin approves.
+     *
      * @param  array<string, mixed>  $data
      */
-    protected function createOrUpdateApplicantUser(array $data): User
+    protected function applicantUser(array $data): User
     {
         $email = strtolower(trim((string) $data['email']));
         $existing = User::query()->where('email', $email)->first();
@@ -202,24 +211,31 @@ class HostApplicationService
             ]);
         }
 
-        $payload = [
-            'name' => trim((string) $data['full_name']),
-            'display_name' => trim((string) $data['full_name']),
-            'phone' => trim((string) $data['phone']),
-            'role' => 'host',
-        ];
-
         if ($existing) {
-            $existing->update($payload);
-
-            return $existing->fresh();
+            return $existing;
         }
 
         return User::query()->create([
-            ...$payload,
+            'name' => trim((string) $data['full_name']),
+            'display_name' => trim((string) $data['full_name']),
+            'phone' => trim((string) $data['phone']),
+            'role' => 'member',
             'email' => $email,
             'password' => Hash::make(Str::random(24)),
         ]);
+    }
+
+    /**
+     * Approval is what makes someone a host. Only customer accounts are
+     * promoted; staff, ambassadors and the like keep the role they have.
+     */
+    protected function promoteApplicantToHost(HostApplication $application): void
+    {
+        $user = User::query()->where('email', strtolower(trim((string) $application->email)))->first();
+
+        if ($user?->isMember()) {
+            $user->update(['role' => 'host']);
+        }
     }
 
     protected function generateApplicationRef(): string
