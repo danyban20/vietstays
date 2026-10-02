@@ -10,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -23,6 +25,8 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            // 'dashboard' = the /admin login form; customers sign in on the site.
+            'area' => ['nullable', Rule::in(['dashboard', 'site'])],
         ]);
 
         $user = User::query()->where('email', $credentials['email'])->first();
@@ -33,12 +37,52 @@ class AuthController extends Controller
             ]);
         }
 
+        if (($credentials['area'] ?? null) === 'dashboard' && ! $user->canUseDashboard()) {
+            throw ValidationException::withMessages([
+                'email' => [$user->isMember()
+                    ? 'This is a customer account. Please sign in on the Vietstays website instead.'
+                    : 'This account does not have access to the dashboard yet.'],
+            ]);
+        }
+
         Auth::login($user);
         $request->session()->regenerate();
 
         return response()->json([
             'user' => $this->userPayload($user),
         ]);
+    }
+
+    /**
+     * Free customer sign-up from the public site. Always creates a 'member';
+     * hosts and partners come in through host applications or admins.
+     */
+    public function register(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.unique' => 'An account with this email already exists. Try signing in instead.',
+        ]);
+
+        $user = User::query()->create([
+            'name' => trim($data['name']),
+            'display_name' => trim($data['name']),
+            'email' => Str::lower(trim($data['email'])),
+            'phone' => filled($data['phone'] ?? null) ? trim($data['phone']) : null,
+            'password' => Hash::make($data['password']),
+            'role' => 'member',
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'user' => $this->userPayload($user),
+        ], 201);
     }
 
     public function logout(Request $request): JsonResponse
@@ -83,7 +127,9 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->display_name ?: $user->name,
             'email' => $user->email,
+            'phone' => $user->phone,
             'role' => $user->role,
+            'can_use_dashboard' => $user->canUseDashboard(),
             'locale' => $locale,
             'locale_preference' => $user->admin_locale ?: LocaleService::META_LOCALE_AUTO,
             'locale_label' => $this->locales->localeLabel($locale),

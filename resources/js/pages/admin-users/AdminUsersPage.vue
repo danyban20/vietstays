@@ -215,6 +215,7 @@ const roleOptions = [
     { value: 'host', label: 'Host' },
     { value: 'staff', label: 'Staff' },
     { value: 'ambassador', label: 'Ambassador' },
+    { value: 'member', label: 'Member (customer)' },
 ];
 
 function formatDate(value) {

@@ -33,7 +33,6 @@ class PublicBookingController extends Controller
             'num_cleaning' => ['nullable', 'integer', 'min:0'],
             'airport_pickup' => ['nullable', 'boolean'],
             'promo_code' => ['nullable', 'string', 'max:20'],
-            'promo_code_discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'payment_method' => ['nullable', Rule::in(['onsite', 'card'])],
         ]);
 
@@ -66,7 +65,9 @@ class PublicBookingController extends Controller
                 'num_cleaning' => (int) ($validated['num_cleaning'] ?? 0),
                 'airport_pickup' => ! empty($validated['airport_pickup']),
                 'promo_code' => $validated['promo_code'] ?? '',
-                'promo_code_discount_percent' => (float) ($validated['promo_code_discount'] ?? 0),
+                // The discount rate is never taken from the browser: anyone could
+                // send 100 and book for free. No public promo codes exist yet.
+                'promo_code_discount_percent' => 0,
                 'payment_method' => $validated['payment_method'] ?? 'onsite',
             ]);
         } catch (\InvalidArgumentException $e) {
@@ -99,9 +100,13 @@ class PublicBookingController extends Controller
             'num_cleaning' => ['nullable', 'integer', 'min:0'],
             'airport_pickup' => ['nullable', 'boolean'],
             'promo_code' => ['nullable', 'string', 'max:20'],
-            'promo_code_discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'payment_method' => ['nullable', Rule::in(['onsite', 'card'])],
         ]);
+
+        // Signed-in customers get the booking under "My account".
+        $validated['member_user_id'] = $request->user()?->id;
+        // See quote(): the discount rate is never taken from the browser.
+        $validated['promo_code_discount'] = 0;
 
         try {
             $booking = $this->bookingService->createGuest($validated);

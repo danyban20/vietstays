@@ -62,6 +62,7 @@ async function submit() {
         await apiClient.post('/login', {
             email: form.email,
             password: form.password,
+            area: 'dashboard',
         });
         const redirect = route.query.redirect;
         if (typeof redirect === 'string' && redirect.startsWith('/admin')) {
