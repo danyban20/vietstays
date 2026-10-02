@@ -25,7 +25,8 @@
                         <div class="lang">
                             <a href="#" class="lang_btn" @click.prevent>EN</a>
                         </div>
-                        <a href="#" class="btn" @click.prevent>Register now</a>
+                        <router-link v-if="member.isSignedIn" :to="{ name: 'member-account' }" class="btn">My account</router-link>
+                        <router-link v-else :to="{ name: 'member-register' }" class="btn">Register now</router-link>
                     </div>
                 </div>
             </div>
@@ -178,7 +179,8 @@
                 <ul>
                     <li v-for="item in MEMBERSHIP_BENEFITS" :key="item">{{ item }}</li>
                 </ul>
-                <a href="#" class="btn" @click.prevent>Register for free now</a>
+                <router-link v-if="member.isSignedIn" :to="{ name: 'member-account' }" class="btn">Go to my account</router-link>
+                <router-link v-else :to="{ name: 'member-register' }" class="btn">Register for free now</router-link>
                 <hr />
             </div>
         </div>
@@ -327,6 +329,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import apiClient from '@/api/client';
 import { useHomeLegacyStyles } from '@/composables/useHomeLegacyStyles';
 import { useHomeSearchBar } from '@/composables/useHomeSearchBar';
+import { useMemberStore } from '@/stores/member';
 import {
     CAMPAIGN_OFFERS,
     DEFAULT_CITIES,
@@ -339,6 +342,7 @@ import {
 } from '@/data/home-content';
 
 const router = useRouter();
+const member = useMemberStore();
 const { mount, unmount } = useHomeLegacyStyles();
 const { initDateRangePicker, hideDatePicker, destroyDateRangePicker } = useHomeSearchBar();
 
@@ -460,6 +464,7 @@ async function loadDistricts() {
 onMounted(async () => {
     mount();
     loadDistricts();
+    member.fetchUser();
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('click', onDocumentClick);
     onScroll();

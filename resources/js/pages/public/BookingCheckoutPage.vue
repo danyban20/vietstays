@@ -154,6 +154,15 @@
 
                                     <div class="login_reg_order">
                                         <h4>{{ showExtras ? '4' : '3' }} - Your details</h4>
+                                        <p v-if="member.isSignedIn" class="member-checkout-note">
+                                            Signed in as {{ member.user.email }}. This booking will be saved to your account.
+                                        </p>
+                                        <p v-else class="member-checkout-note">
+                                            <router-link :to="{ name: 'member-login', query: { redirect: route.fullPath } }">Sign in</router-link>
+                                            or
+                                            <router-link :to="{ name: 'member-register', query: { redirect: route.fullPath } }">register for free</router-link>
+                                            to keep track of your bookings.
+                                        </p>
                                         <input
                                             v-model="form.guest_name"
                                             type="text"
@@ -230,9 +239,11 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { usePublicLegacyStyles } from '@/composables/usePublicLegacyStyles';
+import { useMemberStore } from '@/stores/member';
 import { formatDate, formatVnd, nightsBetween } from '@/utils/format';
 
 const route = useRoute();
+const member = useMemberStore();
 const { mount, unmount } = usePublicLegacyStyles('booking');
 
 const loading = ref(true);
@@ -449,9 +460,21 @@ async function submitBooking() {
     }
 }
 
+async function prefillFromAccount() {
+    const user = await member.fetchUser();
+    if (!user) {
+        return;
+    }
+
+    form.guest_name ||= user.name ?? '';
+    form.email ||= user.email ?? '';
+    form.phone ||= user.phone ?? '';
+}
+
 onMounted(async () => {
     mount();
     await bootstrap();
+    await prefillFromAccount();
 });
 
 onUnmounted(() => {

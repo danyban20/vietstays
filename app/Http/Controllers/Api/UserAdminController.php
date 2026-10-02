@@ -13,7 +13,7 @@ class UserAdminController extends Controller
     /**
      * @var list<string>
      */
-    protected array $assignableRoles = ['superadmin', 'supervisor', 'partner', 'host', 'staff', 'ambassador'];
+    protected array $assignableRoles = ['superadmin', 'supervisor', 'partner', 'host', 'staff', 'ambassador', 'member'];
 
     public function index(Request $request): JsonResponse
     {
@@ -140,6 +140,7 @@ class UserAdminController extends Controller
             'host' => 'Host',
             'staff' => 'Staff',
             'ambassador' => 'Ambassador',
+            'member' => 'Member (customer)',
             default => ucfirst((string) $role),
         };
     }

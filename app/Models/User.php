@@ -53,6 +53,28 @@ class User extends Authenticatable
     }
 
     /**
+     * Roles with a host/admin dashboard. An allowlist on purpose: dashboard
+     * controllers scope data for host/partner and show everything to other
+     * roles, so a role missing from here (member, and staff/ambassador until
+     * their dashboards exist) must never reach them.
+     */
+    public const DASHBOARD_ROLES = ['superadmin', 'supervisor', 'partner', 'host'];
+
+    public function canUseDashboard(): bool
+    {
+        return in_array($this->role, self::DASHBOARD_ROLES, true);
+    }
+
+    /**
+     * A customer account from the public site: books stays, never sees the
+     * host dashboard.
+     */
+    public function isMember(): bool
+    {
+        return $this->role === 'member';
+    }
+
+    /**
      * True for any non-admin owner of apartments/bookings (partner or host).
      * Use this instead of isPartner() alone when scoping data to "my own
      * resources" — isPartner() misses the equally-valid 'host' role.

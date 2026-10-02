@@ -184,6 +184,14 @@ router.beforeEach(async (to) => {
                 ? true
                 : { name: 'login', query: { redirect: to.fullPath } };
         }
+
+        // Accounts without a dashboard (customers, and staff/ambassadors for
+        // now) go to their account page instead of a screen full of 403s.
+        const payload = await res.json().catch(() => null);
+        if (payload?.user && !payload.user.can_use_dashboard) {
+            window.location.assign(withAppBase('/account'));
+            return false;
+        }
     } catch {
         return { name: 'login' };
     }

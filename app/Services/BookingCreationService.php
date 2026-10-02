@@ -80,6 +80,7 @@ class BookingCreationService
                 'ID' => $this->nextBookingId(),
                 'booking_num' => '',
                 'user_id' => 0,
+                'member_user_id' => $payload['member_user_id'] ?? null,
                 'apartment_id' => $apartment->ID,
                 'district_id' => (int) $apartment->district,
                 'email' => $payload['email'] ?? '',

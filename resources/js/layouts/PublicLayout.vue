@@ -16,6 +16,20 @@
                         Become a host
                     </router-link>
                     <a href="/admin" class="public-header__link public-header__link--host">Host login</a>
+                    <router-link
+                        v-if="member.isSignedIn"
+                        :to="{ name: 'member-account' }"
+                        class="public-btn public-btn--primary public-header__cta"
+                    >
+                        My account
+                    </router-link>
+                    <router-link
+                        v-else
+                        :to="{ name: 'member-register' }"
+                        class="public-btn public-btn--primary public-header__cta"
+                    >
+                        Register now
+                    </router-link>
                 </nav>
             </div>
         </header>
@@ -34,10 +48,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useMemberStore } from '@/stores/member';
 
 const route = useRoute();
+const member = useMemberStore();
+
+onMounted(() => member.fetchUser());
 const year = new Date().getFullYear();
 const isLegacyRoute = computed(() =>
     route.name === 'home' ||

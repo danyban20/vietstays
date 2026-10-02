@@ -11,6 +11,18 @@ class HostOperatorAccessTest extends TestCase
 {
     use DatabaseTransactions;
 
+    /**
+     * The legacy seed has no host accounts left (its customers are members
+     * now), so each test makes its own, keyed the way admin-created users are.
+     */
+    private function createHost(): User
+    {
+        $host = User::factory()->create(['role' => 'host']);
+        $host->update(['legacy_wp_id' => 900_000 + $host->id]);
+
+        return $host;
+    }
+
     private function createApartmentForHost(User $host): Apartment
     {
         $response = $this->actingAs($host)->postJson('/api/apartments', [
@@ -31,8 +43,7 @@ class HostOperatorAccessTest extends TestCase
 
     public function test_host_role_can_create_a_manual_booking_for_their_own_apartment(): void
     {
-        $host = User::query()->where('role', 'host')->first();
-        $this->assertNotNull($host, 'Fixture needs at least one role=host user.');
+        $host = $this->createHost();
 
         $apartment = $this->createApartmentForHost($host);
 
@@ -51,8 +62,7 @@ class HostOperatorAccessTest extends TestCase
 
     public function test_host_role_apartment_list_is_scoped_to_their_own(): void
     {
-        $host = User::query()->where('role', 'host')->first();
-        $this->assertNotNull($host);
+        $host = $this->createHost();
 
         $ownApartment = $this->createApartmentForHost($host);
         $totalBefore = Apartment::query()->count();
@@ -69,8 +79,7 @@ class HostOperatorAccessTest extends TestCase
 
     public function test_host_role_booking_list_is_scoped_to_their_own_apartments(): void
     {
-        $host = User::query()->where('role', 'host')->first();
-        $this->assertNotNull($host);
+        $host = $this->createHost();
 
         $apartment = $this->createApartmentForHost($host);
 
