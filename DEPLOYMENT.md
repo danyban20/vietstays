@@ -22,27 +22,40 @@ account).
 
 ## GitHub Actions workflows
 
-- **`ci.yml`** — runs on every push to `main` and every PR: `composer
-  install`, `npm run build`, spins up a MySQL 8 service, `migrate --force`
-  + `db:seed --force`, then `php artisan test`. Also declared as
-  `workflow_call` so `deploy.yml` can reuse it as a gate.
-- **`deploy.yml`** — **manual only** (`workflow_dispatch`, "Deploy to
-  SiteGround" in the Actions tab). Deploys to **production**.
-  1. `test` job: re-runs the full CI suite. Deploy does not proceed if this
-     fails — you can't deploy red tests to prod.
-  2. Builds `composer install --no-dev` + `npm run build`.
-  3. rsyncs everything to `vietstays.com`'s `public_html`, **excluding**
-     `.env`, `storage/`, `public/uploads/`, `public/hot` — those are
-     server-owned state, never overwritten by a deploy.
-  4. Over SSH: `mysqldump | gzip` the live DB to `~/db-backups/` (outside
-     `public_html`, so rsync never touches it; keeps the last 10), *then*
+- **`ci.yml`**: runs on every PR. It runs `composer install` and `npm run
+  build`, starts a MySQL 8 service, runs `migrate --force` + `db:seed --force`,
+  then `php artisan test`. It is also declared as `workflow_call`, so both
+  deploy workflows reuse it as a gate. Pushes to `main` don't trigger it
+  directly; the staging deploy runs it instead, so each merge is tested once.
+- **`deploy-staging.yml`**: targets `dev.vietstays.com`.
+  - **Runs automatically on every push to `main`** (i.e. every merged PR)
+    after the test job passes. Auto-deploys always migrate and never seed.
+  - Can also be run by hand (`workflow_dispatch`) from any branch, e.g. to
+    look at a feature branch on staging. The manual run has an opt-in
+    `run_seed` input for `php artisan db:seed --force`. That is safe on
+    staging; **never do this on production** (see below).
+- **`deploy.yml`**: **manual only** ("Deploy to SiteGround" in the Actions
+  tab). Deploys to **production**, and **only from `main`**: dispatching it
+  from another branch skips every job.
+  1. `test` job: re-runs the full CI suite. If this fails, nothing is
+     deployed, so red tests can't reach prod.
+  2. Builds with `composer install --no-dev` + `npm run build`.
+  3. Puts the site into maintenance mode (`php artisan down`).
+  4. rsyncs everything to `vietstays.com`'s `public_html`, **excluding**
+     `.env`, `storage/`, `public/uploads/` and `public/hot`. Those are
+     server-owned state and a deploy never overwrites them.
+  5. Over SSH, `mysqldump | gzip` the live DB to `~/db-backups/`. That is
+     outside `public_html`, so rsync never touches it, and only the last 10
+     backups are kept. The dump runs with `pipefail` and a size check, so
+     **if the backup fails, the deploy stops before migrating**. Next it runs
      `php artisan migrate --force` (skippable via the `run_migrations`
      input), then re-caches config/routes/views.
-- **`deploy-staging.yml`** — same idea, **manual only**, targets
-  `dev.vietstays.com`. Not gated on tests (staging is where you push
-  work-in-progress to look at it). Has an opt-in `run_seed` input to run
-  `php artisan db:seed --force` — safe here, **never do this on
-  production** (see below).
+  6. `php artisan up`. This step runs even if an earlier step failed, so a
+     broken deploy doesn't leave the site stuck on the 503 page.
+
+Both deploy workflows use `concurrency`, so a second run waits for the first
+instead of overlapping it mid-migration. Staging uses the same maintenance-mode
+wrapping as production.
 
 ### Required GitHub secrets (Settings → Secrets and variables → Actions)
 
@@ -57,13 +70,13 @@ account).
 
 ### How to deploy
 
-1. Push/merge your branch to `main`.
-2. GitHub → **Actions** → **"Deploy to staging (dev.vietstays.com)"** →
-   **Run workflow**. Click through the site, check the browser console for
+1. Open a PR. CI runs on it.
+2. Merge to `main`. Staging deploys itself. Check the Actions tab, click
+   through https://dev.vietstays.com and look at the browser console for
    errors.
 3. Happy with it? **Actions** → **"Deploy to SiteGround"** → **Run
-   workflow**. This is production — there's no undo button beyond the DB
-   backup and whatever's in git history.
+   workflow** on `main`. This is production. Beyond the DB backup in
+   `~/db-backups/` and git history, there's no undo button.
 
 ## Gotchas (things that already went wrong once)
 
