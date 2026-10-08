@@ -115,6 +115,7 @@ class PublicBookingController extends Controller
         }
 
         $this->confirmationEmailService->sendGuestConfirmation($booking);
+        $this->confirmationEmailService->sendHostNewBooking($booking);
 
         return response()->json([
             'data' => [

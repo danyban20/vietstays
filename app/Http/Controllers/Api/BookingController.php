@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Apartment;
 use App\Models\Booking;
+use App\Services\BookingConfirmationEmailService;
 use App\Services\BookingCreationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ class BookingController extends Controller
 {
     public function __construct(
         protected BookingCreationService $bookingService,
+        protected BookingConfirmationEmailService $emailService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -180,6 +182,9 @@ class BookingController extends Controller
             'notify_guest' => ['nullable', Rule::in(['email', 'sms', 'none'])],
         ]);
 
+        $before = $this->stayFingerprint($model);
+        $oldStatus = $model->status;
+
         try {
             $updated = $this->bookingService->update($model, $validated);
         } catch (\InvalidArgumentException $e) {
@@ -188,12 +193,20 @@ class BookingController extends Controller
 
         $notify = $validated['notify_guest'] ?? 'none';
 
+        // A guest always hears when their booking is confirmed or cancelled;
+        // other changes only when the host asked for the guest to be told.
+        $emailed = null;
+        if ($updated->status !== $oldStatus && in_array($updated->status, ['confirmed', 'cancelled'], true)) {
+            $emailed = $this->emailService->sendGuestStatusChange($updated);
+        } elseif ($notify === 'email' && $this->stayFingerprint($updated) !== $before) {
+            $emailed = $this->emailService->sendGuestUpdate($updated);
+        }
+
         return response()->json([
             'data' => $this->transform($updated, true),
-            'message' => $notify === 'none'
-                ? 'Booking updated.'
-                : 'Booking updated. Guest notification queued.',
+            'message' => $this->savedMessage('Booking updated.', $emailed, $notify),
             'notify_guest' => $notify,
+            'guest_emailed' => $emailed === true,
         ]);
     }
 
@@ -216,6 +229,8 @@ class BookingController extends Controller
             }
         }
 
+        $before = $this->stayFingerprint($model);
+
         try {
             $updated = $this->bookingService->update($model, [
                 'apartment_id' => $validated['apartment_id'],
@@ -228,13 +243,49 @@ class BookingController extends Controller
 
         $notify = $validated['notify_guest'] ?? 'none';
 
+        $emailed = null;
+        if ($notify === 'email' && $this->stayFingerprint($updated) !== $before) {
+            $emailed = $this->emailService->sendGuestUpdate($updated);
+        }
+
         return response()->json([
             'data' => $this->transform($updated, true),
-            'message' => $notify === 'none'
-                ? 'Booking moved.'
-                : 'Booking moved. Guest notification queued.',
+            'message' => $this->savedMessage('Booking moved.', $emailed, $notify),
             'notify_guest' => $notify,
+            'guest_emailed' => $emailed === true,
         ]);
+    }
+
+    /**
+     * The parts of a booking a guest needs to hear about when they change.
+     */
+    protected function stayFingerprint(Booking $booking): string
+    {
+        return implode('|', [
+            (int) $booking->apartment_id,
+            $booking->check_in_date?->format('Y-m-d'),
+            $booking->check_out_date?->format('Y-m-d'),
+        ]);
+    }
+
+    /**
+     * @param  bool|null  $emailed  null when no email was due
+     */
+    protected function savedMessage(string $saved, ?bool $emailed, string $notify): string
+    {
+        if ($emailed === true) {
+            return $saved.' The guest has been emailed.';
+        }
+
+        if ($emailed === false) {
+            return $saved.' The email to the guest could not be sent (no guest email, or email settings are missing).';
+        }
+
+        if ($notify === 'sms') {
+            return $saved.' SMS notifications are not available yet, so the guest was not notified.';
+        }
+
+        return $saved;
     }
 
     protected function storeBlock(Request $request): JsonResponse

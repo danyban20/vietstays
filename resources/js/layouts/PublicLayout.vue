@@ -41,7 +41,11 @@
         <footer class="public-footer">
             <div class="public-footer__inner">
                 <span>© {{ year }} Vietstays</span>
-                <a href="/admin">Property hosts</a>
+                <span class="public-footer__links">
+                    <router-link :to="{ name: 'terms' }">Terms &amp; privacy</router-link>
+                    <router-link :to="{ name: 'terms', hash: '#contact' }">Contact</router-link>
+                    <a href="/admin">Property hosts</a>
+                </span>
             </div>
         </footer>
     </div>
