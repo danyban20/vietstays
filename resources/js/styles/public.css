@@ -906,3 +906,65 @@ body {
         justify-items: start;
     }
 }
+
+.public-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.booking-checkout-terms {
+    font-size: 13px;
+    color: var(--vs-text-secondary);
+}
+
+.terms-page__header h1 {
+    margin: 0 0 4px;
+    font-size: 28px;
+}
+
+.terms-page__header > p {
+    margin: 0;
+    color: var(--vs-text-secondary);
+}
+
+.terms-page__toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-top: 16px;
+}
+
+.terms-page__section {
+    scroll-margin-top: 16px;
+}
+
+.terms-page__section h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+.terms-page__section p {
+    margin: 0 0 12px;
+    max-width: 68ch;
+    line-height: 1.6;
+}
+
+.terms-page__section p:last-child {
+    margin-bottom: 0;
+}
+
+.terms-page__contact {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    margin: 0;
+}
+
+.terms-page__contact dt {
+    font-weight: 600;
+}
+
+.terms-page__contact dd {
+    margin: 0;
+}
