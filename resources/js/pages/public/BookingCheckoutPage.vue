@@ -224,6 +224,12 @@
                                             {{ submitting ? 'Submitting…' : 'Confirm booking' }}
                                         </button>
                                         <p>We will send booking confirmation to your email.</p>
+                                        <p class="booking-checkout-terms">
+                                            By booking you agree to our
+                                            <router-link :to="{ name: 'terms' }" target="_blank">terms</router-link>
+                                            and
+                                            <router-link :to="{ name: 'terms', hash: '#cancellation' }" target="_blank">cancellation policy</router-link>.
+                                        </p>
                                     </div>
                                 </div>
                             </div>

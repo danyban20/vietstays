@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Apartment;
 use App\Models\Booking;
 use App\Models\District;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -16,24 +17,99 @@ class BookingConfirmationEmailService
 
     public function sendGuestConfirmation(Booking $booking): bool
     {
+        return $this->sendToGuest($booking, 'user_booking_confirmation');
+    }
+
+    /**
+     * Tell the guest their booking was confirmed or cancelled. Other
+     * statuses (back to pending) send nothing.
+     */
+    public function sendGuestStatusChange(Booking $booking): bool
+    {
+        $code = match ($booking->status) {
+            'confirmed' => 'guest_booking_confirmed',
+            'cancelled' => 'guest_booking_cancelled',
+            default => null,
+        };
+
+        return $code !== null && $this->sendToGuest($booking, $code);
+    }
+
+    public function sendGuestUpdate(Booking $booking): bool
+    {
+        return $this->sendToGuest($booking, 'guest_booking_updated');
+    }
+
+    /**
+     * Email the host who owns the apartment about a new website booking, so
+     * they don't have to watch the dashboard to notice it.
+     */
+    public function sendHostNewBooking(Booking $booking): bool
+    {
+        $booking->loadMissing(['apartment']);
+        $apartment = $booking->apartment ?? Apartment::query()->find($booking->apartment_id);
+
+        // Apartments point at their host through the legacy WordPress id.
+        $host = $apartment && (int) $apartment->user_id > 0
+            ? User::query()->where('legacy_wp_id', (int) $apartment->user_id)->first()
+            : null;
+
+        $recipient = trim((string) $host?->email);
+        if ($recipient === '') {
+            Log::info('New booking email to host skipped: apartment has no host with an email.', [
+                'booking_id' => $booking->ID,
+                'apartment_id' => $booking->apartment_id,
+            ]);
+
+            return false;
+        }
+
+        $extra = is_array($booking->extra_data) ? $booking->extra_data : [];
+
+        $tokens = $this->bookingTokens($booking, $apartment) + [
+            'HOST_NAME' => e((string) (($host->display_name ?: $host->name) ?? '')),
+            'PHONE' => e((string) ($extra['phone'] ?? '—')),
+            'ADULTS' => (string) $booking->adults,
+            'CHILDREN' => (string) $booking->children,
+            'PAYMENT_METHOD' => ($extra['payment_method'] ?? 'onsite') === 'card' ? 'Card' : 'Pay on arrival',
+            'BOOKING_ADMIN_LINK' => rtrim((string) config('app.url'), '/').'/admin/bookings/'.$booking->ID,
+        ];
+
+        return $this->emailService->sendByCode('host_new_booking', $recipient, $tokens);
+    }
+
+    protected function sendToGuest(Booking $booking, string $code): bool
+    {
         $booking->loadMissing(['apartment']);
 
         $recipient = trim((string) $booking->email);
         if ($recipient === '') {
-            Log::info('Booking confirmation email skipped: booking has no guest email.', [
+            Log::info('Guest booking email skipped: booking has no guest email.', [
                 'booking_id' => $booking->ID,
+                'template' => $code,
             ]);
 
             return false;
         }
 
         $apartment = $booking->apartment ?? Apartment::query()->find($booking->apartment_id);
+
+        return $this->emailService->sendByCode($code, $recipient, $this->bookingTokens($booking, $apartment));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function bookingTokens(Booking $booking, ?Apartment $apartment): array
+    {
         $district = District::query()->find($booking->district_id);
 
-        $tokens = [
-            'FIRSTNAME' => (string) $booking->firstname,
-            'LASTNAME' => (string) $booking->lastname,
-            'EMAIL' => $recipient,
+        // Names and contact details are typed by the guest and land in HTML
+        // email bodies, so they are escaped.
+        return [
+            'FIRSTNAME' => e((string) $booking->firstname),
+            'LASTNAME' => e((string) $booking->lastname),
+            'EMAIL' => e(trim((string) $booking->email)),
             'BOOKING_NUM' => (string) $booking->booking_num,
             'BOOKING_LINK' => $this->bookingLink($booking),
             'CHECK-IN_DATE' => $booking->check_in_date?->format('M j, Y') ?? '',
@@ -42,8 +118,6 @@ class BookingConfirmationEmailService
             'APARTMENT_NAME' => (string) (($apartment?->display_name ?: $apartment?->name) ?? ''),
             'DISTRICT_NAME' => (string) ($district?->name ?? ''),
         ];
-
-        return $this->emailService->sendByCode('user_booking_confirmation', $recipient, $tokens);
     }
 
     protected function bookingLink(Booking $booking): string

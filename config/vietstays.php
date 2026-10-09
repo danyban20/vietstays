@@ -23,7 +23,15 @@ return [
         'host_activation_reminder',
         'team_invitation',
         'guest_message',
+        'host_new_booking',
+        'guest_booking_confirmed',
+        'guest_booking_cancelled',
+        'guest_booking_updated',
     ],
+
+    // Shown on the public terms & contact page; leave empty to hide a line.
+    'contact_email' => env('VIETSTAYS_CONTACT_EMAIL', ''),
+    'contact_phone' => env('VIETSTAYS_CONTACT_PHONE', ''),
 
     'email_locales' => [
         'en' => ['short' => 'EN', 'label' => 'English'],

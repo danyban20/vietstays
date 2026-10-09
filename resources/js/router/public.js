@@ -62,6 +62,11 @@ const routes = [
                 component: () => import('@/pages/public/MemberAccountPage.vue'),
             },
             {
+                path: 'terms',
+                name: 'terms',
+                component: () => import('@/pages/public/TermsPage.vue'),
+            },
+            {
                 path: 'host-application',
                 name: 'host-application',
                 component: () => import('@/pages/public/HostApplicationPage.vue'),
@@ -83,6 +88,13 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(`${getAppBasePath()}/`.replace('//', '/')),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition;
+        }
+
+        return to.hash ? { el: to.hash, top: 16 } : { top: 0 };
+    },
 });
 
 export default router;
