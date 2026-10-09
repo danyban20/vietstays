@@ -72,8 +72,7 @@
                     <h2>{{ selectedCity ? t('locationsAdmin.colDistricts') + ' — ' + selectedCity.name : t('locationsAdmin.colDistricts') }}</h2>
                     <button
                         type="button"
-                        class="host-btn host-btn--ghost"
-                        :disabled="!selectedCityId"
+                        class="host-btn host-btn--ghost locations-admin__add"
                         @click="openCreate('district')"
                     >
                         {{ t('locationsAdmin.addNew') }}
@@ -106,6 +105,16 @@
                 <div v-if="createKind === 'country'" class="host-field host-field--full">
                     <label class="host-field__label" for="loc-code">{{ t('locationsAdmin.code') }}</label>
                     <input id="loc-code" v-model="createForm.code" type="text" maxlength="2" class="host-input" />
+                </div>
+
+                <div v-if="createKind === 'district'" class="host-field host-field--full">
+                    <label class="host-field__label" for="loc-city">{{ t('locationsAdmin.colCities') }}</label>
+                    <select id="loc-city" v-model="createForm.cityId" class="host-input" required>
+                        <option value="">{{ t('locationsAdmin.selectCityFirst') }}</option>
+                        <option v-for="city in cities" :key="city.city_id" :value="city.city_id">
+                            {{ city.name }}
+                        </option>
+                    </select>
                 </div>
 
                 <div v-if="createKind === 'district'" class="host-field host-field--full">
@@ -153,7 +162,7 @@ const createModalOpen = ref(false);
 const createKind = ref('country');
 const creating = ref(false);
 const createError = ref('');
-const createForm = reactive({ name: '', code: '', districtCode: '' });
+const createForm = reactive({ name: '', code: '', districtCode: '', cityId: '' });
 
 const createModalTitle = computed(() => {
     if (createKind.value === 'country') return t('locationsAdmin.newCountryTitle');
@@ -194,6 +203,7 @@ function openCreate(kind) {
     createForm.name = '';
     createForm.code = '';
     createForm.districtCode = '';
+    createForm.cityId = selectedCityId.value || cities.value[0]?.city_id || '';
     createModalOpen.value = true;
 }
 
@@ -228,14 +238,22 @@ async function submitCreate() {
             await loadCountries();
             await loadCities(selectedCountryId.value);
         } else {
+            if (!createForm.cityId) {
+                createError.value = t('locationsAdmin.selectCityFirst');
+                creating.value = false;
+                return;
+            }
+
+            const cityId = Number(createForm.cityId);
             const res = await apiClient.post('/admin/districts', {
                 name: createForm.name.trim(),
-                city_id: selectedCityId.value,
+                city_id: cityId,
                 district_code: createForm.districtCode.trim() || null,
             });
             formSuccess.value = res?.message ?? '';
+            selectedCityId.value = cityId;
             await loadCities(selectedCountryId.value);
-            await loadDistricts(selectedCityId.value);
+            await loadDistricts(cityId);
         }
 
         closeCreate();
@@ -302,10 +320,15 @@ onMounted(async () => {
 
 .locations-admin__column-header h2 {
     margin: 0;
+    min-width: 0;
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--host-text-muted, #5c6b66);
+}
+
+.locations-admin__add {
+    flex-shrink: 0;
 }
 
 .locations-admin__list {

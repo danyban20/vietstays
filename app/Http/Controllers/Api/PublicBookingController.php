@@ -8,6 +8,7 @@ use App\Services\BookingAvailabilityService;
 use App\Services\BookingConfirmationEmailService;
 use App\Services\BookingCreationService;
 use App\Services\BookingPricingService;
+use App\Services\PromoCodeService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ class PublicBookingController extends Controller
         protected BookingAvailabilityService $availabilityService,
         protected BookingCreationService $bookingService,
         protected BookingConfirmationEmailService $confirmationEmailService,
+        protected PromoCodeService $promoCodeService,
     ) {}
 
     public function quote(Request $request): JsonResponse
@@ -46,10 +48,11 @@ class PublicBookingController extends Controller
         $adults = max(1, (int) ($validated['adults'] ?? 1));
         $children = max(0, (int) ($validated['children'] ?? 0));
         $totalGuests = $adults + $children;
+        $maxGuests = (int) ($apartment->max_guests ?? 0);
 
-        if ($totalGuests > (int) ($apartment->max_guests ?? 0)) {
+        if ($maxGuests > 0 && $totalGuests > $maxGuests) {
             return response()->json([
-                'message' => 'This apartment allows a maximum of '.(int) $apartment->max_guests.' guest(s).',
+                'message' => 'This apartment allows a maximum of '.$maxGuests.' guest(s).',
             ], 422);
         }
 
@@ -60,14 +63,14 @@ class PublicBookingController extends Controller
             ], 422);
         }
 
+        $promo = $this->resolvePromo($validated['promo_code'] ?? '', (int) $apartment->ID);
+
         try {
             $quote = $this->pricingService->quote($apartment, $checkIn, $checkOut, [
                 'num_cleaning' => (int) ($validated['num_cleaning'] ?? 0),
                 'airport_pickup' => ! empty($validated['airport_pickup']),
-                'promo_code' => $validated['promo_code'] ?? '',
-                // The discount rate is never taken from the browser: anyone could
-                // send 100 and book for free. No public promo codes exist yet.
-                'promo_code_discount_percent' => 0,
+                'promo_code' => $promo['code'] ?? '',
+                'promo_code_discount_percent' => (float) ($promo['discount'] ?? 0),
                 'payment_method' => $validated['payment_method'] ?? 'onsite',
             ]);
         } catch (\InvalidArgumentException $e) {
@@ -130,5 +133,67 @@ class PublicBookingController extends Controller
             ],
             'message' => 'Booking submitted. We will confirm your reservation shortly.',
         ], 201);
+    }
+
+    public function promo(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'apartment_id' => ['required', 'integer'],
+            'promo_code' => ['required', 'string', 'max:20'],
+        ]);
+
+        Apartment::query()
+            ->where('status', 'active')
+            ->findOrFail($validated['apartment_id']);
+
+        try {
+            $promo = $this->promoCodeService->resolve($validated['promo_code'], (int) $validated['apartment_id']);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'data' => ['found' => false, 'discount' => 0],
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+
+        if (! $promo) {
+            return response()->json([
+                'data' => ['found' => false, 'discount' => 0],
+                'message' => 'Promo code not found.',
+            ], 422);
+        }
+
+        return response()->json([
+            'data' => [
+                'found' => true,
+                'code' => $promo['code'],
+                'discount' => $promo['discount'],
+            ],
+        ]);
+    }
+
+    /**
+     * @return array{code: string, discount: float, ambassador_id: int}|null
+     */
+    protected function resolvePromo(string $code, int $apartmentId): ?array
+    {
+        if (trim($code) === '') {
+            return null;
+        }
+
+        try {
+            $promo = $this->promoCodeService->resolve($code, $apartmentId);
+        } catch (\InvalidArgumentException $e) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'promo_code' => $e->getMessage(),
+            ]);
+        }
+
+        if (! $promo) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'promo_code' => 'Promo code not found.',
+            ]);
+        }
+
+        return $promo;
     }
 }

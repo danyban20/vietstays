@@ -35,13 +35,31 @@ class PublicApartmentController extends Controller
         return response()->json(['data' => $apartments]);
     }
 
-    public function show(int $apartment): JsonResponse
+    public function show(string $apartment): JsonResponse
     {
-        $model = Apartment::query()
-            ->where('status', 'active')
-            ->findOrFail($apartment);
+        $model = $this->findPublicApartment($apartment);
 
         return response()->json(['data' => $this->transform($model, true)]);
+    }
+
+    protected function findPublicApartment(string $key): Apartment
+    {
+        $query = Apartment::query()->where('status', 'active');
+
+        if (ctype_digit($key)) {
+            return $query->findOrFail((int) $key);
+        }
+
+        return $query->where('url_slug', $key)->firstOrFail();
+    }
+
+    public function cities(): JsonResponse
+    {
+        $cities = City::query()
+            ->orderBy('name')
+            ->get(['city_id', 'name']);
+
+        return response()->json(['data' => $cities]);
     }
 
     public function districts(): JsonResponse
@@ -68,11 +86,18 @@ class PublicApartmentController extends Controller
             $apartmentQuery->where('district', $request->integer('district'));
         }
 
-        if ($request->filled('city')) {
-            $districtIds = District::query()
-                ->where('city_id', $request->integer('city'))
-                ->pluck('district_id');
-            $apartmentQuery->whereIn('district', $districtIds);
+        $cityId = $request->filled('city')
+            ? $request->integer('city')
+            : $request->integer('city_id');
+
+        $cityDistrictIds = $cityId
+            ? District::query()->where('city_id', $cityId)->pluck('district_id')
+            : collect();
+
+        // Leftover WP searches (city_id=449 Da Nang) should not blank the page
+        // when that city has no imported districts yet.
+        if ($cityDistrictIds->isNotEmpty()) {
+            $apartmentQuery->whereIn('district', $cityDistrictIds);
         }
 
         if ($request->filled('type')) {
@@ -106,8 +131,8 @@ class PublicApartmentController extends Controller
             ->with('city')
             ->whereIn('district_id', $countsByDistrict->keys());
 
-        if ($request->filled('city')) {
-            $districtQuery->where('city_id', $request->integer('city'));
+        if ($cityDistrictIds->isNotEmpty()) {
+            $districtQuery->where('city_id', $cityId);
         }
 
         $districts = $districtQuery

@@ -1,16 +1,64 @@
 <template>
-    <div id="booking_confirmation">
+    <div class="host-booking">
+        <div id="header">
+            <div class="container">
+                <div class="header">
+                    <div class="logo">
+                        <router-link :to="{ name: 'home' }">
+                            <img v-if="!logoFailed" :src="HOME_IMAGES.logo" alt="Visit Vietnam" @error="logoFailed = true" />
+                            <span v-else class="host-home-logo-fallback">Visit Vietnam</span>
+                        </router-link>
+                    </div>
+                    <a href="#" id="menubtn" class="host-home-menu-btn" @click.prevent="mobileNavOpen = !mobileNavOpen">
+                        <span /><span /><span /><span />
+                    </a>
+                    <div class="head_right" :class="{ 'host-home-nav-open': mobileNavOpen }">
+                        <div id="nav">
+                            <ul class="menu">
+                                <li><router-link :to="{ name: 'public-apartments' }">Apartments</router-link></li>
+                                <li>
+                                    <router-link :to="{ name: 'host-application' }">Share your apartment</router-link>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="/admin" class="btn">Host login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="booking_confirmation">
         <div class="container">
             <div class="booking_confirmation_inn">
-                <div v-if="confirmed" class="booking-checkout-success">
+                <div v-if="showSuccess" class="booking-checkout-success">
                     <h2>Booking submitted</h2>
-                    <p>Thank you, {{ form.guest_name }}. Your reservation request has been received.</p>
-                    <p v-if="confirmedBooking?.booking_num">
-                        Reference: <strong>{{ confirmedBooking.booking_num }}</strong>
+                    <p class="booking-checkout-success__lead">
+                        Thank you, {{ successGuest }}. Your reservation request has been received.
                     </p>
+                    <dl class="booking-checkout-success__card">
+                        <div v-if="successBooking.booking_num">
+                            <dt>Reference</dt>
+                            <dd>{{ successBooking.booking_num }}</dd>
+                        </div>
+                        <div v-if="apartment.name">
+                            <dt>Apartment</dt>
+                            <dd>{{ apartment.name }}</dd>
+                        </div>
+                        <div v-if="successBooking.check_in && successBooking.check_out">
+                            <dt>Dates</dt>
+                            <dd>{{ formatDate(successBooking.check_in) }} – {{ formatDate(successBooking.check_out) }}</dd>
+                        </div>
+                        <div v-if="successBooking.total != null">
+                            <dt>Total</dt>
+                            <dd>{{ formatVnd(successBooking.total) }}</dd>
+                        </div>
+                        <div>
+                            <dt>Payment</dt>
+                            <dd>Due on arrival</dd>
+                        </div>
+                    </dl>
                     <p class="booking-checkout-success__note">
-                        We will email you at {{ form.email }} with confirmation details. Payment is due on arrival
-                        unless you chose to pay by card (card payments are not yet available online).
+                        We will email you at {{ successEmail }} with confirmation details.
                     </p>
                     <router-link :to="{ name: 'home' }" class="btn">Back to home</router-link>
                 </div>
@@ -19,7 +67,7 @@
                     <h2>
                         <router-link
                             v-if="apartmentId"
-                            :to="{ name: 'public-apartment', params: { id: apartmentId }, hash: '#book-now' }"
+                            :to="apartmentLocation"
                             class="back_arr"
                         />
                         Booking confirmation
@@ -39,14 +87,7 @@
                                             <li>
                                                 Dates
                                                 <strong>{{ dateSummary }}</strong>
-                                                <router-link
-                                                    :to="{
-                                                        name: 'public-apartment',
-                                                        params: { id: apartmentId },
-                                                        hash: '#book-now',
-                                                    }"
-                                                    class="change_btn"
-                                                >
+                                                <router-link :to="apartmentLocation" class="change_btn">
                                                     Change
                                                 </router-link>
                                             </li>
@@ -57,14 +98,7 @@
                                             <li>
                                                 Guests
                                                 <strong>{{ guestsSummary }}</strong>
-                                                <router-link
-                                                    :to="{
-                                                        name: 'public-apartment',
-                                                        params: { id: apartmentId },
-                                                        hash: '#book-now',
-                                                    }"
-                                                    class="change_btn"
-                                                >
+                                                <router-link :to="apartmentLocation" class="change_btn">
                                                     Change
                                                 </router-link>
                                             </li>
@@ -224,6 +258,30 @@
                                                 </li>
                                             </ul>
                                         </div>
+                                        <div class="promocode_block">
+                                            <h4>
+                                                <a href="#" @click.prevent="promoOpen = !promoOpen">Do you have a promo code</a>
+                                            </h4>
+                                            <p>Enter your referral code or discount code here</p>
+                                            <div v-show="promoOpen" class="promocode_block_inner">
+                                                <input
+                                                    v-model="form.promo_code"
+                                                    type="text"
+                                                    placeholder="Enter your code"
+                                                />
+                                                <div class="submit_btn">
+                                                    <input
+                                                        type="button"
+                                                        class="btn"
+                                                        value="Submit"
+                                                        :disabled="promoChecking"
+                                                        @click="applyPromo"
+                                                    />
+                                                </div>
+                                                <p v-if="promoMessage" class="mt-2">{{ promoMessage }}</p>
+                                                <div v-if="promoError" class="alert alert-danger mt-2">{{ promoError }}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -237,6 +295,7 @@
                 </template>
             </div>
         </div>
+        </div>
     </div>
 </template>
 
@@ -245,22 +304,35 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { usePublicLegacyStyles } from '@/composables/usePublicLegacyStyles';
+import { HOME_IMAGES } from '@/data/home-content';
 import { useMemberStore } from '@/stores/member';
 import { formatDate, formatVnd, nightsBetween } from '@/utils/format';
 
 const route = useRoute();
 const member = useMemberStore();
 const { mount, unmount } = usePublicLegacyStyles('booking');
+const logoFailed = ref(false);
+const mobileNavOpen = ref(false);
 
 const loading = ref(true);
 const submitting = ref(false);
 const pageError = ref('');
 const confirmed = ref(false);
 const confirmedBooking = ref(null);
+const showSuccess = computed(() => confirmed.value);
+const successGuest = computed(() => form.guest_name);
+const successEmail = computed(() => form.email);
+const successBooking = computed(() => confirmedBooking.value || {});
 const apartment = ref({});
 const quote = ref(null);
 
 const apartmentId = computed(() => route.params.apartmentId);
+
+const apartmentLocation = computed(() => ({
+    name: 'public-apartment',
+    params: { slug: apartment.value.slug || String(apartmentId.value || '') },
+    hash: '#book-now',
+}));
 
 const form = reactive({
     guest_name: '',
@@ -273,7 +345,14 @@ const form = reactive({
     num_cleaning: 0,
     airport_pickup: '0',
     payment_method: 'onsite',
+    promo_code: '',
 });
+
+const promoOpen = ref(false);
+const promoApplied = ref(false);
+const promoChecking = ref(false);
+const promoMessage = ref('');
+const promoError = ref('');
 
 const nights = computed(() => nightsBetween(form.check_in, form.check_out));
 
@@ -336,6 +415,13 @@ const orderLines = computed(() => {
         lines.push({
             label: `Extended stay discount (${quote.value.basic_discount_percent}%)`,
             value: `- ${formatVnd(quote.value.basic_discount_amount)}`,
+        });
+    }
+
+    if (Number(quote.value.promo_discount_amount) > 0) {
+        lines.push({
+            label: `Promo code (${quote.value.promo_code} – ${quote.value.promo_code_discount_percent}%)`,
+            value: `- ${formatVnd(quote.value.promo_discount_amount)}`,
         });
     }
 
@@ -410,6 +496,7 @@ async function refreshQuote() {
             num_cleaning: form.num_cleaning,
             airport_pickup: form.airport_pickup === '1' || form.airport_pickup === true,
             payment_method: form.payment_method,
+            promo_code: promoApplied.value ? form.promo_code : '',
         });
         quote.value = res?.data ?? null;
     } catch (err) {
@@ -438,6 +525,44 @@ async function bootstrap() {
     }
 }
 
+async function applyPromo() {
+    promoError.value = '';
+    promoMessage.value = '';
+
+    const code = form.promo_code.trim();
+    if (!code) {
+        promoError.value = 'Enter a promo code.';
+        return;
+    }
+
+    if (Number(quote.value?.campaign_discount) > 0) {
+        const proceed = window.confirm(
+            'A campaign discount is already applied, so this promo code will not reduce the price. Continue?',
+        );
+        if (!proceed) {
+            return;
+        }
+    }
+
+    promoChecking.value = true;
+
+    try {
+        const res = await apiClient.post('/public/bookings/promo', {
+            apartment_id: Number(apartmentId.value),
+            promo_code: code,
+        });
+        promoApplied.value = true;
+        form.promo_code = res?.data?.code || code;
+        promoMessage.value = `${Number(res?.data?.discount || 0)}% off with code ${form.promo_code}`;
+        await refreshQuote();
+    } catch (err) {
+        promoApplied.value = false;
+        promoError.value = err.message || 'Promo code not found.';
+    } finally {
+        promoChecking.value = false;
+    }
+}
+
 async function submitBooking() {
     pageError.value = '';
     submitting.value = true;
@@ -455,10 +580,12 @@ async function submitBooking() {
             num_cleaning: form.num_cleaning,
             airport_pickup: form.airport_pickup === '1' || form.airport_pickup === true,
             payment_method: form.payment_method,
+            promo_code: promoApplied.value ? form.promo_code : null,
         });
 
         confirmedBooking.value = res?.data ?? null;
         confirmed.value = true;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
         pageError.value = err.message || 'Could not submit your booking.';
     } finally {
@@ -498,14 +625,94 @@ watch(
 </script>
 
 <style scoped>
-.booking-checkout-success {
-    max-width: 640px;
-    padding: 40px 0;
+.host-home-logo-fallback {
+    color: #f0e8d5;
+    font-family: 'TrajanProRegular', 'Times New Roman', serif;
+    font-size: 28px;
 }
 
+.host-home-menu-btn {
+    display: none;
+}
+
+#booking_confirmation,
+#booking_confirmation p {
+    color: #013735;
+}
+
+.booking-checkout-success {
+    max-width: 680px;
+    margin: 10px auto 40px;
+    padding: 8px 0 20px;
+}
+
+.booking-checkout-success h2 {
+    margin: 0 0 12px;
+    color: #004041;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.booking-checkout-success__lead,
 .booking-checkout-success__note {
-    margin: 16px 0 24px;
-    color: #333;
+    color: #013735;
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0 0 20px;
+}
+
+.booking-checkout-success__card {
+    display: grid;
+    gap: 14px;
+    margin: 0 0 24px;
+    padding: 22px 24px;
+    background: #f0e8d5;
+    border-radius: 16px;
+}
+
+.booking-checkout-success__card > div {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    align-items: baseline;
+}
+
+.booking-checkout-success__card dt {
+    margin: 0;
+    color: #4d6766;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.booking-checkout-success__card dd {
+    margin: 0;
+    color: #004041;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+@media (max-width: 991px) {
+    .host-home-menu-btn {
+        display: block;
+    }
+
+    .head_right.host-home-nav-open {
+        display: flex;
+    }
+}
+
+@media (max-width: 640px) {
+    .booking-checkout-success h2 {
+        font-size: 32px;
+    }
+
+    .booking-checkout-success__card > div {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
 }
 
 .alert-danger {

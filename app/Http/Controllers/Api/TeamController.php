@@ -42,6 +42,13 @@ class TeamController extends Controller
             'role_key' => ['nullable', 'string', 'max:30'],
         ]);
 
+        if ($validated['type'] === 'sales' && blank($validated['email'] ?? null)) {
+            return response()->json([
+                'message' => 'A valid email address is required for sales team invitations.',
+                'errors' => ['email' => ['A valid email address is required.']],
+            ], 422);
+        }
+
         if (blank($validated['email'] ?? null) && blank($validated['phone'] ?? null)) {
             return response()->json(['message' => 'Email or phone is required.'], 422);
         }

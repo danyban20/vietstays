@@ -11,7 +11,9 @@ use App\Services\ApartmentCreationService;
 use App\Services\PriceMatrixService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -119,6 +121,9 @@ class ApartmentController extends Controller
             'name' => ['sometimes', 'string', 'max:200'],
             'display_name' => ['sometimes', 'string', 'max:200'],
             'room_number' => ['nullable', 'string', 'max:50'],
+            'floor_number' => ['nullable', 'string', 'max:50'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'house_rules' => ['nullable', 'string'],
             'about_this_short' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'facilities' => ['nullable', 'array'],
@@ -126,8 +131,43 @@ class ApartmentController extends Controller
             'images' => ['nullable', 'array'],
             'price_daily' => ['nullable', 'numeric', 'min:0'],
             'cleaning_fee' => ['nullable', 'numeric', 'min:0'],
+            'extra_cleaning_fee' => ['nullable', 'numeric', 'min:0'],
+            'cleaning_fee_enabled' => ['nullable', 'boolean'],
+            'promocode_discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pricing_model' => ['sometimes', Rule::in(['fixed', 'seasonal'])],
+            'pricing' => ['sometimes', 'array'],
+            'pricing.min_nights' => ['nullable', 'integer', Rule::in([1, 2, 3, 5, 7])],
+            'pricing.addon_days2' => ['nullable', 'numeric', 'min:0', 'max:500'],
+            'pricing.discount_3days' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pricing.discount_5days' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pricing.discount_7days' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pricing.discount_14days' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pricing.discount_30days' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pricing.long_stay' => ['sometimes', 'array'],
+            'pricing.long_stay.*' => ['boolean'],
+            'pricing.seasonal_pct' => ['sometimes', 'array'],
+            'pricing.seasonal_pct.*' => ['nullable', 'numeric', 'min:-90', 'max:300'],
+            'seasonal_pricing' => ['sometimes', 'array'],
+            'seasonal_pricing.*' => ['nullable', 'numeric', 'min:0'],
+            'campaign_discounts' => ['sometimes', 'array'],
+            'campaign_discounts.*.start' => ['required', 'date'],
+            'campaign_discounts.*.end' => ['required', 'date'],
+            'campaign_discounts.*.discount' => ['required', 'numeric', 'min:0', 'max:100'],
             'status' => ['sometimes', Rule::in(['draft', 'pending', 'active'])],
         ]);
+
+        if (isset($validated['pricing']) && is_array($validated['pricing'])) {
+            $existing = is_array($model->pricing) ? $model->pricing : [];
+            $validated['pricing'] = array_merge($existing, $validated['pricing']);
+        }
+
+        $campaignDiscounts = $validated['campaign_discounts'] ?? null;
+        unset($validated['campaign_discounts']);
+
+        if (array_key_exists('district_id', $validated)) {
+            $validated['district'] = $validated['district_id'];
+            unset($validated['district_id']);
+        }
 
         if (array_key_exists('images', $validated)) {
             try {
@@ -147,7 +187,14 @@ class ApartmentController extends Controller
         }
 
         try {
-            $apartment = $this->apartmentService->update($model, $validated);
+            $apartment = DB::transaction(function () use ($model, $validated, $campaignDiscounts) {
+                $apartment = $this->apartmentService->update($model, $validated);
+                if (is_array($campaignDiscounts)) {
+                    $this->syncCampaignDiscounts((int) $apartment->ID, $campaignDiscounts);
+                }
+
+                return $apartment;
+            });
         } catch (\Throwable $e) {
             Log::error('Apartment update failed', [
                 'apartment_id' => $model->ID,
@@ -224,6 +271,65 @@ class ApartmentController extends Controller
         ]);
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    protected function syncCampaignDiscounts(int $apartmentId, array $rows): void
+    {
+        if (! Schema::hasTable('vv_apartment_discounts')) {
+            return;
+        }
+
+        DB::table('vv_apartment_discounts')->where('apartment_id', $apartmentId)->delete();
+
+        foreach ($rows as $row) {
+            $discount = (float) ($row['discount'] ?? 0);
+            $start = (string) ($row['start'] ?? '');
+            $end = (string) ($row['end'] ?? '');
+
+            if ($discount <= 0 || $start === '' || $end === '' || $end < $start) {
+                continue;
+            }
+
+            DB::table('vv_apartment_discounts')->insert([
+                'apartment_id' => $apartmentId,
+                'datestart' => $start,
+                'dateend' => $end,
+                'discount' => $discount,
+                'name' => 'Campaign',
+            ]);
+        }
+    }
+
+    /**
+     * @return array<int, array{id: int, start: string, end: string, discount: float}>
+     */
+    protected function campaignDiscounts(int $apartmentId): array
+    {
+        if (! Schema::hasTable('vv_apartment_discounts')) {
+            return [];
+        }
+
+        return DB::table('vv_apartment_discounts')
+            ->where('apartment_id', $apartmentId)
+            ->orderBy('datestart')
+            ->get()
+            ->map(function ($row) {
+                $start = $row->datestart ?? null;
+                $end = $row->dateend ?? null;
+
+                return [
+                    'id' => (int) ($row->apt_discount_id ?? 0),
+                    'start' => $start ? substr((string) $start, 0, 10) : '',
+                    'end' => $end ? substr((string) $end, 0, 10) : '',
+                    'discount' => (float) ($row->discount ?? 0),
+                ];
+            })
+            ->filter(fn (array $row) => $row['start'] !== '' && $row['discount'] > 0)
+            ->values()
+            ->all();
+    }
+
     protected function authorizeApartment(Request $request, Apartment $apartment): void
     {
         $user = $request->user();
@@ -276,10 +382,19 @@ class ApartmentController extends Controller
                 'about_this_short' => $apartment->about_this_short,
                 'facilities' => $apartment->facilities ?? [],
                 'images' => $apartment->images ?? [],
-                'pricing' => $apartment->pricing,
+                'pricing' => $apartment->pricing ?? [],
+                'pricing_model' => $apartment->pricing_model ?: 'fixed',
+                'seasonal_pricing' => $apartment->seasonal_pricing ?? [],
                 'cleaning_fee' => (float) $apartment->cleaning_fee,
+                'extra_cleaning_fee' => (float) ($apartment->extra_cleaning_fee ?? 0),
+                'cleaning_fee_enabled' => $apartment->cleaning_fee_enabled === null || (bool) $apartment->cleaning_fee_enabled,
+                'promocode_discount' => (float) ($apartment->promocode_discount ?? 0),
+                'campaign_discounts' => $this->campaignDiscounts((int) $apartment->ID),
                 'room_number' => $apartment->room_number,
                 'floor_number' => $apartment->floor_number,
+                'address' => $apartment->address,
+                'house_rules' => $apartment->house_rules,
+                'city_id' => $district?->city_id,
             ];
         }
 

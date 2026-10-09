@@ -242,6 +242,8 @@ const englishMessages = {
         inviteEmail: 'Email address',
         inviteContact: 'Email or phone',
         inviteEmailPlaceholder: 'name@example.com',
+        inviteEmailInvalid: 'Enter a valid email address.',
+        inviteContactInvalid: 'Enter a valid email or phone number (at least 8 digits).',
         inviteContactPlaceholder: 'email or phone number',
         inviteRole: 'Role',
         inviteArea: 'Responsibility area',

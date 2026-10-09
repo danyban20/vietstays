@@ -315,9 +315,15 @@ const route = useRoute();
 const { t } = useI18n();
 const auth = useAuthStore();
 
+const platformContentRoutes = [
+    'superadmin-buildings',
+    'superadmin-locations',
+    'superadmin-price-matrix',
+];
+
 const customerCount = ref(0);
 const hostsPartnersOpen = ref(true);
-const platformContentOpen = ref(false);
+const platformContentOpen = ref(true);
 
 const openSections = reactive({
     apartments: true,
@@ -342,6 +348,10 @@ function syncOpenSectionsFromRoute() {
 
     if (['bookings', 'bookings-calendar', 'booking-detail', 'customers', 'customer-detail'].includes(route.name)) {
         openSections.bookings = true;
+    }
+
+    if (platformContentRoutes.includes(route.name)) {
+        platformContentOpen.value = true;
     }
 }
 

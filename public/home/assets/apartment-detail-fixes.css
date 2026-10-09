@@ -20,11 +20,62 @@
 .host-apartment-detail #topbar {
     visibility: visible;
     opacity: 1;
+    background: #004041;
+    box-shadow: none;
+}
+
+.host-apartment-detail #topbar .topbar ul li a {
+    color: #fff;
+}
+
+.host-apartment-detail #topbar .topbar ul li a:after {
+    background: #fc780e;
+}
+
+.host-apartment-detail #topbar .topbar ul li a:hover {
+    color: #fc780e;
 }
 
 .host-apartment-detail #topbar .topbar_left img {
     max-height: 42px;
     width: auto;
+}
+
+.host-apartment-detail .single_app_top {
+    padding-top: 118px;
+}
+
+.host-apartment-detail .single_app_top .app_title {
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.host-apartment-detail .single_app_top .app_title > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.host-apartment-detail .single_app_top .app_title h1 {
+    line-height: 1.25;
+}
+
+.host-apartment-detail .book_now_btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.host-apartment-detail .app_book_block .alert-danger {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fdecea;
+    color: #842029;
+}
+
+@media (max-width: 767px) {
+    .host-apartment-detail .single_app_top {
+        padding-top: 176px;
+    }
 }
 
 .host-apartment-detail .app_gall .gall_img img {

@@ -64,7 +64,9 @@ const year = new Date().getFullYear();
 const isLegacyRoute = computed(() =>
     route.name === 'home' ||
     route.name === 'public-apartments' ||
-    route.name === 'public-apartment',
+    route.name === 'public-apartment' ||
+    route.name === 'public-apartment-id' ||
+    route.name === 'booking-checkout',
 );
 const legacyLayoutClass = computed(() => ({
     'public-site': true,

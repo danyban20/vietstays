@@ -24,6 +24,12 @@ class BookingPricingService
 
         $nights = max(1, $checkIn->diffInDays($checkOut));
         $pricing = is_array($apartment->pricing) ? $apartment->pricing : [];
+        $minNights = (int) ($pricing['min_nights'] ?? 1);
+
+        if ($minNights > 1 && $nights < $minNights) {
+            throw new \InvalidArgumentException('This apartment requires a minimum stay of '.$minNights.' nights.');
+        }
+
         $discounts = $this->loadCampaignDiscounts((int) $apartment->ID);
 
         $period = CarbonPeriod::create($checkIn, $checkOut->copy()->subDay());
@@ -32,8 +38,26 @@ class BookingPricingService
         $campaignDiscount = 0.0;
         $campaignDiscountDesc = [];
 
+        $seasonal = is_array($apartment->seasonal_pricing) ? $apartment->seasonal_pricing : [];
+        $seasonalPct = is_array($pricing['seasonal_pct'] ?? null) ? $pricing['seasonal_pct'] : [];
+        $useSeasonal = ($apartment->pricing_model ?? 'fixed') === 'seasonal';
+
         foreach ($period as $date) {
             $cost = (float) $apartment->price_daily;
+
+            if ($useSeasonal) {
+                $month = (int) $date->format('n');
+                $pct = $seasonalPct[$month] ?? $seasonalPct[(string) $month] ?? null;
+                if ($pct !== null && $pct !== '') {
+                    $cost = $cost * (1 + ((float) $pct / 100));
+                } else {
+                    $monthPrice = $seasonal[$month] ?? $seasonal[(string) $month] ?? null;
+                    if ($monthPrice !== null && $monthPrice !== '' && (float) $monthPrice > 0) {
+                        $cost = (float) $monthPrice;
+                    }
+                }
+            }
+
             $dayOfWeek = (int) $date->format('w');
 
             if ($dayOfWeek === 5 || $dayOfWeek === 6) {
@@ -94,9 +118,14 @@ class BookingPricingService
             ? round($subtotalAfterPromo * ($bookingFeePercent / 100))
             : 0.0;
 
-        $cleaningFee = (float) ($apartment->cleaning_fee ?? 0);
+        $cleaningEnabled = $apartment->cleaning_fee_enabled === null || (bool) $apartment->cleaning_fee_enabled;
+        $cleaningFee = $cleaningEnabled ? (float) ($apartment->cleaning_fee ?? 0) : 0.0;
         $numExtraCleaning = max(0, (int) ($options['num_cleaning'] ?? 0));
-        $extraCleaningTotal = $numExtraCleaning > 0 ? $cleaningFee * $numExtraCleaning : 0.0;
+        $extraUnit = (float) ($apartment->extra_cleaning_fee ?? 0);
+        if ($extraUnit <= 0) {
+            $extraUnit = $cleaningFee;
+        }
+        $extraCleaningTotal = $numExtraCleaning > 0 ? $extraUnit * $numExtraCleaning : 0.0;
 
         $airportPickup = ! empty($options['airport_pickup']);
         $airportPickupCost = $airportPickup
@@ -189,20 +218,29 @@ class BookingPricingService
 
     protected function extendedStayDiscountPercent(int $nights, array $pricing): float
     {
-        if ($nights >= 30) {
-            return (float) ($pricing['discount_30days'] ?? 0);
-        }
+        $enabled = is_array($pricing['long_stay'] ?? null) ? $pricing['long_stay'] : [];
+        $tiers = [
+            30 => 'discount_30days',
+            14 => 'discount_14days',
+            7 => 'discount_7days',
+            5 => 'discount_5days',
+            3 => 'discount_3days',
+        ];
 
-        if ($nights >= 7) {
-            return (float) ($pricing['discount_7days'] ?? 0);
-        }
+        foreach ($tiers as $threshold => $key) {
+            if ($nights < $threshold) {
+                continue;
+            }
 
-        if ($nights >= 5) {
-            return (float) ($pricing['discount_5days'] ?? 0);
-        }
+            $flag = $enabled[(string) $threshold] ?? $enabled[$threshold] ?? null;
+            if ($flag === false || $flag === 0 || $flag === '0') {
+                continue;
+            }
 
-        if ($nights >= 3) {
-            return (float) ($pricing['discount_3days'] ?? 0);
+            $percent = (float) ($pricing[$key] ?? 0);
+            if ($percent > 0) {
+                return $percent;
+            }
         }
 
         return 0.0;
