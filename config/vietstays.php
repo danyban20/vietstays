@@ -27,11 +27,32 @@ return [
         'guest_booking_confirmed',
         'guest_booking_cancelled',
         'guest_booking_updated',
+        'host_guest_cancelled',
+        'host_extra_cleaning_requested',
+        'guest_extra_cleaning_updated',
     ],
 
     // Shown on the public terms & contact page; leave empty to hide a line.
     'contact_email' => env('VIETSTAYS_CONTACT_EMAIL', ''),
     'contact_phone' => env('VIETSTAYS_CONTACT_PHONE', ''),
+
+    // Customer dashboard ("My account").
+    'guest_area' => [
+        // The door code and Wi-Fi show up this many hours before check-in.
+        'access_reveal_hours' => (int) env('VIETSTAYS_ACCESS_REVEAL_HOURS', 24),
+        // Guests can cancel free of charge until this many days before
+        // check-in (0 = until the day of arrival). After that the late fee
+        // below applies. Bookings are paid on arrival, so the fee is only
+        // shown as information for now.
+        'free_cancellation_days' => (int) env('VIETSTAYS_FREE_CANCELLATION_DAYS', 0),
+        'late_cancellation_percent' => (int) env('VIETSTAYS_LATE_CANCELLATION_PERCENT', 0),
+        // Same-day extra cleaning must be ordered before this hour (local time).
+        'same_day_cleaning_cutoff_hour' => 10,
+        'cleaning_slots' => [
+            'morning' => ['label' => 'Morning', 'hours' => '9:00 AM – 12:00 PM'],
+            'afternoon' => ['label' => 'Afternoon', 'hours' => '1:00 PM – 5:00 PM'],
+        ],
+    ],
 
     'email_locales' => [
         'en' => ['short' => 'EN', 'label' => 'English'],

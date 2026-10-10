@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Apartment;
 use App\Models\Booking;
+use App\Models\BookingServiceRequest;
 use App\Models\District;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,35 @@ class BookingConfirmationEmailService
      */
     public function sendHostNewBooking(Booking $booking): bool
     {
+        return $this->sendToHost($booking, 'host_new_booking');
+    }
+
+    /**
+     * The guest cancelled from their dashboard.
+     */
+    public function sendHostGuestCancelled(Booking $booking): bool
+    {
+        return $this->sendToHost($booking, 'host_guest_cancelled');
+    }
+
+    public function sendHostExtraCleaningRequested(BookingServiceRequest $request): bool
+    {
+        return $this->sendToHost($request->booking, 'host_extra_cleaning_requested', $this->serviceTokens($request));
+    }
+
+    /**
+     * The host confirmed or declined an extra cleaning.
+     */
+    public function sendGuestExtraCleaningUpdated(BookingServiceRequest $request): bool
+    {
+        return $this->sendToGuest($request->booking, 'guest_extra_cleaning_updated', $this->serviceTokens($request));
+    }
+
+    /**
+     * @param  array<string, string>  $extraTokens
+     */
+    protected function sendToHost(Booking $booking, string $code, array $extraTokens = []): bool
+    {
         $booking->loadMissing(['apartment']);
         $apartment = $booking->apartment ?? Apartment::query()->find($booking->apartment_id);
 
@@ -56,9 +86,10 @@ class BookingConfirmationEmailService
 
         $recipient = trim((string) $host?->email);
         if ($recipient === '') {
-            Log::info('New booking email to host skipped: apartment has no host with an email.', [
+            Log::info('Booking email to host skipped: apartment has no host with an email.', [
                 'booking_id' => $booking->ID,
                 'apartment_id' => $booking->apartment_id,
+                'template' => $code,
             ]);
 
             return false;
@@ -75,10 +106,28 @@ class BookingConfirmationEmailService
             'BOOKING_ADMIN_LINK' => rtrim((string) config('app.url'), '/').'/admin/bookings/'.$booking->ID,
         ];
 
-        return $this->emailService->sendByCode('host_new_booking', $recipient, $tokens);
+        return $this->emailService->sendByCode($code, $recipient, $extraTokens + $tokens);
     }
 
-    protected function sendToGuest(Booking $booking, string $code): bool
+    /**
+     * @return array<string, string>
+     */
+    protected function serviceTokens(BookingServiceRequest $request): array
+    {
+        $slot = config('vietstays.guest_area.cleaning_slots.'.$request->time_slot);
+
+        return [
+            'SERVICE_DATE' => $request->service_date->format('D, M j, Y'),
+            'TIME_SLOT' => $slot ? $slot['label'].' ('.$slot['hours'].')' : (string) $request->time_slot,
+            'SERVICE_PRICE' => $this->formatVnd((float) $request->price),
+            'SERVICE_STATUS' => $request->status,
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $extraTokens
+     */
+    protected function sendToGuest(Booking $booking, string $code, array $extraTokens = []): bool
     {
         $booking->loadMissing(['apartment']);
 
@@ -94,7 +143,7 @@ class BookingConfirmationEmailService
 
         $apartment = $booking->apartment ?? Apartment::query()->find($booking->apartment_id);
 
-        return $this->emailService->sendByCode($code, $recipient, $this->bookingTokens($booking, $apartment));
+        return $this->emailService->sendByCode($code, $recipient, $extraTokens + $this->bookingTokens($booking, $apartment));
     }
 
     /**
@@ -112,6 +161,7 @@ class BookingConfirmationEmailService
             'EMAIL' => e(trim((string) $booking->email)),
             'BOOKING_NUM' => (string) $booking->booking_num,
             'BOOKING_LINK' => $this->bookingLink($booking),
+            'MY_BOOKING_LINK' => rtrim((string) config('app.url'), '/').'/account/reservations/'.$booking->ID,
             'CHECK-IN_DATE' => $booking->check_in_date?->format('M j, Y') ?? '',
             'CHECK-OUT_DATE' => $booking->check_out_date?->format('M j, Y') ?? '',
             'BOOKING_TABLE' => $this->bookingTableHtml($booking, $apartment),

@@ -253,6 +253,8 @@
                             </button>
                         </section>
 
+                        <BookingGuestServicesPanel :booking-id="bookingId" />
+
                         <section class="host-bk-detail__rail-card host-bk-detail__rail-card--sand">
                             <h3 class="host-bk-detail__rail-title host-bk-detail__rail-title--upper">
                                 {{ t('bookingDetail.accessTitle') }}
@@ -325,6 +327,7 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
+import BookingGuestServicesPanel from '@/components/bookings/BookingGuestServicesPanel.vue';
 import { usePageTitle } from '@/composables/usePageTitle';
 import { useToast } from '@/composables/useToast';
 import { matchCodeFromApartmentName } from '@/utils/apartment-match-code';

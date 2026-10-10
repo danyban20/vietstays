@@ -418,6 +418,9 @@ class BookingController extends Controller
         ];
 
         if ($detailed) {
+            $guestInfo = $apartment
+                ? \App\Models\ApartmentGuestInfo::query()->where('apartment_id', $apartment->ID)->first()
+                : null;
             $dailyRate = (float) $booking->price;
             $cleaningFee = (float) ($apartment?->cleaning_fee ?? 0);
             $extraCleaning = (float) ($apartment?->extra_cleaning_fee ?? 0);
@@ -466,10 +469,11 @@ class BookingController extends Controller
                     'type' => $apartment?->apartment_type,
                     'num_bathrooms' => (int) ($apartment?->num_bathrooms ?: 1),
                 ],
+                // Set on the booking, else the apartment's "Guest arrival" details.
                 'access' => [
-                    'door_code' => $extra['door_code'] ?? '',
-                    'wifi_network' => $extra['wifi_network'] ?? $extra['wifi_name'] ?? '',
-                    'wifi_password' => $extra['wifi_password'] ?? '',
+                    'door_code' => ($extra['door_code'] ?? '') ?: ($guestInfo?->door_code ?? ''),
+                    'wifi_network' => ($extra['wifi_network'] ?? $extra['wifi_name'] ?? '') ?: ($guestInfo?->wifi_network ?? ''),
+                    'wifi_password' => ($extra['wifi_password'] ?? '') ?: ($guestInfo?->wifi_password ?? ''),
                 ],
                 'next_task' => $this->nextTaskLabel($booking),
             ];

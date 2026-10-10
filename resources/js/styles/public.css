@@ -817,77 +817,6 @@ body {
     color: var(--vs-text-secondary);
 }
 
-.member-account__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.member-account__header h1 {
-    margin: 0 0 4px;
-    font-size: 28px;
-}
-
-.member-account__header p {
-    margin: 0;
-    color: var(--vs-text-secondary);
-}
-
-.member-account__notice,
-.member-account__saved {
-    margin-top: 16px;
-    padding: 12px 14px;
-    border-radius: var(--vs-radius-sm);
-    background: var(--vs-success-bg);
-    border: 1px solid var(--vs-success-border);
-}
-
-.member-account__empty {
-    margin: 0;
-    color: var(--vs-text-secondary);
-}
-
-.member-bookings {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.member-bookings__item {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 14px 0;
-    border-top: 1px solid var(--vs-divider);
-}
-
-.member-bookings__item:first-child {
-    border-top: none;
-}
-
-.member-bookings__dates,
-.member-bookings__ref {
-    display: block;
-    margin-top: 2px;
-    color: var(--vs-text-secondary);
-    font-size: 14px;
-}
-
-.member-bookings__side {
-    display: grid;
-    justify-items: end;
-    gap: 4px;
-    white-space: nowrap;
-}
-
-.member-bookings__status {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--vs-primary);
-}
-
 .member-checkout-note {
     margin: 0 0 12px;
     font-size: 14px;
@@ -896,14 +825,6 @@ body {
 @media (max-width: 760px) {
     .member-page__grid {
         grid-template-columns: 1fr;
-    }
-
-    .member-bookings__item {
-        flex-direction: column;
-    }
-
-    .member-bookings__side {
-        justify-items: start;
     }
 }
 

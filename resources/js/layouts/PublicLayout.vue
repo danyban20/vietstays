@@ -1,5 +1,6 @@
 <template>
-    <div v-if="isLegacyRoute" :class="legacyLayoutClass">
+    <router-view v-if="isMemberArea" />
+    <div v-else-if="isLegacyRoute" :class="legacyLayoutClass">
         <main class="public-main">
             <router-view />
         </main>
@@ -61,6 +62,7 @@ const member = useMemberStore();
 
 onMounted(() => member.fetchUser());
 const year = new Date().getFullYear();
+const isMemberArea = computed(() => route.matched.some((record) => record.meta.memberArea));
 const isLegacyRoute = computed(() =>
     route.name === 'home' ||
     route.name === 'public-apartments' ||

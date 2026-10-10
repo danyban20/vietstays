@@ -8223,3 +8223,118 @@ body {
         display: none;
     }
 }
+
+/* Apartment → Guest arrival tab */
+.host-guest-info .host-field + .host-field {
+    margin-top: 12px;
+}
+
+.host-guest-info__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 0 24px;
+}
+
+/* Booking → "From the guest's account" */
+.host-guest-services__block + .host-guest-services__block {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--vs-border, #e5e0d2);
+}
+
+.host-guest-services__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.host-guest-services__count {
+    font-weight: 700;
+}
+
+.host-guest-services__alert {
+    margin: 0 0 12px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #fdf2f2;
+    color: #b83232;
+    font-size: 13px;
+}
+
+.host-guest-services__empty {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--vs-text-muted, #6b7676);
+}
+
+.host-guest-services__list {
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.host-guest-services__list li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.host-guest-services__list li + li {
+    border-top: 1px dashed var(--vs-border, #e5e0d2);
+}
+
+.host-guest-services__list em {
+    font-style: normal;
+    font-weight: 600;
+}
+
+.host-guest-services__list em.is-requested {
+    color: #c96a17;
+}
+
+.host-guest-services__list em.is-confirmed {
+    color: #1f7a44;
+}
+
+.host-guest-services__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.host-guest-services__link {
+    align-self: flex-start;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #c96a17;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.host-guest-services__stars {
+    margin: 6px 0 0;
+    color: #f67f2a;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.host-guest-services__stars span {
+    color: #d5cebd;
+}
+
+.host-guest-services__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 4px 0 0;
+    font-size: 12px;
+}
+
+.host-guest-services__comment {
+    margin: 6px 0 0;
+    font-style: italic;
+}

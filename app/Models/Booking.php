@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
@@ -43,5 +45,20 @@ class Booking extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class, 'district_id', 'district_id');
+    }
+
+    public function guests(): HasMany
+    {
+        return $this->hasMany(BookingGuest::class, 'booking_id', 'ID')->orderBy('position');
+    }
+
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(BookingServiceRequest::class, 'booking_id', 'ID')->orderBy('service_date');
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(BookingReview::class, 'booking_id', 'ID');
     }
 }

@@ -1,6 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\ApartmentGuestInfoController;
+use App\Http\Controllers\Api\BookingGuestServicesController;
+use App\Http\Controllers\Api\Member\DashboardController as MemberDashboardController;
+use App\Http\Controllers\Api\Member\DocumentController as MemberDocumentController;
+use App\Http\Controllers\Api\Member\GuestPassportController as MemberGuestPassportController;
+use App\Http\Controllers\Api\Member\MessageController as MemberMessageController;
+use App\Http\Controllers\Api\Member\ReservationController as MemberReservationController;
+use App\Http\Controllers\Api\Member\ReviewController as MemberReviewController;
+use App\Http\Controllers\Api\Member\ServiceRequestController as MemberServiceRequestController;
 use App\Http\Controllers\Api\Admin\BuildingAdminController;
 use App\Http\Controllers\Api\Admin\HostMessageAdminController;
 use App\Http\Controllers\Api\Admin\HostOverviewController;
@@ -36,6 +45,7 @@ Route::get('/public/apartments', [PublicApartmentController::class, 'index']);
 Route::get('/public/apartments/{apartment}', [PublicApartmentController::class, 'show']);
 Route::get('/public/cities', [PublicApartmentController::class, 'cities']);
 Route::get('/public/districts', [PublicApartmentController::class, 'districts']);
+Route::get('/public/popular-places', [PublicApartmentController::class, 'popularPlaces']);
 Route::get('/public/host-applications/options', [PublicHostApplicationController::class, 'options']);
 Route::post('/public/host-applications', [PublicHostApplicationController::class, 'store']);
 Route::post('/public/bookings/quote', [PublicBookingController::class, 'quote']);
@@ -61,6 +71,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/account', [AccountController::class, 'show']);
     Route::put('/account', [AccountController::class, 'update']);
+    Route::put('/account/password', [AccountController::class, 'updatePassword'])->middleware('throttle:10,1');
+
+    // The customer's own stays ("My account" on the public site). Any
+    // signed-in account can book, so this is open to every role.
+    Route::prefix('member')->group(function () {
+        Route::get('/dashboard', [MemberDashboardController::class, 'show']);
+        Route::get('/reservations', [MemberReservationController::class, 'index']);
+        Route::get('/reservations/{booking}', [MemberReservationController::class, 'show'])->whereNumber('booking');
+        Route::post('/reservations/{booking}/cancel', [MemberReservationController::class, 'cancel'])->whereNumber('booking');
+        Route::get('/reservations/{booking}/documents/{type}', [MemberDocumentController::class, 'show'])->whereNumber('booking');
+        Route::get('/reservations/{booking}/guests/{position}', [MemberGuestPassportController::class, 'show'])->whereNumber(['booking', 'position']);
+        Route::get('/reservations/{booking}/guests/{position}/photo', [MemberGuestPassportController::class, 'photo'])->whereNumber(['booking', 'position']);
+        Route::post('/reservations/{booking}/guests', [MemberGuestPassportController::class, 'store'])->whereNumber('booking');
+        Route::post('/reservations/{booking}/services', [MemberServiceRequestController::class, 'store'])->whereNumber('booking');
+        Route::delete('/reservations/{booking}/services/{service}', [MemberServiceRequestController::class, 'destroy'])->whereNumber(['booking', 'service']);
+        Route::post('/reservations/{booking}/review', [MemberReviewController::class, 'store'])->whereNumber('booking');
+        Route::post('/reservations/{booking}/review/skip', [MemberReviewController::class, 'skip'])->whereNumber('booking');
+        Route::get('/messages', [MemberMessageController::class, 'index']);
+        Route::get('/messages/{conversation}', [MemberMessageController::class, 'show']);
+        Route::post('/messages/{conversation}', [MemberMessageController::class, 'store'])->middleware('throttle:30,1');
+    });
 
     // Everything below is the host/admin dashboard; customer (member)
     // accounts are turned away here.
@@ -75,6 +106,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/apartments', [ApartmentController::class, 'index']);
         Route::post('/apartments', [ApartmentController::class, 'store']);
         Route::get('/apartments/{apartment}', [ApartmentController::class, 'show']);
+        Route::get('/apartments/{apartment}/guest-info', [ApartmentGuestInfoController::class, 'show'])->whereNumber('apartment');
+        Route::put('/apartments/{apartment}/guest-info', [ApartmentGuestInfoController::class, 'update'])->whereNumber('apartment');
         Route::put('/apartments/{apartment}', [ApartmentController::class, 'update']);
         Route::post('/apartments/{apartment}/photos', [ApartmentController::class, 'uploadPhotos']);
         Route::get('/apartments/{apartment}/suggested-price', [ApartmentController::class, 'suggestedPrice']);
@@ -86,6 +119,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/bookings', [BookingController::class, 'index']);
         Route::post('/bookings', [BookingController::class, 'store']);
         Route::get('/bookings/{booking}', [BookingController::class, 'show']);
+        Route::get('/bookings/{booking}/guest-services', [BookingGuestServicesController::class, 'show'])->whereNumber('booking');
+        Route::get('/bookings/{booking}/guests/{guest}/photo', [BookingGuestServicesController::class, 'photo'])->whereNumber(['booking', 'guest']);
+        Route::patch('/bookings/{booking}/service-requests/{service}', [BookingGuestServicesController::class, 'updateServiceRequest'])->whereNumber(['booking', 'service']);
         Route::put('/bookings/{booking}', [BookingController::class, 'update']);
         Route::post('/bookings/{booking}/move', [BookingController::class, 'move']);
 

@@ -950,6 +950,15 @@ class CustomerAggregationService
         ];
     }
 
+    /**
+     * The key a booking's guest is grouped under in a host's customer list
+     * and message threads.
+     */
+    public function customerKeyForBooking(Booking $booking): string
+    {
+        return $this->customerKey($booking, trim($booking->firstname.' '.$booking->lastname));
+    }
+
     protected function customerKey(Booking $booking, string $guestName): string
     {
         $email = strtolower(trim((string) $booking->email));
