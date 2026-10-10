@@ -81,12 +81,17 @@ class SecurityRegressionTest extends TestCase
 
         $plain = $this->postJson('/api/public/bookings/quote', $request)->assertOk();
         $tampered = $this->postJson('/api/public/bookings/quote', $request + [
-            'promo_code' => 'FREE',
             'promo_code_discount' => 100,
         ])->assertOk();
 
         $this->assertSame($plain->json('data.total'), $tampered->json('data.total'));
         $this->assertEquals(0, $tampered->json('data.promo_discount_amount'));
+
+        // A made-up code is refused rather than priced.
+        $this->postJson('/api/public/bookings/quote', $request + [
+            'promo_code' => 'FREE-'.uniqid(),
+            'promo_code_discount' => 100,
+        ])->assertUnprocessable()->assertJsonValidationErrors('promo_code');
     }
 
     public function test_price_matrix_test_page_needs_a_pricing_admin(): void
