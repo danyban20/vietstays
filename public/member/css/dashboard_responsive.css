@@ -1,0 +1,248 @@
+
+@charset "utf-8";
+/* Responsive CSS */
+
+@media (max-width: 1680px) {
+.container { }
+	
+}
+
+
+@media (max-width: 1440px) {
+.container { padding-left:30px; padding-right:30px; }
+
+}
+
+
+@media (max-width: 1200px) {
+.container { }
+
+}
+
+
+@media (max-width: 1024px) {
+.container { }
+
+h1, .heading-1 { font-size:30px; }
+h2, .heading-2 { font-size:24px; }
+h3, .heading-3 { font-size:22px; }
+
+#nav ul li { padding:0 8px; }
+#nav ul li a { font-size:14px; }
+
+
+#dashboard .booking_details_wrap { gap:16px; }
+#dashboard .stay_experince .opt_comment textarea { font-size:13px; }
+#dashboard .gallary_app_block .block .img > a.view_gall_btn { font-size:12px; }
+#dashboard .gallary_app_block .location { display:block; }
+#dashboard .guests_reg_block .right_desc .btn_wrap { flex-wrap:wrap; width:100%; }
+#dashboard .guests_reg_block .right_desc .btn_wrap a { width:100%; }
+#dashboard .aminities_block ul li { width:50%; }
+#dashboard .house_keepingplan ul li { margin:0 10px; }
+#dashboard .house_keepingplan ul li:after { margin:-1px 0 0 10px;     width: 30px; }
+#dashboard .remaing_days { padding:20px 5px 20px 45px;  }
+#dashboard .remaing_days .icon { left:10px; }
+#dashboard .guests_reg_block .left_desc { padding:0 10px 0 0; }
+#dashboard .guests_reg_block .left_desc .btn { padding:12px 12px; }
+
+#dashboard .hosted_by_block { padding:20px 15px; }
+#dashboard .stay_information_block { padding:20px 15px; }
+#dashboard .total_block { padding:20px 15px; }
+#dashboard .emergecy_block { padding:20px 15px; }
+
+#dashboard .doucments_rec ul li { padding-left:16px; }
+
+#dashboard .door_code_block { padding:16px 16px 8px 16px; }
+#dashboard .wifi_block { padding:16px; }
+#dashboard .wifi_block ul li { font-size:12px; }
+#dashboard .door_code_block .code_text span { font-size:30px; }
+
+#dashboard .app_white_block .desc { padding:20px 16px; }
+
+#dashboard .app_past_expereince .block { width: calc(50% - 14px); }
+#dashboard .popular_stay .block { width:calc(50% - 12px); }
+#dashboard .app_white_block { display:block; }
+#dashboard .app_white_block .img { width:100%; }
+#dashboard .app_white_block .img img { border-radius:16px 16px 0 0; }
+#dashboard .app_white_block .desc { width:100%; }
+#dashboard .app_white_block .btn_wrap .btn { padding:12px 15px; }
+#dashboard .facility_room p strong { font-size:16px; }
+#dashboard .facility_room { flex-wrap:wrap; }
+#dashboard .facility_room .block { width:100%; padding:16px; }
+#dashboard .dash_book_block { display:block; }
+#dashboard .dash_book_block .input_wrap { width:100%; }
+#dashboard .dash_book_block { padding:16px; border-radius:16px; }
+#dashboard .dash_book_block .input_submit { position:static; transform:translateY(0); }
+#dashboard .dash_book_block .input_wrap.dash_room_sel:before, #dashboard .dash_book_block .input_wrap.dash_date_sel:before { display:none; }
+#dashboard .dash_book_block .input_wrap:after { left:0; }
+#dashboard .dash_book_block .input_wrap { padding-left:35px; }
+#dashboard .dash_book_block .input_submit input[type="submit"] { display:block; width:100%; margin-top:10px; }
+.subtitle_top { display:block; }
+#dashboard .app_past_expereince .block { width:100%; }
+#dashboard .popular_stay .block { width:100%; }
+#dashboard .msz_box { display:block; }
+
+
+#dashboard .reservation_block { flex-wrap:wrap; }
+#dashboard .reservation_block .block_left { width:100%; }
+#dashboard .reservation_block .block_right { width:100%; justify-content: space-between; margin-top:15px; }
+
+}
+
+
+@media (max-width: 767px) {
+.container { padding-left:16px; padding-right:16px; }
+
+.mob_hide { display:none !important; }
+.mob_show { display:block !important; }
+
+
+.alignnone, .alignleft, .alignright { display:block; float:none; margin:0 auto 30px; }
+
+.typography ul, .typography ol { padding-left:15px; }
+
+.typography div.gallery { margin-left:0 !important; }
+.typography div.gallery .gallery-item { float:none !important; width:100% !important; padding-left:0 !important; }
+
+.table { overflow-x:auto; }
+.table table { margin-bottom:0; }
+
+h1, .heading-1 { font-size:26px; }
+
+body { padding:56px 0 72px 0; }
+#header { position:fixed; top:0; left:0; right:0; background:#fff; padding:18px 18px; z-index:999; }
+#header .header { position:relative; }
+#header .notification { position:absolute; top:50%; right:0; transform:translateY(-50%);  }
+#header .desk_nav { display:none; }
+#header .mob_nav { display:block; }
+#nav { position:fixed; bottom:0; left:0; right:0; background:#fff; padding:14px 36px; z-index:999;   }
+#nav ul li a { font-size:11px; font-weight:600; color:#0B3F41; margin:0; padding:28px 0 0 0; }
+#nav ul li a:after { display:none;  }
+#nav .mob_nav  ul li { margin:0; padding:0; }
+#nav .mob_nav  ul li:nth-child(1) a { background:url(../images/home_icon.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(1).current-menu-item a,#nav .mob_nav  ul li:nth-child(1) a:hover { background:url(../images/home_icon_h.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(2) a { background:url(../images/res_icon.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(2).current-menu-item a,#nav .mob_nav  ul li:nth-child(2) a:hover { background:url(../images/res_icon_h.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(3) a { background:url(../images/messages-square.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(3).current-menu-item a,#nav .mob_nav  ul li:nth-child(3) a:hover { background:url(../images/messages-square_h.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(4) a { background:url(../images/user.svg) no-repeat top center; }
+#nav .mob_nav  ul li:nth-child(4).current-menu-item a,#nav .mob_nav  ul li:nth-child(4) a:hover { background:url(../images/user_h.svg) no-repeat top center; }
+
+
+#header .notification .bell_btn { background-image:url(../images/bell_2.svg); }
+#header .user_login { display:none; }
+#header .logo { margin:0 auto; }
+#header .logo a { width:91px; height:20px; background:url(../images/logo_mob.svg) no-repeat center center; background-size:100% auto !important; }
+#header .backlink  { display:block; }
+
+
+#dashboard { padding:24px 0; }
+#dashboard .gallary_app_block { margin-bottom:16px; }
+#dashboard .booking_details_wrap { display:block; }
+#dashboard .booking_details_left { width:100%; }
+#dashboard .booking_details_right { width:100%; }
+#dashboard .gallary_app_block { position:relative; padding:16px; }
+#dashboard .gallary_app_block .img_single { width:80px;  }
+#dashboard .gallary_app_block .img_single img { width:80px; height:80px; objecr-fit:cover; border-radius:8px; }
+#dashboard .gallary_app_block .img_wrap { width:80px; }
+#dashboard .gallary_app_block .block { width:100%; display:none; }
+#dashboard .gallary_app_block .block:first-child { display:block; width:100%; }
+#dashboard .gallary_app_block .block:first-child .img { height:auto; }
+#dashboard .gallary_app_block .block:first-child .img img { width:80px; height:80px; objecr-fit:cover; border-radius:8px; }
+#dashboard .gallary_app_block { display:flex; }
+#dashboard .gallary_app_block .desc { padding:0 0 0 12px; }
+
+#dashboard .back_reservation { display:none; }  
+#dashboard .gallary_app_block .top_desc .right_text strong  { display:none; }
+#dashboard .gallary_app_block h2 { font-size:18px; margin:0 0 5px 0; }
+#dashboard .remaing_days .icon { background:url(../images/clock.svg) no-repeat center center; }
+
+
+#dashboard .remaing_days { padding:10px 5px 10px 44px; border-radius:12px; margin-bottom:16px; }
+#dashboard .remaing_days p { font-size:0; }
+#dashboard .remaing_days p strong { font-size:15px; }
+#dashboard .gallary_app_block .top_desc span { line-height:23px; }
+#dashboard .gallary_app_block .top_desc .left_text { font-size:11px; padding:0 8px; }
+#dashboard .gallary_app_block .top_desc .right_text { font-size:12px; color:#6B7676; font-weight:400; }
+#dashboard .gallary_app_block .location { font-size:12px; }
+
+
+#dashboard .guests_reg_block { padding:16px; }
+#dashboard .guests_reg_block .guests_reg_block_inner { display:block; }
+#dashboard .guests_reg_block .left_desc { width:100%; padding:0 0 20px 0; }
+#dashboard .guests_reg_block .right_desc { width:100%; }
+#dashboard .guests_reg_block .right_desc .btn_wrap { flex-wrap:nowrap; }
+
+#dashboard .aminities_block .aminities_title { display:block; }
+#dashboard .aminities_block ul li { width:100%; }
+#dashboard .aminities_block { padding:16px 16px 8px 16px; }
+#dashboard .house_keepingplan .house_keepingplan_title h5 {font-size:14px; }
+#dashboard .house_keepingplan .included { font-size:11px; padding:0 8px; }
+
+
+#dashboard .house_keepingplan { padding:16px; margin-bottom:16px; }
+#dashboard .house_keepingplan ul li strong { font-size:10px; margin-bottom:0; }
+#dashboard .house_keepingplan ul li { font-size:10px; margin:0 5px; }
+#dashboard .house_keepingplan ul li:after { margin-left:5px; top:8px; width:35px; }
+#dashboard .house_keepingplan .btn_wrap { display:block; }
+#dashboard .house_keepingplan .btn_wrap .btn { margin:10px 0 0 0; }
+#dashboard .house_keepingplan ul { margin-bottom:12px; }
+#dashboard .acc_code_block { display:block; }
+#dashboard .acc_code_block .block { width:100%; margin-bottom:16px; }
+#dashboard .arrival_block { margin-bottom:16px; }
+#dashboard .hosted_by_block { margin-bottom:16px; }
+#dashboard .stay_information_block { padding:16px 16px; margin-bottom:16px; }
+#dashboard .access_code_block { display:block; }
+#dashboard .door_code_block { width:100%; margin-bottom:16px; }
+#dashboard .wifi_block { width:100%; margin-bottom:16px; }
+#dashboard .house_rules_block { margin-bottom:16px; }
+#dashboard .total_block { padding:16px; margin-bottom:16px; } 
+#dashboard .house_rules_block { padding:16px; }
+#dashboard .hosted_by_block { padding:16px; }
+#dashboard .emergecy_block { padding:16px; }
+
+#dashboard .stay_experince .stars { gap:5px; font-size:14px; justify-content: center; }
+#dashboard .doucments_rec ul li { padding:12px; }
+#dashboard .doucments_rec ul li .btn { position:static; transform:translateY(0); margin-top:10px; }
+#dashboard .gallary_app_block .btn_wrap { flex-wrap:wrap; }
+#dashboard .gallary_app_block .img_single { display:none; }
+#dashboard .gallary_app_block .img_single + div { width:100%; padding:0; }
+#dashboard .gallary_app_block .img_single.img_single_mob_show { display:block; margin:0 8px 0 0;  }
+#dashboard .stay_experince { padding:16px; }
+#dashboard .doucments_rec { padding:16px; }
+#dashboard .stay_experince ul { gap:0 12px; font-size:12px; }
+#dashboard .house_keepingplan ul li { width:25%; }
+
+.is-close-button { top:20px !important; right:20px !important; }
+.popup_block { width:340px; padding:20px; }
+.popup_block .btn_wrap { flex-wrap:wrap; text-align:center;}
+.popup_block .btn_wrap .btn { width:100%; }
+.popup_block h3 { font-size:20px; }
+
+#dashboard .reservation_block { padding:16px 16px; }
+#dashboard .reservation_block .block_right{ display:block;  }
+#dashboard .reservation_block .stay_dates { margin-bottom:10px; }
+#dashboard .reservation_block .total_paid { margin-left:0; text-align:left; }
+#dashboard .reservation_block .block_left { padding-left:90px; }
+#dashboard .reservation_block .img { width:80px; top:0; transform:translateY(0); }
+#dashboard .reservation_block .book_status { font-size:11px; }
+#dashboard .reservation_block .book_status strong { font-size:11px; padding:0 8px; }
+#dashboard .booking_tabs_wrap { display:block; }
+#dashboard .booking_tabs { flex-wrap:wrap; margin-bottom:10px; }
+
+body .daterangepicker {     margin-left: -40px;  margin-top: 0;}
+
+}
+
+
+@media (max-width: 580px) {
+
+
+
+}
+
+@media (max-width: 479px) {
+	
+#dashboard .house_keepingplan ul li { width:auto; }
+
+}

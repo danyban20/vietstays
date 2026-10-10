@@ -187,6 +187,33 @@ export async function uploadFiles(path, formData) {
     return payload;
 }
 
+/**
+ * Fetch a file (PDF…) from the API with the session cookie and hand it to
+ * the browser as a download.
+ */
+export async function downloadFile(path, fallbackName = 'download') {
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    const url = withAppBase(normalizedPath.startsWith('/api') ? normalizedPath : `/api${normalizedPath}`);
+
+    const response = await performFetch(url, { method: 'GET' });
+
+    if (!response.ok) {
+        throw buildApiError(response, await parseResponse(response));
+    }
+
+    const disposition = response.headers.get('content-disposition') ?? '';
+    const filename = disposition.match(/filename="?([^";]+)"?/)?.[1] ?? fallbackName;
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
 export const apiClient = {
     get: (path, options) => api(path, { ...options, method: 'GET' }),
     post: (path, body, options) => api(path, { ...options, method: 'POST', body }),

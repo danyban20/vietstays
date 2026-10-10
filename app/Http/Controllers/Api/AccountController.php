@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\User;
+use App\Services\WordPressPasswordVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 /**
  * "My account" on the public site: the signed-in user's profile and the
@@ -66,6 +69,40 @@ class AccountController extends Controller
             'data' => ['profile' => $this->profile($user->fresh())],
             'message' => 'Profile updated.',
         ]);
+    }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (! $this->passwordMatches($data['current_password'], (string) $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['Your current password is not correct.'],
+            ]);
+        }
+
+        $user->update(['password' => Hash::make($data['password'])]);
+
+        return response()->json(['message' => 'Password changed.']);
+    }
+
+    protected function passwordMatches(string $plain, string $stored): bool
+    {
+        try {
+            if (Hash::check($plain, $stored)) {
+                return true;
+            }
+        } catch (\RuntimeException) {
+            // Legacy WordPress hash: Hash::check() throws instead of failing.
+        }
+
+        return WordPressPasswordVerifier::check($plain, $stored);
     }
 
     /**

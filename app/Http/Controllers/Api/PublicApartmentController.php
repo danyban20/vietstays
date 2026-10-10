@@ -78,6 +78,48 @@ class PublicApartmentController extends Controller
         return response()->json(['data' => $districts]);
     }
 
+    /**
+     * Districts with the most active apartments, each with a cover photo
+     * from one of them, for "Popular places to stay".
+     */
+    public function popularPlaces(): JsonResponse
+    {
+        $apartments = Apartment::query()
+            ->where('status', 'active')
+            ->get(['ID', 'district', 'images', 'datemodified'])
+            ->groupBy('district');
+
+        $districts = District::query()
+            ->whereIn('district_id', $apartments->keys()->filter())
+            ->get()
+            ->keyBy('district_id');
+
+        $cities = City::query()->whereIn('city_id', $districts->pluck('city_id')->unique())->get()->keyBy('city_id');
+
+        $places = $apartments
+            ->filter(fn ($group, $districtId) => $districts->has($districtId))
+            ->sortByDesc(fn ($group) => $group->count())
+            ->take(4)
+            ->map(function ($group, $districtId) use ($districts, $cities) {
+                $district = $districts->get($districtId);
+                $image = $group->sortByDesc('datemodified')
+                    ->map(fn (Apartment $apartment) => $this->resolveImage($apartment))
+                    ->filter()
+                    ->first();
+
+                return [
+                    'district_id' => (int) $districtId,
+                    'name' => $district->name,
+                    'city' => $cities->get($district->city_id)?->name,
+                    'apartments' => $group->count(),
+                    'image' => $image,
+                ];
+            })
+            ->values();
+
+        return response()->json(['data' => $places]);
+    }
+
     public function search(Request $request): JsonResponse
     {
         $apartmentQuery = Apartment::query()->where('status', 'active');

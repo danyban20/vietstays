@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="kLkl9RTfQmjjNy1QbuDyTC6C0WyGzMD9iJr5Z8T2">
+        <meta name="app-base" content="">
+    <title>Vietstays — Book your stay in Vietnam</title>
+    <link rel="preload" as="style" href="https://vietstays.com/build/assets/app-B4Kv8bbb.css" /><link rel="preload" as="style" href="https://vietstays.com/build/assets/public-vFLxS_4A.css" /><link rel="modulepreload" as="script" href="https://vietstays.com/build/assets/public-DM2Oq4k9.js" /><link rel="modulepreload" as="script" href="https://vietstays.com/build/assets/client-nhfv8P4X.js" /><link rel="modulepreload" as="script" href="https://vietstays.com/build/assets/preload-helper-IwfywNLY.js" /><link rel="modulepreload" as="script" href="https://vietstays.com/build/assets/_plugin-vue_export-helper-BDNMzG2s.js" /><link rel="stylesheet" href="https://vietstays.com/build/assets/app-B4Kv8bbb.css" /><link rel="stylesheet" href="https://vietstays.com/build/assets/public-vFLxS_4A.css" /><script type="module" src="https://vietstays.com/build/assets/public-DM2Oq4k9.js"></script></head>
+<body>
+    <div id="app"></div>
+</body>
+</html>

@@ -27,6 +27,9 @@
                         />
                     </div>
 
+                    <!-- Guest arrival (door code, Wi-Fi, cleaning) -->
+                    <ApartmentGuestInfoTab v-if="activeTab === 'arrival'" :apartment-id="apartmentId" />
+
                     <!-- Price & terms -->
                     <div
                         v-show="activeTab === 'price'"
@@ -529,6 +532,7 @@
                 </div>
 
                 <div
+                    v-show="activeTab !== 'arrival'"
                     class="host-apt-sticky-bar host-apt-sticky-bar--always"
                     :class="{ 'host-apt-sticky-bar--dimmed': !dirty }"
                 >
@@ -612,6 +616,7 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiClient, { uploadFiles } from '@/api/client';
 import ApartmentAvailabilityTab from '@/components/apartments/ApartmentAvailabilityTab.vue';
+import ApartmentGuestInfoTab from '@/components/apartments/ApartmentGuestInfoTab.vue';
 import { usePageTitle } from '@/composables/usePageTitle';
 import { useToast } from '@/composables/useToast';
 import {
@@ -642,6 +647,7 @@ const tabs = [
     { id: 'availability', label: 'Availability' },
     { id: 'price', label: 'Price & terms' },
     { id: 'presentation', label: 'Presentation' },
+    { id: 'arrival', label: 'Guest arrival' },
 ];
 
 const apartmentId = computed(() => route.params.id);

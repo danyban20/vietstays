@@ -23,6 +23,7 @@ class HostCustomerMessageThread extends Model
         'customer_key',
         'guest_token',
         'host_last_read_at',
+        'guest_last_read_at',
         'last_message_at',
     ];
 
@@ -30,6 +31,7 @@ class HostCustomerMessageThread extends Model
     {
         return [
             'host_last_read_at' => 'datetime',
+            'guest_last_read_at' => 'datetime',
             'last_message_at' => 'datetime',
         ];
     }
