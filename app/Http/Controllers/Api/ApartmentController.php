@@ -99,6 +99,10 @@ class ApartmentController extends Controller
 
         $validated['quality_standard'] = $validated['quality_standard'] ?? 'standard';
 
+        if (! $this->canReview($request->user())) {
+            $validated['status'] = 'draft';
+        }
+
         $apartment = $this->apartmentService->create($validated, $request->user());
 
         return response()->json([
@@ -155,6 +159,10 @@ class ApartmentController extends Controller
             'campaign_discounts.*.discount' => ['required', 'numeric', 'min:0', 'max:100'],
             'status' => ['sometimes', Rule::in(['draft', 'pending', 'active'])],
         ]);
+
+        if (! $this->canReview($request->user())) {
+            unset($validated['status']);
+        }
 
         if (isset($validated['pricing']) && is_array($validated['pricing'])) {
             $existing = is_array($model->pricing) ? $model->pricing : [];
@@ -226,6 +234,106 @@ class ApartmentController extends Controller
             'data' => $data,
             'message' => 'Apartment updated.',
         ]);
+    }
+
+    /**
+     * Host asks for the apartment to go live. A superadmin or supervisor
+     * then approves it (active, shown on the public site) or sends it back.
+     */
+    public function submitForReview(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+        $this->authorizeApartment($request, $model);
+
+        if ($model->status !== 'draft') {
+            return response()->json(['message' => 'Only a draft apartment can be sent for review.'], 422);
+        }
+
+        $missing = $this->missingForReview($model);
+
+        if ($missing !== []) {
+            return response()->json([
+                'message' => 'Please complete the apartment before sending it for review: '.implode(', ', $missing).'.',
+                'missing' => $missing,
+            ], 422);
+        }
+
+        return $this->changeStatus($model, 'pending', 'Sent for review. An admin will check it shortly.');
+    }
+
+    public function approve(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+
+        if ($model->status === 'active') {
+            return response()->json(['message' => 'This apartment is already live.'], 422);
+        }
+
+        $missing = $this->missingForReview($model);
+
+        if ($missing !== []) {
+            return response()->json([
+                'message' => 'This apartment cannot go live yet. Missing: '.implode(', ', $missing).'.',
+                'missing' => $missing,
+            ], 422);
+        }
+
+        return $this->changeStatus($model, 'active', 'Approved. The apartment is now on the website.');
+    }
+
+    public function reject(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+
+        if ($model->status !== 'pending') {
+            return response()->json(['message' => 'Only an apartment waiting for review can be sent back.'], 422);
+        }
+
+        return $this->changeStatus($model, 'draft', 'Sent back to the host as a draft.');
+    }
+
+    public function unpublish(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+
+        if ($model->status !== 'active') {
+            return response()->json(['message' => 'This apartment is not live.'], 422);
+        }
+
+        return $this->changeStatus($model, 'draft', 'Taken off the website.');
+    }
+
+    protected function changeStatus(Apartment $model, string $status, string $message): JsonResponse
+    {
+        $model->forceFill(['status' => $status, 'datemodified' => now()])->save();
+
+        return response()->json([
+            'data' => $this->transform($model->fresh(), true),
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * What a listing still needs before guests can see it.
+     *
+     * @return list<string>
+     */
+    protected function missingForReview(Apartment $apartment): array
+    {
+        $checks = [
+            'name' => filled($apartment->display_name) || filled($apartment->name),
+            'district' => (int) $apartment->district > 0 && District::query()->whereKey($apartment->district)->exists(),
+            'description' => filled($apartment->description),
+            'photos' => $this->hasValidImages($apartment),
+            'daily price' => (float) $apartment->price_daily > 0,
+        ];
+
+        return array_keys(array_filter($checks, fn (bool $ok) => ! $ok));
+    }
+
+    protected function canReview($user): bool
+    {
+        return $user->isAdmin() || $user->isSupervisor();
     }
 
     public function uploadPhotos(Request $request, int $apartment): JsonResponse

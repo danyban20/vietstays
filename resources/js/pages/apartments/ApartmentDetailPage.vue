@@ -591,6 +591,51 @@
                 </div>
 
                 <div class="host-apt-rail-block">
+                    <h2 class="host-apt-rail-card__title">On the website</h2>
+                    <p class="host-apt-rail-card__meta">{{ publishHint }}</p>
+                    <div class="host-apt-review">
+                        <button
+                            v-if="apartment.status === 'draft'"
+                            type="button"
+                            class="host-btn host-btn--primary"
+                            :disabled="reviewBusy"
+                            @click="runReviewAction('submit')"
+                        >
+                            Submit for review
+                        </button>
+                        <template v-if="auth.canUseSuperadminTools">
+                            <button
+                                v-if="apartment.status !== 'active'"
+                                type="button"
+                                class="host-btn host-btn--primary"
+                                :disabled="reviewBusy"
+                                @click="runReviewAction('approve')"
+                            >
+                                Approve &amp; publish
+                            </button>
+                            <button
+                                v-if="apartment.status === 'pending'"
+                                type="button"
+                                class="host-btn"
+                                :disabled="reviewBusy"
+                                @click="runReviewAction('reject')"
+                            >
+                                Send back to host
+                            </button>
+                            <button
+                                v-if="apartment.status === 'active'"
+                                type="button"
+                                class="host-btn"
+                                :disabled="reviewBusy"
+                                @click="runReviewAction('unpublish')"
+                            >
+                                Unpublish
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="host-apt-rail-block">
                     <h2 class="host-apt-rail-card__title">Registration checklist</h2>
                     <ul class="host-apt-checklist">
                         <li v-for="item in checklist" :key="item.id">
@@ -618,6 +663,7 @@ import apiClient, { uploadFiles } from '@/api/client';
 import ApartmentAvailabilityTab from '@/components/apartments/ApartmentAvailabilityTab.vue';
 import ApartmentGuestInfoTab from '@/components/apartments/ApartmentGuestInfoTab.vue';
 import { usePageTitle } from '@/composables/usePageTitle';
+import { useAuthStore } from '@/stores/auth';
 import { useToast } from '@/composables/useToast';
 import {
     isValidApartmentImage,
@@ -630,6 +676,21 @@ import { APARTMENT_TYPES, QUALITY_STANDARDS } from '@/utils/pricing';
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const auth = useAuthStore();
+const reviewBusy = ref(false);
+
+const publishHint = computed(() => {
+    switch (apartment.value.status) {
+        case 'active':
+            return 'Live: guests can find and book this apartment.';
+        case 'pending':
+            return auth.canUseSuperadminTools
+                ? 'Waiting for your review.'
+                : 'Waiting for an admin to review it.';
+        default:
+            return 'Draft: not shown to guests yet. Save your changes, then submit it for review.';
+    }
+});
 const { setPageTitle, clearPageTitle } = usePageTitle();
 
 const loading = ref(true);
@@ -1270,6 +1331,20 @@ function onPhotoSelect(event) {
 function onDropzonePhotoDrop(event) {
     dragOver.value = false;
     uploadPhotoFiles(event.dataTransfer?.files);
+}
+
+async function runReviewAction(action) {
+    reviewBusy.value = true;
+
+    try {
+        const res = await apiClient.post(`/apartments/${apartmentId.value}/${action}`);
+        applyApartmentData({ ...apartment.value, ...(res?.data ?? {}) });
+        toast.show(res?.message ?? 'Status updated.');
+    } catch (err) {
+        toast.show(err.message ?? 'Could not update the status.');
+    } finally {
+        reviewBusy.value = false;
+    }
 }
 
 async function loadApartment() {

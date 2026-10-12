@@ -208,12 +208,14 @@ const quickTabs = computed(() => {
     const guestInside = all.filter((apt) => apt.current_status === 'guest_inside');
     const vacancies = all.filter((apt) => apt.current_status !== 'guest_inside');
     const urgent = all.filter((apt) => apt.is_urgent);
+    const pending = all.filter((apt) => apt.status === 'pending');
 
     return [
         { id: 'all', label: 'All', count: all.length, urgent: false },
         { id: 'guest_inside', label: 'Guest inside', count: guestInside.length, urgent: false },
         { id: 'vacancies', label: 'Vacancies', count: vacancies.length, urgent: false },
         { id: 'urgent', label: 'Urgent', count: urgent.length, urgent: true },
+        { id: 'pending', label: 'Pending review', count: pending.length, urgent: pending.length > 0 },
     ];
 });
 
@@ -245,6 +247,8 @@ const filteredApartments = computed(() => {
         list = list.filter((apt) => apt.current_status !== 'guest_inside');
     } else if (activeTab.value === 'urgent') {
         list = list.filter((apt) => apt.is_urgent);
+    } else if (activeTab.value === 'pending') {
+        list = list.filter((apt) => apt.status === 'pending');
     }
 
     const q = searchQuery.value.trim().toLowerCase();
