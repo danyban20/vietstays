@@ -37,20 +37,23 @@ class AuthController extends Controller
             ]);
         }
 
-        if (($credentials['area'] ?? null) === 'dashboard' && ! $user->canUseDashboard()) {
+        // Customers who use the /admin form are signed in on the site and
+        // sent to their own dashboard; the dashboard API stays closed to them.
+        $toAccount = ($credentials['area'] ?? null) === 'dashboard' && $user->isMember();
+
+        if (($credentials['area'] ?? null) === 'dashboard' && ! $toAccount && ! $user->canUseDashboard()) {
             throw ValidationException::withMessages([
-                'email' => [$user->isMember()
-                    ? 'This is a customer account. Please sign in on the Vietstays website instead.'
-                    : 'This account does not have access to the dashboard yet.'],
+                'email' => ['This account does not have access to the dashboard yet.'],
             ]);
         }
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        return response()->json([
+        return response()->json(array_filter([
             'user' => $this->userPayload($user),
-        ]);
+            'redirect' => $toAccount ? '/account' : null,
+        ]));
     }
 
     /**

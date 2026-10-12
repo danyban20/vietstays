@@ -20,12 +20,14 @@
                                     <router-link :to="{ name: 'host-application' }">Share your apartment</router-link>
                                 </li>
                                 <li><a href="#" @click.prevent>Save 30% now</a></li>
+                                <li v-if="!member.isSignedIn"><router-link :to="{ name: 'member-login' }">Sign in</router-link></li>
                             </ul>
                         </div>
                         <div class="lang">
                             <a href="#" class="lang_btn" @click.prevent>EN</a>
                         </div>
-                        <a href="#" class="btn" @click.prevent>Register now</a>
+                        <router-link v-if="member.isSignedIn" :to="{ name: 'member-account' }" class="btn">My account</router-link>
+                        <router-link v-else :to="{ name: 'member-register' }" class="btn">Register now</router-link>
                     </div>
                 </div>
             </div>
@@ -364,6 +366,7 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api/client';
 import { usePublicLegacyStyles } from '@/composables/usePublicLegacyStyles';
+import { useMemberStore } from '@/stores/member';
 import {
     HOME_IMAGES,
     OTHER_CITIES,
@@ -382,6 +385,7 @@ const mapActiveIcon = String('/home/images/map_h.svg');
 
 const route = useRoute();
 const router = useRouter();
+const member = useMemberStore();
 const { mount, unmount } = usePublicLegacyStyles('apartments');
 
 const loading = ref(true);
@@ -600,6 +604,7 @@ function onDocumentClick(event) {
 
 onMounted(() => {
     mount();
+    member.fetchUser();
     if (hasLegacySearchQuery(route.query)) {
         router.replace({ name: 'public-apartments', query: rewriteLegacySearchQuery(route.query) });
     } else {

@@ -20,6 +20,7 @@
                                     <router-link :to="{ name: 'host-application' }">Share your apartment</router-link>
                                 </li>
                                 <li><a href="#" @click.prevent>Save 30% now</a></li>
+                                <li v-if="!member.isSignedIn"><router-link :to="{ name: 'member-login' }">Sign in</router-link></li>
                             </ul>
                         </div>
                         <div class="lang">
