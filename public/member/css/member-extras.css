@@ -2,6 +2,13 @@
    mockups did not cover (loading, dialogs, toasts, messages, profile). */
 
 body.member-area { background: #EFE9D6; }
+/* The app's Tailwind build also defines .container with a max-width per
+   breakpoint; the designer's .container sets its own width and gutters. */
+body.member-area .container { max-width: none; }
+/* Tailwind's preflight also drops list bullets; the mockup's house rules use them. */
+#dashboard .house_rules_block ul, .member-plain-list { list-style: disc; }
+/* ...and makes images block-level; the address pin sits inline with the text. */
+#dashboard .gallary_app_block .location img { display: inline-block; vertical-align: -2px; }
 body.member-modal-open { overflow: hidden; }
 .member-shell-loading { min-height: 100vh; background: #EFE9D6; }
 
@@ -57,9 +64,9 @@ button:disabled:hover, .btn:disabled:hover { background: #0B3F41; border-color: 
 #dashboard .app_past_expereince .block { color: inherit; }
 #dashboard .app_past_expereince .block .img img { height: 80px; object-fit: cover; }
 #dashboard .popular_stay .block { display: block; color: inherit; }
-#dashboard .popular_stay .block .img img { aspect-ratio: 4 / 3; object-fit: cover; }
+#dashboard .popular_stay .block .img img { aspect-ratio: 302 / 150; object-fit: cover; }
 #dashboard .reservation_block .img img { aspect-ratio: 4 / 3; object-fit: cover; }
-#dashboard .gallary_app_block .img_single img { max-height: 420px; object-fit: cover; }
+#dashboard .gallary_app_block .img_single img { aspect-ratio: 5 / 2; object-fit: cover; }
 #dashboard .app_white_block .confirm_msz strong.badge_pending_approval { background: #EFE9D6; color: #0B3F41; }
 
 /* Reservations */

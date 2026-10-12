@@ -41,7 +41,7 @@
                         <div class="desc">
                             <div class="top_desc">
                                 <span class="left_text" :class="statusClass">{{ booking.badge.label }}</span>
-                                <span class="right_text"><strong>Booking ID:</strong> {{ booking.booking_num }}</span>
+                                <span class="right_text">Booking ID: {{ booking.booking_num }}</span>
                             </div>
                             <h2>{{ booking.apartment.name }}</h2>
                             <div class="location">
