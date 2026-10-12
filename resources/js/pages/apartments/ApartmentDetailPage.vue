@@ -599,9 +599,9 @@
                             type="button"
                             class="host-btn host-btn--primary"
                             :disabled="reviewBusy"
-                            @click="runReviewAction('submit')"
+                            @click="runReviewAction('publish')"
                         >
-                            Submit for review
+                            Publish
                         </button>
                         <template v-if="auth.canUseSuperadminTools">
                             <button
@@ -685,10 +685,10 @@ const publishHint = computed(() => {
             return 'Live: guests can find and book this apartment.';
         case 'pending':
             return auth.canUseSuperadminTools
-                ? 'Waiting for your review.'
-                : 'Waiting for an admin to review it.';
+                ? `Only ${apartment.value.completion}% complete. Help the host, approve it or send it back.`
+                : 'Below 80% complete, so our team will check it before it goes live.';
         default:
-            return 'Draft: not shown to guests yet. Save your changes, then submit it for review.';
+            return 'Draft: not shown to guests yet. At 80% complete it goes live as soon as you publish; below that our team checks it first.';
     }
 });
 const { setPageTitle, clearPageTitle } = usePageTitle();

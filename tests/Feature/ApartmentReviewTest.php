@@ -4,12 +4,30 @@ namespace Tests\Feature;
 
 use App\Models\Apartment;
 use App\Models\User;
+use App\Services\VvEmailService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class ApartmentReviewTest extends TestCase
 {
     use DatabaseTransactions;
+
+    /** @var list<array{code: string, to: string, tokens: array<string, string>}> */
+    private array $sent = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->mock(VvEmailService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('sendByCode')->andReturnUsing(function (string $code, string $to, array $tokens = []) {
+                $this->sent[] = ['code' => $code, 'to' => $to, 'tokens' => $tokens];
+
+                return true;
+            });
+        });
+    }
 
     private function createHost(): User
     {
@@ -56,16 +74,36 @@ class ApartmentReviewTest extends TestCase
         $this->assertNotContains($apartment->ID, $this->publicIds());
     }
 
-    public function test_submit_then_approve_puts_the_apartment_on_the_website(): void
+    public function test_a_complete_apartment_goes_live_without_a_review(): void
+    {
+        $host = $this->createHost();
+        $apartment = $this->createApartment($host, ['facilities' => [1]]);
+
+        $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/publish")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'active');
+
+        $this->assertContains($apartment->ID, $this->publicIds());
+        $this->assertSame([], $this->sent);
+    }
+
+    public function test_a_weak_apartment_waits_for_review_and_alerts_the_team(): void
     {
         $host = $this->createHost();
         $admin = User::factory()->create(['role' => 'superadmin']);
-        $apartment = $this->createApartment($host);
+        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $apartment = $this->createApartment($host, ['description' => '']);
 
-        $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/submit")
+        $response = $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/publish")
             ->assertOk()
             ->assertJsonPath('data.status', 'pending');
+        $this->assertLessThan(80, $response->json('data.completion'));
         $this->assertNotContains($apartment->ID, $this->publicIds());
+
+        $alerted = collect($this->sent)->where('code', 'admin_apartment_needs_review')->pluck('to');
+        $this->assertContains($admin->email, $alerted);
+        $this->assertContains($supervisor->email, $alerted);
+        $this->assertNotContains($host->email, $alerted);
 
         $this->actingAs($admin)->postJson("/api/apartments/{$apartment->ID}/approve")
             ->assertOk()
@@ -80,32 +118,34 @@ class ApartmentReviewTest extends TestCase
     {
         $host = $this->createHost();
         $supervisor = User::factory()->create(['role' => 'supervisor']);
-        $apartment = $this->createApartment($host);
+        $apartment = $this->createApartment($host, ['description' => '']);
 
-        $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/submit")->assertOk();
+        $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/publish")
+            ->assertJsonPath('data.status', 'pending');
 
         $this->actingAs($supervisor)->postJson("/api/apartments/{$apartment->ID}/reject")
             ->assertOk()
             ->assertJsonPath('data.status', 'draft');
     }
 
-    public function test_an_incomplete_apartment_cannot_be_submitted(): void
+    public function test_photos_and_a_price_are_always_required(): void
     {
         $host = $this->createHost();
-        $apartment = $this->createApartment($host, ['description' => '', 'images' => [], 'price_daily' => 0]);
+        $apartment = $this->createApartment($host, ['images' => [], 'facilities' => [1]]);
         // Creation fills a price from the matrix when none is given.
         $apartment->forceFill(['price_daily' => 0])->save();
 
-        $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/submit")
+        $this->actingAs($host)->postJson("/api/apartments/{$apartment->ID}/publish")
             ->assertUnprocessable()
-            ->assertJsonPath('missing', ['description', 'photos', 'daily price']);
+            ->assertJsonPath('missing', ['photos', 'daily price']);
         $this->assertSame('draft', $apartment->fresh()->status);
+        $this->assertSame([], $this->sent);
     }
 
-    public function test_a_host_cannot_submit_someone_elses_apartment(): void
+    public function test_a_host_cannot_publish_someone_elses_apartment(): void
     {
         $apartment = $this->createApartment($this->createHost());
 
-        $this->actingAs($this->createHost())->postJson("/api/apartments/{$apartment->ID}/submit")->assertForbidden();
+        $this->actingAs($this->createHost())->postJson("/api/apartments/{$apartment->ID}/publish")->assertForbidden();
     }
 }
