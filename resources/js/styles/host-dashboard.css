@@ -2024,6 +2024,13 @@ body {
     color: var(--vs-text-secondary);
 }
 
+.host-apt-review {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
 .host-apt-progress {
     margin-top: 14px;
 }

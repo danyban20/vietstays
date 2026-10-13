@@ -24,7 +24,7 @@ const PAGE_CONFIG = {
     },
     'apartment-detail': {
         bodyClasses: ['single-apartment', 'wp-theme-visitvietnam'],
-        extraSheets: ['/home/assets/apartment-detail-fixes.css?v=4'],
+        extraSheets: ['/home/assets/apartment-detail-fixes.css?v=5'],
     },
     booking: {
         bodyClasses: ['page-template-booking', 'wp-theme-visitvietnam'],

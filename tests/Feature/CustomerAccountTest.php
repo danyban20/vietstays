@@ -80,17 +80,36 @@ class CustomerAccountTest extends TestCase
         $this->actingAs($member)->getJson('/api/account')->assertOk()->assertJsonPath('data.profile.email', $member->email);
     }
 
-    public function test_member_cannot_sign_in_to_the_dashboard_but_can_on_the_site(): void
+    public function test_member_signing_in_on_the_dashboard_form_is_sent_to_their_account(): void
     {
         $member = $this->createMember();
 
         $this->postJson('/api/login', ['email' => $member->email, 'password' => 'password', 'area' => 'dashboard'])
-            ->assertUnprocessable();
-        $this->assertGuest();
+            ->assertOk()
+            ->assertJsonPath('redirect', '/account');
+        $this->assertAuthenticatedAs($member);
+
+        // Still kept out of the dashboard itself.
+        $this->getJson('/api/dashboard')->assertForbidden();
+    }
+
+    public function test_member_can_sign_in_on_the_site(): void
+    {
+        $member = $this->createMember();
 
         $this->postJson('/api/login', ['email' => $member->email, 'password' => 'password', 'area' => 'site'])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonMissingPath('redirect');
         $this->assertAuthenticatedAs($member);
+    }
+
+    public function test_wrong_password_on_the_dashboard_form_still_fails_for_a_member(): void
+    {
+        $member = $this->createMember();
+
+        $this->postJson('/api/login', ['email' => $member->email, 'password' => 'wrong', 'area' => 'dashboard'])
+            ->assertUnprocessable();
+        $this->assertGuest();
     }
 
     public function test_hosts_can_still_sign_in_to_the_dashboard(): void

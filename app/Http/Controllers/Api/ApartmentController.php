@@ -7,8 +7,10 @@ use App\Models\Apartment;
 use App\Models\Booking;
 use App\Models\Building;
 use App\Models\District;
+use App\Models\User;
 use App\Services\ApartmentCreationService;
 use App\Services\PriceMatrixService;
+use App\Services\VvEmailService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +21,9 @@ use Illuminate\Validation\Rule;
 
 class ApartmentController extends Controller
 {
+    /** Completion (percent) a host's apartment needs to go live without a review. */
+    public const PUBLISH_COMPLETION = 80;
+
     public function __construct(
         protected ApartmentCreationService $apartmentService,
         protected PriceMatrixService $priceMatrixService,
@@ -99,6 +104,10 @@ class ApartmentController extends Controller
 
         $validated['quality_standard'] = $validated['quality_standard'] ?? 'standard';
 
+        if (! $this->canReview($request->user())) {
+            $validated['status'] = 'draft';
+        }
+
         $apartment = $this->apartmentService->create($validated, $request->user());
 
         return response()->json([
@@ -155,6 +164,10 @@ class ApartmentController extends Controller
             'campaign_discounts.*.discount' => ['required', 'numeric', 'min:0', 'max:100'],
             'status' => ['sometimes', Rule::in(['draft', 'pending', 'active'])],
         ]);
+
+        if (! $this->canReview($request->user())) {
+            unset($validated['status']);
+        }
 
         if (isset($validated['pricing']) && is_array($validated['pricing'])) {
             $existing = is_array($model->pricing) ? $model->pricing : [];
@@ -226,6 +239,136 @@ class ApartmentController extends Controller
             'data' => $data,
             'message' => 'Apartment updated.',
         ]);
+    }
+
+    /**
+     * Host puts the apartment on the website. A listing that is at least
+     * PUBLISH_COMPLETION percent complete goes live straight away; a weaker
+     * one waits as pending and the superadmins/supervisors are emailed so
+     * they can help the host, approve it or send it back.
+     */
+    public function publish(Request $request, int $apartment, VvEmailService $emails): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+        $this->authorizeApartment($request, $model);
+
+        if ($model->status !== 'draft') {
+            return response()->json(['message' => 'Only a draft apartment can be published.'], 422);
+        }
+
+        $missing = $this->missingRequired($model);
+
+        if ($missing !== []) {
+            return response()->json([
+                'message' => 'Please add the following before publishing: '.implode(', ', $missing).'.',
+                'missing' => $missing,
+            ], 422);
+        }
+
+        $completion = $this->completionPercent($model);
+
+        if ($completion >= self::PUBLISH_COMPLETION) {
+            return $this->changeStatus($model, 'active', 'Published. The apartment is now on the website.');
+        }
+
+        $response = $this->changeStatus(
+            $model,
+            'pending',
+            'The apartment is '.$completion.'% complete, so our team will check it before it goes live.',
+        );
+
+        $this->alertReviewers($model, $completion, $request->user(), $emails);
+
+        return $response;
+    }
+
+    public function approve(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+
+        if ($model->status === 'active') {
+            return response()->json(['message' => 'This apartment is already live.'], 422);
+        }
+
+        $missing = $this->missingRequired($model);
+
+        if ($missing !== []) {
+            return response()->json([
+                'message' => 'This apartment cannot go live yet. Missing: '.implode(', ', $missing).'.',
+                'missing' => $missing,
+            ], 422);
+        }
+
+        return $this->changeStatus($model, 'active', 'Approved. The apartment is now on the website.');
+    }
+
+    public function reject(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+
+        if ($model->status !== 'pending') {
+            return response()->json(['message' => 'Only an apartment waiting for review can be sent back.'], 422);
+        }
+
+        return $this->changeStatus($model, 'draft', 'Sent back to the host as a draft.');
+    }
+
+    public function unpublish(Request $request, int $apartment): JsonResponse
+    {
+        $model = Apartment::query()->findOrFail($apartment);
+
+        if ($model->status !== 'active') {
+            return response()->json(['message' => 'This apartment is not live.'], 422);
+        }
+
+        return $this->changeStatus($model, 'draft', 'Taken off the website.');
+    }
+
+    protected function changeStatus(Apartment $model, string $status, string $message): JsonResponse
+    {
+        $model->forceFill(['status' => $status, 'datemodified' => now()])->save();
+
+        return response()->json([
+            'data' => $this->transform($model->fresh(), true),
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * What a listing must have before guests can see it, whatever its
+     * completion score.
+     *
+     * @return list<string>
+     */
+    protected function missingRequired(Apartment $apartment): array
+    {
+        $checks = [
+            'photos' => $this->hasValidImages($apartment),
+            'daily price' => (float) $apartment->price_daily > 0,
+        ];
+
+        return array_keys(array_filter($checks, fn (bool $ok) => ! $ok));
+    }
+
+    protected function alertReviewers(Apartment $apartment, int $completion, User $host, VvEmailService $emails): void
+    {
+        $reviewers = User::query()->whereIn('role', ['superadmin', 'supervisor'])->pluck('email');
+
+        $tokens = [
+            'HOST_NAME' => $host->display_name ?: $host->name,
+            'APARTMENT_NAME' => $apartment->display_name ?: ($apartment->name ?: 'Apartment #'.$apartment->ID),
+            'COMPLETION' => (string) $completion,
+            'APARTMENT_ADMIN_LINK' => rtrim((string) config('app.url'), '/').'/admin/apartments/'.$apartment->ID,
+        ];
+
+        foreach ($reviewers as $email) {
+            $emails->sendByCode('admin_apartment_needs_review', (string) $email, $tokens);
+        }
+    }
+
+    protected function canReview($user): bool
+    {
+        return $user->isAdmin() || $user->isSupervisor();
     }
 
     public function uploadPhotos(Request $request, int $apartment): JsonResponse
@@ -424,7 +567,7 @@ class ApartmentController extends Controller
         };
 
         $completion = $this->completionPercent($apartment);
-        $isUrgent = $apartment->status === 'draft' && $completion < 80;
+        $isUrgent = $apartment->status === 'draft' && $completion < self::PUBLISH_COMPLETION;
 
         $currentStatus = 'available';
         $currentStatusLabel = 'Available';

@@ -24,8 +24,11 @@
                     >
                         My account
                     </router-link>
+                    <router-link v-if="!member.isSignedIn" :to="{ name: 'member-login' }" class="public-header__link">
+                        Sign in
+                    </router-link>
                     <router-link
-                        v-else
+                        v-if="!member.isSignedIn"
                         :to="{ name: 'member-register' }"
                         class="public-btn public-btn--primary public-header__cta"
                     >

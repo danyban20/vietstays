@@ -9,7 +9,7 @@ const STYLE_SHEETS = [
     '/member/css/dashboard.css?v=1',
     '/member/css/dashboard_responsive.css?v=1',
     '/home/assets/daterangepicker.css',
-    '/member/css/member-extras.css?v=7',
+    '/member/css/member-extras.css?v=10',
 ];
 
 const FONT_SHEET = 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap';

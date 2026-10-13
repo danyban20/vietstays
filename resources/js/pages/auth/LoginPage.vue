@@ -43,6 +43,7 @@
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api/client';
+import { withAppBase } from '@/utils/app-base';
 
 const route = useRoute();
 const router = useRouter();
@@ -59,11 +60,16 @@ async function submit() {
     error.value = '';
 
     try {
-        await apiClient.post('/login', {
+        const res = await apiClient.post('/login', {
             email: form.email,
             password: form.password,
             area: 'dashboard',
         });
+        // Customer accounts go to their dashboard on the public site.
+        if (res?.redirect === '/account') {
+            window.location.assign(withAppBase('/account'));
+            return;
+        }
         const redirect = route.query.redirect;
         if (typeof redirect === 'string' && redirect.startsWith('/admin')) {
             router.push(redirect);

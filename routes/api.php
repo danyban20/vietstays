@@ -110,6 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/apartments/{apartment}/guest-info', [ApartmentGuestInfoController::class, 'update'])->whereNumber('apartment');
         Route::put('/apartments/{apartment}', [ApartmentController::class, 'update']);
         Route::post('/apartments/{apartment}/photos', [ApartmentController::class, 'uploadPhotos']);
+        Route::post('/apartments/{apartment}/publish', [ApartmentController::class, 'publish'])->whereNumber('apartment');
         Route::get('/apartments/{apartment}/suggested-price', [ApartmentController::class, 'suggestedPrice']);
         Route::get('/apartments/{apartment}/periods', [ApartmentAvailabilityController::class, 'index']);
         Route::patch('/apartments/{apartment}/periods/{period}', [ApartmentAvailabilityController::class, 'update']);
@@ -175,6 +176,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::middleware('role:superadmin,supervisor')->group(function () {
             Route::get('/admin/hosts', [HostOverviewController::class, 'index']);
+
+            Route::post('/apartments/{apartment}/approve', [ApartmentController::class, 'approve'])->whereNumber('apartment');
+            Route::post('/apartments/{apartment}/reject', [ApartmentController::class, 'reject'])->whereNumber('apartment');
+            Route::post('/apartments/{apartment}/unpublish', [ApartmentController::class, 'unpublish'])->whereNumber('apartment');
 
             Route::get('/admin/countries', [LocationAdminController::class, 'countries']);
             Route::post('/admin/countries', [LocationAdminController::class, 'storeCountry']);

@@ -30,6 +30,7 @@ return [
         'host_guest_cancelled',
         'host_extra_cleaning_requested',
         'guest_extra_cleaning_updated',
+        'admin_apartment_needs_review',
     ],
 
     // Shown on the public terms & contact page; leave empty to hide a line.

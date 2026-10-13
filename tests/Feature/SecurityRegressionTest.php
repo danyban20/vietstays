@@ -112,8 +112,11 @@ class SecurityRegressionTest extends TestCase
                 $this->actingAs($user)->getJson($path)->assertForbidden();
             }
 
-            $this->postJson('/api/login', ['email' => $user->email, 'password' => 'password', 'area' => 'dashboard'])
-                ->assertUnprocessable();
+            // Members are sent to their own account instead (CustomerAccountTest).
+            if ($role !== 'member') {
+                $this->postJson('/api/login', ['email' => $user->email, 'password' => 'password', 'area' => 'dashboard'])
+                    ->assertUnprocessable();
+            }
         }
 
         foreach (User::DASHBOARD_ROLES as $role) {
