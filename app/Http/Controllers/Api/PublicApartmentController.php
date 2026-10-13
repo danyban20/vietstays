@@ -181,8 +181,10 @@ class PublicApartmentController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function (District $district) use ($apartments, $countsByDistrict) {
-                $districtApartments = $apartments->where('district', $district->district_id);
-                $sample = $districtApartments->first();
+                // The tile photo comes from the newest apartment that has one.
+                $image = $apartments->where('district', $district->district_id)
+                    ->map(fn (Apartment $apartment) => $this->resolveImage($apartment))
+                    ->first(fn (?string $url) => $url !== null);
 
                 return [
                     'district_id' => $district->district_id,
@@ -190,7 +192,7 @@ class PublicApartmentController extends Controller
                     'city_id' => $district->city_id,
                     'city_name' => $district->city?->name,
                     'apartment_count' => $countsByDistrict->get($district->district_id, 0),
-                    'image' => $sample ? $this->resolveImage($sample) : null,
+                    'image' => $image,
                 ];
             })
             ->filter(fn (array $row) => $row['apartment_count'] > 0)
@@ -295,9 +297,7 @@ class PublicApartmentController extends Controller
                 'images' => collect($images)
                     ->map(fn (array $image) => [
                         'thumb' => $this->resolveImageUrl($image['thumb'] ?? null),
-                        'full' => $this->resolveImageUrl(
-                            $image['image_id'] ?? $image['url'] ?? $image['thumb'] ?? null,
-                        ),
+                        'full' => $this->fullImageUrl($image),
                         'caption' => $image['caption'] ?? '',
                     ])
                     ->filter(fn (array $image) => $image['thumb'] || $image['full'])
@@ -328,5 +328,34 @@ class PublicApartmentController extends Controller
     protected function resolveImageUrl(?string $src): ?string
     {
         return LegacyMediaUrl::normalize($src);
+    }
+
+    /**
+     * Large version of a gallery photo. image_id is a WordPress attachment
+     * number for imported photos and an uploads-disk path for new ones, so
+     * it cannot be used as a URL directly.
+     */
+    protected function fullImageUrl(array $image): ?string
+    {
+        if (filled($image['url'] ?? null)) {
+            return $this->resolveImageUrl($image['url']);
+        }
+
+        $thumb = $this->resolveImageUrl($image['thumb'] ?? null);
+
+        if ($thumb === null) {
+            $path = (string) ($image['image_id'] ?? '');
+
+            return str_contains($path, '/') ? '/uploads/'.ltrim($path, '/') : null;
+        }
+
+        // WordPress thumbnails are "name-150x150.ext"; use the original if it was copied over.
+        $original = preg_replace('/-\d+x\d+(\.\w+)$/', '$1', $thumb);
+
+        if ($original !== $thumb && str_starts_with($original, '/') && is_file(public_path(ltrim($original, '/')))) {
+            return $original;
+        }
+
+        return $thumb;
     }
 }

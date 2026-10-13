@@ -303,3 +303,11 @@
         display: none;
     }
 }
+
+/* Tailwind's preflight makes images block-level; the theme's pin and share
+   icons sit inline with their text. */
+.single_app_top .app_title h5 img,
+.single_app_top .app_title .share_link img {
+    display: inline-block;
+    vertical-align: middle;
+}
