@@ -30,6 +30,11 @@ return new class extends Migration
             $table->dropColumn(['status', 'company_number', 'rejection_reason', 'reviewed_by', 'reviewed_at']);
         });
 
+        // "+ Add company" shells have no host and can't exist under the old
+        // schema; without removing them the NOT NULL change below fails and
+        // the rollback aborts halfway.
+        DB::table('vv_host_management_companies')->whereNull('user_id')->delete();
+
         DB::statement('ALTER TABLE vv_host_management_companies MODIFY user_id BIGINT UNSIGNED NOT NULL');
     }
 };
